@@ -13,7 +13,7 @@ use erc20_logic::{ERC20BurnError, ERC20Trait, ERC20TransferError, ERC20TransferF
 
 pub const TOTAL_SUPPLY_KEY: &str = "total_supply";
 
-struct ERC20Token;
+pub struct ERC20Token;
 
 impl ERC20Trait<U512, PublicKey> for ERC20Token {
     fn read_balance(&mut self, address: &PublicKey) -> Option<U512> {
@@ -53,33 +53,4 @@ fn allowance_key(owner: &PublicKey, spender: &PublicKey) -> String {
     format!("{}{}", owner, spender)
 }
 
-
-pub fn handle() -> Result<(), Error> {
-    let mut token = ERC20Token;
-    match Api::from_args() {
-        Api::Transfer(recipient, amount) => 
-            token.transfer(&runtime::get_caller(), &recipient, amount).map_err(Error::from),
-        Api::Approve(spender, amount) => {
-            token.approve(&runtime::get_caller(), &spender, amount); Ok(())
-        }
-        Api::TransferFrom(owner, recipient, amount) =>
-            token.transfer_from(&runtime::get_caller(), &owner, &recipient, amount).map_err(Error::from),
-        Api::BalanceOf(address) =>
-            runtime::ret(CLValue::from_t(token.balance_of(&address)).unwrap_or_revert()),
-        Api::Allowance(owner, spender) =>
-            runtime::ret(CLValue::from_t(token.allowance(&owner, &spender)).unwrap_or_revert()),
-        Api::TotalSupply =>
-            runtime::ret(CLValue::from_t(token.total_supply()).unwrap_or_revert()),
-        _ => Err(Error::UnknownErc20CallCommand)
-    }
-}
-
-pub fn constructor() {
-    if let Api::InitErc20(amount) = Api::from_args() {
-        let mut token = ERC20Token;
-        token.mint(&runtime::get_caller(), amount);
-    } else {
-        runtime::revert(Error::UnknownErc20ConstructorCommand);
-    }
-}
 
