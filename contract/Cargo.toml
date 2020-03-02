@@ -1,0 +1,15 @@
+[package]
+name = "contract"
+version = "0.1.1"
+authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+test = false
+
+[dependencies]
+casperlabs-contract = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-contract", branch="dev"}
+casperlabs-types = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-types", branch="dev"}
+erc20_logic  = { path = "../logic", package = "erc20-logic", default-features = false }
