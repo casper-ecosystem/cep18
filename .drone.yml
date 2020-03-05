@@ -1,0 +1,58 @@
+---
+kind: pipeline
+name: erc20-smart-contract
+
+platform:
+  os: linux
+  arch: amd64
+
+# Begin
+clone:
+  git-clone:
+    commands: |
+      set -ex
+      git clone -b ${DRONE_TAG:-$DRONE_BRANCH} $DRONE_REMOTE_URL .
+      if [ x$DRONE_PULL_REQUEST != x ]; then
+          git fetch origin refs/pull/$DRONE_PULL_REQUEST/head
+          EMAIL=ci git merge --no-edit FETCH_HEAD
+      fi
+      git rev-parse HEAD
+    image: "casperlabs/buildenv:latest"
+
+steps:
+- name: lint
+  commands:
+  - "make lint"
+  image: "casperlabs/buildenv:latest"
+  when:
+    branch:
+    - master
+    event:
+    - pull_request
+
+- name: test
+  commands:
+  - "rustup target add wasm32-unknown-unknown"
+  - "make test"
+  image: "casperlabs/buildenv:latest"
+  when:
+    branch:
+    - master
+    event:
+    - pull_request
+    status:
+    - success
+  depends_on:
+  - lint
+
+volumes:
+- name: docker_sock
+  host:
+    path: "/var/run/docker.sock"
+- name: temp
+  host:
+    path: "/tmp"
+
+trigger:
+  branch:
+  - master

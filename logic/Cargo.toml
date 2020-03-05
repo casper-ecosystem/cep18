@@ -1,0 +1,16 @@
+[package]
+name = "erc20-logic"
+version = "0.1.1"
+authors = ["Maciej Zieliński <maciej@casperlabs.io>"]
+edition = "2018"
+
+[lib]
+name = "erc20_logic"
+doctest = false
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+num-traits = { version = "0.2.10", default-features = false }
