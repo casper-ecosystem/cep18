@@ -1,7 +1,4 @@
 ---
-kind: pipeline
-name: erc20-smart-contract
-
 platform:
   os: linux
   arch: amd64
@@ -19,31 +16,58 @@ clone:
       git rev-parse HEAD
     image: "casperlabs/buildenv:latest"
 
+kind: pipeline
+name: build-bors-merge
+
 steps:
-- name: lint
+- name: lint-pr
   commands:
   - "make lint"
   image: "casperlabs/buildenv:latest"
   when:
     branch:
+    - staging
+    - trying
     - master
     event:
     - pull_request
+    - push
 
-- name: test
+- name: test-pr
+  commands:
+  - "rustup target add wasm32-unknown-unknown"
+  - "make test"
+  image: "casperlabs/buildenv:latest"
+  when:
+    event:
+    - pull_request
+    status:
+    - success
+  depends_on:
+  - lint-pr
+
+- name: test-push
+  commands:
+  - "rustup target add wasm32-unknown-unknown"
+  - "make test"
+  image: "casperlabs/buildenv:latest"
+  when:
+    event:
+    - push
+    status:
+    - success
+
+- name: test-bors
   commands:
   - "rustup target add wasm32-unknown-unknown"
   - "make test"
   image: "casperlabs/buildenv:latest"
   when:
     branch:
-    - master
-    event:
-    - pull_request
-    status:
-    - success
+    - staging
+    - trying
   depends_on:
-  - lint
+  - lint-pr
 
 volumes:
 - name: docker_sock
@@ -56,3 +80,36 @@ volumes:
 trigger:
   branch:
   - master
+  - trying
+  - staging
+
+---
+kind: pipeline
+name: failed-build-alert
+
+clone:
+  disable: true
+
+steps:
+- name: notify
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_webhook
+    channel: alerts
+    template:
+    - |
+      erc2-repo build status: *{{ uppercasefirst build.status }}*
+      Author: {{ build.author }}
+      Drone Build: <{{ build.link }}|#{{ build.number }}>
+      Commit Link: <https://github.com/{{repo.owner}}/{{repo.name}}/commit/{{build.commit}}|{{ truncate build.commit 10 }}>
+trigger:
+  status:
+  - failure
+  branch:
+  - master
+  - trying
+  - staging
+
+depends_on:
+- build-bors-merge
