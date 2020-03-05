@@ -47,9 +47,7 @@ impl Api {
 }
 
 pub fn destination_contract() -> ContractRef {
-    let (_, hash): (String, [u8; 32]) = runtime::get_arg(0)
-        .unwrap_or_revert_with(Error::missing_argument(0))
-        .unwrap_or_revert_with(Error::invalid_argument(0));
+    let (_, hash): (String, [u8; 32]) = get_arg(0);
     ContractRef::Hash(hash)
 }
 
@@ -65,9 +63,7 @@ fn method_name() -> String {
     match maybe_argument {
         Ok(method) => method,
         Err(_) => {
-            let (method, _): (String, [u8; 32]) = runtime::get_arg(0)
-                .unwrap_or_revert_with(Error::missing_argument(0))
-                .unwrap_or_revert_with(Error::invalid_argument(0));
+            let (method, _): (String, [u8; 32]) = get_arg(0);
             method
         }
     }
