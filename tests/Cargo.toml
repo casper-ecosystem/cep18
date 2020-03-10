@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 # https://users.rust-lang.org/t/failure-derive-compilation-error/39062
-quote = "=1.0.2"
+quote = "=1.0.3"
 
 # casperlabs-contract = "0.2.0"
 # casperlabs-types = "0.2.0"
