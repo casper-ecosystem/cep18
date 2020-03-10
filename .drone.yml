@@ -20,7 +20,7 @@ kind: pipeline
 name: build-bors-merge
 
 steps:
-- name: lint-pr
+- name: run-lint
   commands:
   - "make lint"
   image: "casperlabs/buildenv:latest"
@@ -33,31 +33,7 @@ steps:
     - pull_request
     - push
 
-- name: test-pr
-  commands:
-  - "rustup target add wasm32-unknown-unknown"
-  - "make test"
-  image: "casperlabs/buildenv:latest"
-  when:
-    event:
-    - pull_request
-    status:
-    - success
-  depends_on:
-  - lint-pr
-
-- name: test-push
-  commands:
-  - "rustup target add wasm32-unknown-unknown"
-  - "make test"
-  image: "casperlabs/buildenv:latest"
-  when:
-    event:
-    - push
-    status:
-    - success
-
-- name: test-bors
+- name: run-tests
   commands:
   - "rustup target add wasm32-unknown-unknown"
   - "make test"
@@ -66,16 +42,12 @@ steps:
     branch:
     - staging
     - trying
+    - master
+    event:
+    - pull_request
+    - push
   depends_on:
-  - lint-pr
-
-volumes:
-- name: docker_sock
-  host:
-    path: "/var/run/docker.sock"
-- name: temp
-  host:
-    path: "/tmp"
+  - run-lint
 
 trigger:
   branch:
