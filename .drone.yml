@@ -68,7 +68,6 @@ steps:
   settings:
     webhook:
       from_secret: slack_webhook
-    channel: alerts
     template:
     - |
       erc2-repo build status: *{{ uppercasefirst build.status }}*
