@@ -2,7 +2,7 @@ build-contract:
 	cargo build --release -p contract
 
 test:
-	cargo test -p erc20-logic
+	cargo test -p logic
 	cargo test -p tests
 
 lint:

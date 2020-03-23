@@ -5,7 +5,7 @@ use crate::{
 };
 use casperlabs_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 use casperlabs_types::CLValue;
-use erc20_logic::ERC20Trait;
+use logic::ERC20Trait;
 
 #[no_mangle]
 pub extern "C" fn call() {

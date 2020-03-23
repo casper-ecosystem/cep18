@@ -1,6 +1,6 @@
 [package]
 name = "tests"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["zie1ony <maciek.s.zielinski@gmail.com>"]
 edition = "2018"
 
@@ -14,7 +14,7 @@ quote = "=1.0.3"
 casperlabs-contract = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-contract", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
 casperlabs-types = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-types", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
 casperlabs-engine-test-support = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-engine-test-support", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
-erc20-logic  = { path = "../logic", package = "erc20-logic", default-features = false }
+logic  = { path = "../logic", default-features = false }
 
 [features]
 default = ["casperlabs-contract/std", "casperlabs-types/std"]

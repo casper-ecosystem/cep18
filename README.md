@@ -4,13 +4,13 @@ Implementation of ERC20 token for the CasperLabs platform.
 
 ## Build
 ```bash
-$ cargo build --release -p contract
+$ cargo build --release -p contract --target wasm32-unknown-unknown
 ```
 
 ## Test
 Test logic.
 ```bash
-$ cargo test -p erc20-logic
+$ cargo test -p logic
 ```
 Test contract.
 ```bash

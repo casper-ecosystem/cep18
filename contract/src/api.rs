@@ -1,13 +1,10 @@
-use alloc::string::String;
-
+use crate::error::Error;
 use casperlabs_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 use casperlabs_types::{
     account::PublicKey,
     bytesrepr::{Error as ApiError, FromBytes},
     CLTyped, ContractRef, U512,
 };
-
-use crate::error::Error;
 
 pub const DEPLOY: &str = "deploy";
 pub const INIT_ERC20: &str = "init_erc20";
