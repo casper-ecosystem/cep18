@@ -1,7 +1,5 @@
 use std::{env, fs, path::PathBuf, process::Command};
 
-// Config
-
 // Build system
 const CONTRACT_ROOT: &str = "../contract";
 const CONTRACT_CARGO_TOML: &str = "../contract/Cargo.toml";

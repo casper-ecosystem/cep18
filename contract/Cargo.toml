@@ -13,7 +13,7 @@ bench = false
 [dependencies]
 casperlabs-contract = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-contract", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
 casperlabs-types = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-types", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
-logic  = { path = "../logic", default-features = false }
+logic = { path = "../logic", default-features = false }
 
 [features]
 default = ["casperlabs-contract/std", "casperlabs-types/std"]

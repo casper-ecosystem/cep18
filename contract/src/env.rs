@@ -1,8 +1,8 @@
 use std::convert::TryInto;
 
 use crate::{
-    api::{self},
     error::Error,
+    input_parser,
 };
 use casperlabs_contract::{
     contract_api::{runtime, storage},
@@ -18,7 +18,10 @@ pub const ERC20_PROXY_CONTRACT_NAME: &str = "erc20_proxy";
 
 pub fn deploy_token(initial_balance: U512) {
     let token_ref = storage::store_function_at_hash(ERC20_CONTRACT_NAME, Default::default());
-    runtime::call_contract::<_, ()>(token_ref.clone(), (api::INIT_ERC20, initial_balance));
+    runtime::call_contract::<_, ()>(
+        token_ref.clone(),
+        (input_parser::INIT_ERC20, initial_balance),
+    );
     let contract_key: Key = token_ref.into();
     let token: Key = storage::new_uref(contract_key).into();
     runtime::put_key(ERC20_CONTRACT_NAME, token);
