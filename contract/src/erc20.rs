@@ -1,9 +1,7 @@
-use alloc::string::{String, ToString};
-
-use casperlabs_types::{account::PublicKey, U512};
-
 use crate::env;
-use erc20_logic::ERC20Trait;
+use casperlabs_types::{account::PublicKey, U512};
+use logic::ERC20Trait;
+use std::string::{String, ToString};
 
 pub const TOTAL_SUPPLY_KEY: &str = "total_supply";
 

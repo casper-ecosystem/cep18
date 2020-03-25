@@ -9,11 +9,6 @@ pub enum ERC20TransferFromError {
     NotEnoughAllowance,
 }
 
-#[derive(PartialEq, Debug)]
-pub enum ERC20BurnError {
-    NotEnoughBalance,
-}
-
 impl From<ERC20TransferError> for ERC20TransferFromError {
     fn from(error: ERC20TransferError) -> ERC20TransferFromError {
         ERC20TransferFromError::TransferError(error)

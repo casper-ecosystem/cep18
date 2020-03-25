@@ -2,17 +2,19 @@
 
 Implementation of ERC20 token for the CasperLabs platform.
 
-## Build
+## Install
+Make sure `wasm32-unknown-unknown` is installed.
 ```bash
-$ cargo build --release -p contract
+$ make prepare
+```
+
+## Build Smart Contract
+```bash
+$ make build-contract
 ```
 
 ## Test
-Test logic.
+Test logic and smart contract.
 ```bash
-$ cargo test -p erc20-logic
-```
-Test contract.
-```bash
-$ cargo test -p tests
+$ make test
 ```

@@ -1,13 +1,10 @@
-use alloc::string::String;
-
+use crate::error::Error;
 use casperlabs_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 use casperlabs_types::{
     account::PublicKey,
     bytesrepr::{Error as ApiError, FromBytes},
     CLTyped, ContractRef, U512,
 };
-
-use crate::error::Error;
 
 pub const DEPLOY: &str = "deploy";
 pub const INIT_ERC20: &str = "init_erc20";
@@ -18,7 +15,7 @@ pub const TRANSFER_FROM: &str = "transfer_from";
 pub const APPROVE: &str = "approve";
 pub const ALLOWANCE: &str = "allowance";
 
-pub enum Api {
+pub enum Input {
     Deploy(U512),
     InitErc20(U512),
     Transfer(PublicKey, U512),
@@ -29,20 +26,18 @@ pub enum Api {
     TotalSupply,
 }
 
-impl Api {
-    pub fn from_args() -> Api {
-        let method: String = method_name();
-        match method.as_str() {
-            DEPLOY => Api::Deploy(get_arg(1)),
-            INIT_ERC20 => Api::InitErc20(get_arg(1)),
-            TRANSFER => Api::Transfer(get_arg(1), get_arg(2)),
-            TRANSFER_FROM => Api::TransferFrom(get_arg(1), get_arg(2), get_arg(3)),
-            APPROVE => Api::Approve(get_arg(1), get_arg(2)),
-            BALANCE_OF => Api::BalanceOf(get_arg(1)),
-            ALLOWANCE => Api::Allowance(get_arg(1), get_arg(2)),
-            TOTAL_SUPPLY => Api::TotalSupply,
-            _ => runtime::revert(Error::UnknownApiCommand),
-        }
+pub fn from_args() -> Input {
+    let method: String = method_name();
+    match method.as_str() {
+        DEPLOY => Input::Deploy(get_arg(1)),
+        INIT_ERC20 => Input::InitErc20(get_arg(1)),
+        TRANSFER => Input::Transfer(get_arg(1), get_arg(2)),
+        TRANSFER_FROM => Input::TransferFrom(get_arg(1), get_arg(2), get_arg(3)),
+        APPROVE => Input::Approve(get_arg(1), get_arg(2)),
+        BALANCE_OF => Input::BalanceOf(get_arg(1)),
+        ALLOWANCE => Input::Allowance(get_arg(1), get_arg(2)),
+        TOTAL_SUPPLY => Input::TotalSupply,
+        _ => runtime::revert(Error::UnknownApiCommand),
     }
 }
 

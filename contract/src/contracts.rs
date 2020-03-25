@@ -1,16 +1,16 @@
 use crate::{
-    api::{self, Api},
     env, erc20,
     error::Error,
+    input_parser::{self, Input},
 };
 use casperlabs_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 use casperlabs_types::CLValue;
-use erc20_logic::ERC20Trait;
+use logic::ERC20Trait;
 
 #[no_mangle]
 pub extern "C" fn call() {
-    match Api::from_args() {
-        Api::Deploy(initial_balance) => {
+    match input_parser::from_args() {
+        Input::Deploy(initial_balance) => {
             env::deploy_token(initial_balance);
             env::deploy_proxy();
         }
@@ -20,18 +20,18 @@ pub extern "C" fn call() {
 
 #[no_mangle]
 pub extern "C" fn erc20_proxy() {
-    let token = api::destination_contract();
-    match Api::from_args() {
-        Api::Transfer(recipient, amount) => {
-            let args = (api::TRANSFER, recipient, amount);
+    let token = input_parser::destination_contract();
+    match input_parser::from_args() {
+        Input::Transfer(recipient, amount) => {
+            let args = (input_parser::TRANSFER, recipient, amount);
             runtime::call_contract::<_, ()>(token, args);
         }
-        Api::TransferFrom(owner, recipient, amount) => {
-            let args = (api::TRANSFER_FROM, owner, recipient, amount);
+        Input::TransferFrom(owner, recipient, amount) => {
+            let args = (input_parser::TRANSFER_FROM, owner, recipient, amount);
             runtime::call_contract::<_, ()>(token, args);
         }
-        Api::Approve(spender, amount) => {
-            let args = (api::APPROVE, spender, amount);
+        Input::Approve(spender, amount) => {
+            let args = (input_parser::APPROVE, spender, amount);
             runtime::call_contract::<_, ()>(token, args);
         }
         _ => runtime::revert(Error::UnknownProxyCommand),
@@ -50,30 +50,32 @@ pub extern "C" fn erc20() {
 
 pub fn handle_erc20() -> Result<(), Error> {
     let mut token = erc20::ERC20Token;
-    match Api::from_args() {
-        Api::Transfer(recipient, amount) => token
+    match input_parser::from_args() {
+        Input::Transfer(recipient, amount) => token
             .transfer(&runtime::get_caller(), &recipient, amount)
             .map_err(Error::from),
-        Api::Approve(spender, amount) => {
+        Input::Approve(spender, amount) => {
             token.approve(&runtime::get_caller(), &spender, amount);
             Ok(())
         }
-        Api::TransferFrom(owner, recipient, amount) => token
+        Input::TransferFrom(owner, recipient, amount) => token
             .transfer_from(&runtime::get_caller(), &owner, &recipient, amount)
             .map_err(Error::from),
-        Api::BalanceOf(address) => {
+        Input::BalanceOf(address) => {
             runtime::ret(CLValue::from_t(token.balance_of(&address)).unwrap_or_revert())
         }
-        Api::Allowance(owner, spender) => {
+        Input::Allowance(owner, spender) => {
             runtime::ret(CLValue::from_t(token.allowance(&owner, &spender)).unwrap_or_revert())
         }
-        Api::TotalSupply => runtime::ret(CLValue::from_t(token.total_supply()).unwrap_or_revert()),
+        Input::TotalSupply => {
+            runtime::ret(CLValue::from_t(token.total_supply()).unwrap_or_revert())
+        }
         _ => Err(Error::UnknownErc20CallCommand),
     }
 }
 
 pub fn init_erc20() {
-    if let Api::InitErc20(amount) = Api::from_args() {
+    if let Input::InitErc20(amount) = input_parser::from_args() {
         let mut token = erc20::ERC20Token;
         token.mint(&runtime::get_caller(), amount);
     } else {

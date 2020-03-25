@@ -8,8 +8,12 @@ edition = "2018"
 crate-type = ["cdylib"]
 doctest = false
 test = false
+bench = false
 
 [dependencies]
-casperlabs-contract = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-contract", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
-casperlabs-types = { git = "https://github.com/casperlabs/casperlabs", package="casperlabs-types", rev="61d3a54135278ce84053e77c03a22451ceec9073" }
-erc20_logic  = { path = "../logic", package = "erc20-logic", default-features = false }
+casperlabs-contract = "0.4.0"
+casperlabs-types = "0.4.0"
+logic = { path = "../logic", default-features = false }
+
+[features]
+default = ["casperlabs-contract/std", "casperlabs-types/std"]

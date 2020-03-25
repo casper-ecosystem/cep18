@@ -1,5 +1,5 @@
 use casperlabs_types::ApiError;
-use erc20_logic::{ERC20TransferError, ERC20TransferFromError};
+use logic::{ERC20TransferError, ERC20TransferFromError};
 
 #[repr(u16)]
 pub enum Error {
