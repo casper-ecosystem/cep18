@@ -9,6 +9,7 @@ type Amount = u64;
 type Address = u8;
 type AddressPair = (Address, Address);
 
+#[derive(Default)]
 struct Token {
     total_supply_count: Amount,
     balances: HashMap<Address, Amount>,
@@ -17,11 +18,7 @@ struct Token {
 
 impl Token {
     fn new() -> Token {
-        Token {
-            total_supply_count: 0,
-            balances: HashMap::new(),
-            allowance: HashMap::new(),
-        }
+        Token::default()
     }
 }
 
