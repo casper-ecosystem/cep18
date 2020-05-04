@@ -12,14 +12,14 @@ pub extern "C" fn call() {
     match input_parser::from_args() {
         Input::Deploy(initial_balance) => {
             env::deploy_token(initial_balance);
-            env::deploy_proxy();
+            env::deploy_indirect();
         }
         _ => runtime::revert(Error::UnknownDeployCommand),
     }
 }
 
 #[no_mangle]
-pub extern "C" fn erc20_proxy() {
+pub extern "C" fn erc20_indirect() {
     let token = input_parser::destination_contract();
     match input_parser::from_args() {
         Input::Transfer(recipient, amount) => {
@@ -34,7 +34,7 @@ pub extern "C" fn erc20_proxy() {
             let args = (input_parser::APPROVE, spender, amount);
             runtime::call_contract::<_, ()>(token, args);
         }
-        _ => runtime::revert(Error::UnknownProxyCommand),
+        _ => runtime::revert(Error::UnknownIndirectCommand),
     }
 }
 
