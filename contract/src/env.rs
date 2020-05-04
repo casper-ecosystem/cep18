@@ -14,7 +14,7 @@ use casperlabs_types::{
 };
 
 pub const ERC20_CONTRACT_NAME: &str = "erc20";
-pub const ERC20_PROXY_CONTRACT_NAME: &str = "erc20_proxy";
+pub const ERC20_INDIRECT_NAME: &str = "erc20_indirect";
 
 pub fn deploy_token(initial_balance: U512) {
     let token_ref = storage::store_function_at_hash(ERC20_CONTRACT_NAME, Default::default());
@@ -27,11 +27,11 @@ pub fn deploy_token(initial_balance: U512) {
     runtime::put_key(ERC20_CONTRACT_NAME, token);
 }
 
-pub fn deploy_proxy() {
-    let proxy_ref = storage::store_function_at_hash(ERC20_PROXY_CONTRACT_NAME, Default::default());
-    let contract_key: Key = proxy_ref.into();
-    let proxy: Key = storage::new_uref(contract_key).into();
-    runtime::put_key(ERC20_PROXY_CONTRACT_NAME, proxy);
+pub fn deploy_indirect() {
+    let indirect_ref = storage::store_function_at_hash(ERC20_INDIRECT_NAME, Default::default());
+    let indirect_key: Key = indirect_ref.into();
+    let indirect: Key = storage::new_uref(indirect_key).into();
+    runtime::put_key(ERC20_INDIRECT_NAME, indirect);
 }
 
 pub fn key<T: FromBytes + CLTyped>(name: &str) -> Option<T> {

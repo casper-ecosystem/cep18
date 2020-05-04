@@ -11,8 +11,8 @@ test = false
 bench = false
 
 [dependencies]
-casperlabs-contract = "0.4.0"
-casperlabs-types = "0.4.0"
+casperlabs-contract = "0.4.1"
+casperlabs-types = "0.4.1"
 logic = { path = "../logic", default-features = false }
 
 [features]

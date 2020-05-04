@@ -5,7 +5,7 @@ use logic::{ERC20TransferError, ERC20TransferFromError};
 pub enum Error {
     UnknownApiCommand = 1,                      // 65537
     UnknownDeployCommand = 2,                   // 65538
-    UnknownProxyCommand = 3,                    // 65539
+    UnknownIndirectCommand = 3,                 // 65539
     UnknownErc20ConstructorCommand = 4,         // 65540
     UnknownErc20CallCommand = 5,                // 65541
     BalanceAssertionFailure = 6,                // 65542
