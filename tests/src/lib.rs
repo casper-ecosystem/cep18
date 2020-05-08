@@ -27,6 +27,15 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
+    fn test_erc20_transfer_too_much() {
+        let amount = ERC20_INIT_BALANCE + 1;
+        let mut token = ERC20Contract::deployed();
+        token.transfer(BOB,amount,Sender(ALI));
+    }
+
+
+    #[test]
     fn test_erc20_approve() {
         let amount = 10;
         let mut token = ERC20Contract::deployed();
@@ -36,6 +45,17 @@ mod tests {
         assert_eq!(token.allowance(ALI, BOB), amount);
         assert_eq!(token.allowance(BOB, ALI), 0);
     }
+
+    #[test]
+    #[should_panic]
+    fn test_approve_too_much() {
+        let allowance = 1;
+        let amount = 2;
+        let  mut token = ERC20Contract::deployed();
+        token.approve(BOB,allowance,Sender(ALI));
+        token.transfer_from(ALI,JOE,amount,Sender(BOB));
+    }
+
 
     #[test]
     fn test_erc20_transfer_from() {
@@ -48,5 +68,13 @@ mod tests {
         assert_eq!(token.balance_of(BOB), 0);
         assert_eq!(token.balance_of(JOE), amount);
         assert_eq!(token.allowance(ALI, BOB), allowance - amount);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_erc20_transfer_from_too_much() {
+        let amount = ERC20_INIT_BALANCE + 1;
+        let mut token = ERC20Contract::deployed();
+        token.transfer_from(ALI,JOE,amount,Sender(BOB));
     }
 }
