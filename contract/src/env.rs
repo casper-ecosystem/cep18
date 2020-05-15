@@ -1,9 +1,6 @@
 use std::convert::TryInto;
 
-use crate::{
-    error::Error,
-    input_parser,
-};
+use crate::{error::Error, input_parser};
 use casperlabs_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
