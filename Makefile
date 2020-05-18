@@ -10,6 +10,7 @@ test:
 
 lint:
 	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
+	cargo fmt
 
 clean:
 	cargo clean
