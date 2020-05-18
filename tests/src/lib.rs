@@ -29,9 +29,9 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_erc20_transfer_too_much() {
-        let amount = ERC20_INIT_BALANCE + 1;
+        let amount = 1;
         let mut token = ERC20Contract::deployed();
-        token.transfer(BOB, amount, Sender(ALI));
+        token.transfer_from(ALI, JOE, amount, Sender(BOB));
     }
 
     #[test]
