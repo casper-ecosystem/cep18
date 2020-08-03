@@ -1,145 +1,65 @@
-use casperlabs_contract::args_parser::ArgsParser;
 use casperlabs_engine_test_support::{
-    Code, Hash, PublicKey, SessionBuilder, TestContext, TestContextBuilder,
+    Code, SessionBuilder, TestContextBuilder, TestContext, Hash};
+use casperlabs_types::{
+    account::AccountHash, U512, RuntimeArgs, runtime_args, U256,
+    bytesrepr::FromBytes, CLTyped
 };
-use casperlabs_types::{bytesrepr::FromBytes, CLTyped, Key, U512};
-
-const ERC20_WASM: &str = "contract.wasm";
-pub const ERC20_INIT_BALANCE: u64 = 10000;
 
 pub mod account {
-    use super::PublicKey;
-    pub const ALI: PublicKey = PublicKey::ed25519_from([1u8; 32]);
-    pub const BOB: PublicKey = PublicKey::ed25519_from([2u8; 32]);
-    pub const JOE: PublicKey = PublicKey::ed25519_from([3u8; 32]);
+    use super::*;
+    pub const ALI: AccountHash = AccountHash::new([7u8; 32]);
+    pub const BOB: AccountHash = AccountHash::new([8u8; 32]);
+    pub const JOE: AccountHash = AccountHash::new([9u8; 32]);
 }
 
-mod method {
-    pub const DEPLOY: &str = "deploy";
-    pub const TRANSFER: &str = "transfer";
-    pub const TRANSFER_FROM: &str = "transfer_from";
-    pub const APPROVE: &str = "approve";
+pub mod token_cfg {
+    use super::*;
+    pub const NAME: &str = "ERC20";
+    pub const SYMBOL: &str = "STX";
+    pub const DECIMALS: u8 = 18;
+    pub fn total_supply() -> U256 { 1_000.into() } 
 }
 
-mod key {
-    pub const ERC20_INIDIRECT: &str = "erc20_indirect";
-    pub const ERC20: &str = "erc20";
-    pub const TOTAL_SUPPLY: &str = "total_supply";
+pub struct Sender(pub AccountHash);
+
+pub struct Token {
+    context: TestContext
 }
 
-pub struct Sender(pub PublicKey);
+impl Token {
 
-pub struct ERC20Contract {
-    pub context: TestContext,
-    pub token_hash: Hash,
-    pub indirect_hash: Hash,
-}
-
-impl ERC20Contract {
-    pub fn deployed() -> Self {
-        // Init context.
-        let clx_init_balance = U512::from(10_000_000_000u64);
+    pub fn deployed() -> Token {
         let mut context = TestContextBuilder::new()
-            .with_account(account::ALI, clx_init_balance)
-            .with_account(account::BOB, clx_init_balance)
-            .with_account(account::JOE, clx_init_balance)
+            .with_account(account::ALI, U512::from(128_000_000))
+            .with_account(account::BOB, U512::from(128_000_000))
             .build();
-        // Deploy contract.
-        let code = Code::from(ERC20_WASM);
-        let args = (method::DEPLOY, U512::from(ERC20_INIT_BALANCE));
-        let session = SessionBuilder::new(code, args)
+        let session_code = Code::from("contract.wasm");
+        let session_args = runtime_args! {
+            "tokenName" => token_cfg::NAME,
+            "tokenSymbol2" => token_cfg::SYMBOL,
+            "tokenTotalSupply" => token_cfg::total_supply()
+        };
+        let session = SessionBuilder::new(session_code, session_args)
             .with_address(account::ALI)
             .with_authorization_keys(&[account::ALI])
             .build();
         context.run(session);
-        // Read hashes.
-        let token_hash = Self::contract_hash(&context, key::ERC20);
-        let indirect_hash = Self::contract_hash(&context, key::ERC20_INIDIRECT);
-        Self {
-            context,
-            token_hash,
-            indirect_hash,
-        }
+        Token { context }
     }
 
-    pub fn transfer(&mut self, reciever: PublicKey, amount: u64, sender: Sender) {
-        self.call_indirect(
-            sender,
-            (
-                (method::TRANSFER, self.token_hash),
-                reciever,
-                U512::from(amount),
-            ),
-        )
-    }
-
-    pub fn approve(&mut self, spender: PublicKey, amount: u64, sender: Sender) {
-        self.call_indirect(
-            sender,
-            (
-                (method::APPROVE, self.token_hash),
-                spender,
-                U512::from(amount),
-            ),
-        )
-    }
-
-    pub fn transfer_from(
-        &mut self,
-        owner: PublicKey,
-        reciever: PublicKey,
-        amount: u64,
-        sender: Sender,
-    ) {
-        self.call_indirect(
-            sender,
-            (
-                (method::TRANSFER_FROM, self.token_hash),
-                owner,
-                reciever,
-                U512::from(amount),
-            ),
-        )
-    }
-
-    pub fn balance_of(&self, account: PublicKey) -> u64 {
-        let balance: Option<U512> = self.query_contract(account.to_string());
-        balance.unwrap_or_else(U512::zero).as_u64()
-    }
-
-    pub fn allowance(&self, owner: PublicKey, spender: PublicKey) -> u64 {
-        let allowance: Option<U512> = self.query_contract(format!("{}{}", owner, spender));
-        allowance.unwrap_or_else(U512::zero).as_u64()
-    }
-
-    pub fn total_supply(&self) -> u64 {
-        let balance: Option<U512> = self.query_contract(key::TOTAL_SUPPLY.to_string());
-        balance.unwrap().as_u64()
-    }
-
-    fn call_indirect(&mut self, sender: Sender, args: impl ArgsParser) {
-        let Sender(address) = sender;
-        let code = Code::Hash(self.indirect_hash);
-        let session = SessionBuilder::new(code, args)
-            .with_address(address)
-            .with_authorization_keys(&[address])
-            .build();
-        self.context.run(session);
-    }
-
-    fn contract_hash(context: &TestContext, name: &str) -> Hash {
-        let contract_ref: Key = context
-            .query(account::ALI, &[name])
-            .unwrap_or_else(|_| panic!("{} contract not found.", name))
+    fn contract_hash(&self) -> Hash {
+        self.context
+            .query(account::ALI, &[format!("{}_hash", token_cfg::NAME)])
+            .unwrap_or_else(|_| panic!("{} contract not found", token_cfg::NAME))
             .into_t()
-            .unwrap_or_else(|_| panic!("{} is not a type Contract.", name));
-        contract_ref
-            .into_hash()
-            .unwrap_or_else(|| panic!("{} is not a type Hash.", name))
+            .unwrap_or_else(|_| panic!("{} has wrong type", token_cfg::NAME))
     }
 
-    fn query_contract<T: CLTyped + FromBytes>(&self, name: String) -> Option<T> {
-        match self.context.query(account::ALI, &[key::ERC20, &name]) {
+    fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
+        match self.context.query(
+            account::ALI,
+            &[token_cfg::NAME, &name.to_string()],
+        ) {
             Err(_) => None,
             Ok(maybe_value) => {
                 let value = maybe_value
@@ -148,5 +68,59 @@ impl ERC20Contract {
                 Some(value)
             }
         }
+    }
+
+    fn call(&mut self, sender: Sender, method: &str, args: RuntimeArgs) {
+        let Sender(address) = sender;
+        let code = Code::Hash(self.contract_hash(), method.to_string());
+        let session = SessionBuilder::new(code, args)
+            .with_address(address)
+            .with_authorization_keys(&[address])
+            .build();
+        self.context.run(session);
+    }
+
+    pub fn name(&self) -> String {
+        self.query_contract("_name").unwrap()
+    }
+
+    pub fn symbol(&self) -> String {
+        self.query_contract("_symbol").unwrap()
+    }
+
+    pub fn decimals(&self) -> u8 {
+        self.query_contract("_decimals").unwrap()
+    }
+
+    pub fn balance_of(&self, account: AccountHash) -> U256 {
+        let key = format!("_balances_{}", account);
+        self.query_contract(&key).unwrap_or_default()
+    }
+
+    pub fn allowance(&self, owner: AccountHash, spender: AccountHash) -> U256 {
+        let key = format!("_allowances_{}_{}", owner, spender);
+        self.query_contract(&key).unwrap_or_default()
+    }
+
+    pub fn transfer(&mut self, recipient: AccountHash, amount: U256, sender: Sender) {
+        self.call(sender, "transfer", runtime_args! {
+            "recipient" => recipient,
+            "amount" => amount
+        });
+    }
+
+    pub fn approve(&mut self, spender: AccountHash, amount: U256, sender: Sender) {
+        self.call(sender, "approve", runtime_args! {
+            "spender" => spender,
+            "amount" => amount
+        });
+    }
+    
+    pub fn transfer_from(&mut self, owner: AccountHash, recipient: AccountHash, amount: U256, sender: Sender) {
+        self.call(sender, "transferFrom", runtime_args! {
+            "owner" => owner,
+            "recipient" => recipient,
+            "amount" => amount
+        });
     }
 }

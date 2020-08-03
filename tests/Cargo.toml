@@ -1,14 +1,14 @@
 [package]
 name = "tests"
-version = "0.1.1"
-authors = ["Maciej Zieliński <maciej@casperlabs.io>"]
+version = "0.2.0"
+authors = ["karandh <karan@casperlabs.io>", "Maciej Zieliński <maciej@casperlabs.io>"]
 edition = "2018"
 
 [dependencies]
-casperlabs-contract = "0.4.1"
-casperlabs-types = "0.4.1"
-casperlabs-engine-test-support = "0.6.3"
+casperlabs-contract = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
+casperlabs-types = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
+casperlabs-engine-test-support = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
 
 [features]
-default = ["casperlabs-contract/std", "casperlabs-types/std"]
+default = ["casperlabs-contract/std", "casperlabs-types/std", "casperlabs-contract/test-support"]
 
