@@ -36,7 +36,7 @@ impl Token {
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
             "tokenName" => token_cfg::NAME,
-            "tokenSymbol2" => token_cfg::SYMBOL,
+            "tokenSymbol" => token_cfg::SYMBOL,
             "tokenTotalSupply" => token_cfg::total_supply()
         };
         let session = SessionBuilder::new(session_code, session_args)
