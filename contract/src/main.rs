@@ -15,7 +15,7 @@ use contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
+use casperlabs_contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
 use types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},

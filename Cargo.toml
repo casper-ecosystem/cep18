@@ -1,6 +1,9 @@
 [workspace]
 
 members = [
-		"contract",
-		"tests"
+	"contract",
+	"tests"
 ]
+
+[profile.release]
+lto = true
