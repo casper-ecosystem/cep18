@@ -30,11 +30,9 @@ mod ERC20 {
     fn constructor(tokenName: String, tokenSymbol: String, tokenTotalSupply: U256) {
         set_key("_name", tokenName);
         set_key("_symbol", tokenSymbol);
-        let _decimals: u8 = 18;
-        set_key("_decimals", _decimals);
+        set_key("_decimals", 18u8);
         set_key(&new_key("_balances", runtime::get_caller()), tokenTotalSupply);
-        let _totalSupply: U256 = tokenTotalSupply;
-        set_key("_totalSupply", _totalSupply);
+        set_key("_totalSupply", totalTokenSupply);
     }
 
     #[casperlabs_method]
