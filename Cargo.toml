@@ -2,6 +2,8 @@
 
 members = [
     "contract",
-    "logic",
-    "tests"
+	"tests"
 ]
+
+[profile.release]
+lto = true
