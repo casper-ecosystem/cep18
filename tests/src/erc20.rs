@@ -1,8 +1,6 @@
-use casperlabs_engine_test_support::{
-    Code, SessionBuilder, TestContextBuilder, TestContext, Hash};
+use casperlabs_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
 use casperlabs_types::{
-    account::AccountHash, U512, RuntimeArgs, runtime_args, U256,
-    bytesrepr::FromBytes, CLTyped
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, CLTyped, RuntimeArgs, U256, U512,
 };
 
 pub mod account {
@@ -17,17 +15,18 @@ pub mod token_cfg {
     pub const NAME: &str = "ERC20";
     pub const SYMBOL: &str = "STX";
     pub const DECIMALS: u8 = 18;
-    pub fn total_supply() -> U256 { 1_000.into() } 
+    pub fn total_supply() -> U256 {
+        1_000.into()
+    }
 }
 
 pub struct Sender(pub AccountHash);
 
 pub struct Token {
-    context: TestContext
+    context: TestContext,
 }
 
 impl Token {
-
     pub fn deployed() -> Token {
         let mut context = TestContextBuilder::new()
             .with_account(account::ALI, U512::from(128_000_000))
@@ -56,10 +55,10 @@ impl Token {
     }
 
     fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
-        match self.context.query(
-            account::ALI,
-            &[token_cfg::NAME, &name.to_string()],
-        ) {
+        match self
+            .context
+            .query(account::ALI, &[token_cfg::NAME, &name.to_string()])
+        {
             Err(_) => None,
             Ok(maybe_value) => {
                 let value = maybe_value
@@ -103,24 +102,42 @@ impl Token {
     }
 
     pub fn transfer(&mut self, recipient: AccountHash, amount: U256, sender: Sender) {
-        self.call(sender, "transfer", runtime_args! {
-            "recipient" => recipient,
-            "amount" => amount
-        });
+        self.call(
+            sender,
+            "transfer",
+            runtime_args! {
+                "recipient" => recipient,
+                "amount" => amount
+            },
+        );
     }
 
     pub fn approve(&mut self, spender: AccountHash, amount: U256, sender: Sender) {
-        self.call(sender, "approve", runtime_args! {
-            "spender" => spender,
-            "amount" => amount
-        });
+        self.call(
+            sender,
+            "approve",
+            runtime_args! {
+                "spender" => spender,
+                "amount" => amount
+            },
+        );
     }
-    
-    pub fn transfer_from(&mut self, owner: AccountHash, recipient: AccountHash, amount: U256, sender: Sender) {
-        self.call(sender, "transferFrom", runtime_args! {
-            "owner" => owner,
-            "recipient" => recipient,
-            "amount" => amount
-        });
+
+    pub fn transfer_from(
+        &mut self,
+        owner: AccountHash,
+        recipient: AccountHash,
+        amount: U256,
+        sender: Sender,
+    ) {
+        self.call(
+            sender,
+            "transferFrom",
+            runtime_args! {
+                "owner" => owner,
+                "recipient" => recipient,
+                "amount" => amount
+            },
+        );
     }
 }

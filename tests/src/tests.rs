@@ -1,4 +1,7 @@
-use crate::erc20::{Token, Sender, account::{ALI, BOB, JOE}, token_cfg};
+use crate::erc20::{
+    account::{ALI, BOB, JOE},
+    token_cfg, Sender, Token,
+};
 
 #[test]
 fn test_erc20_deploy() {
