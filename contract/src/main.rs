@@ -11,11 +11,11 @@ use alloc::{
 };
 use core::convert::TryInto;
 
+use casperlabs_contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
 use contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casperlabs_contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
 use types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},
@@ -31,8 +31,9 @@ mod ERC20 {
         set_key("_name", tokenName);
         set_key("_symbol", tokenSymbol);
         set_key("_decimals", 18u8);
-        set_key(&new_key("_balances", runtime::get_caller()), tokenTotalSupply);
-        set_key("_totalSupply", totalTokenSupply);
+        let balances_key = format!("_balances_{}", runtime::get_caller());
+        set_key(&balances_key, tokenTotalSupply);
+        set_key("_totalSupply", tokenTotalSupply);
     }
 
     #[casperlabs_method]
@@ -59,17 +60,17 @@ mod ERC20 {
     fn transfer(recipient: AccountHash, amount: U256) {
         _transfer(runtime::get_caller(), recipient, amount);
     }
-    
+
     #[casperlabs_method]
-    fn balance_of(account: AccountHash) -> U256 {
+    fn balance_of(account: AccountHash) {
         let key = format!("_balances_{}", account);
-        get_key::<U256>(&key)
+        ret(get_key::<U256>(&key));
     }
 
     #[casperlabs_method]
-    fn allowance(owner: AccountHash, spender: AccountHash) -> U256 {
+    fn allowance(owner: AccountHash, spender: AccountHash) {
         let key = format!("_allowances_{}_{}", owner, spender);
-        get_key::<U256>(&key)
+        ret(get_key::<U256>(&key));
     }
 
     #[casperlabs_method]
@@ -79,26 +80,27 @@ mod ERC20 {
 
     #[casperlabs_method]
     fn transferFrom(owner: AccountHash, recipient: AccountHash, amount: U256) {
+        let key = format!("_allowances_{}_{}", owner, runtime::get_caller());
         _transfer(owner, recipient, amount);
         _approve(
             owner,
             runtime::get_caller(),
-            (get_key::<U256>(&new_key(
-                &new_key("_allowances", owner),
-                runtime::get_caller(),
-            )) - amount),
+            (get_key::<U256>(&key) - amount),
         );
     }
 
     fn _transfer(sender: AccountHash, recipient: AccountHash, amount: U256) {
-        let new_sender_balance: U256 = (get_key::<U256>(&new_key("_balances", sender)) - amount);
-        set_key(&new_key("_balances", sender), new_sender_balance);
-        let new_recipient_balance: U256 = (get_key::<U256>(&new_key("_balances", recipient)) + amount);
-        set_key(&new_key("_balances", recipient), new_recipient_balance);
+        let sender_key = format!("_balances_{}", sender);
+        let recipient_key = format!("_balances_{}", recipient);
+        let new_sender_balance: U256 = (get_key::<U256>(&sender_key) - amount);
+        set_key(&sender_key, new_sender_balance);
+        let new_recipient_balance: U256 = (get_key::<U256>(&recipient_key) + amount);
+        set_key(&recipient_key, new_recipient_balance);
     }
 
     fn _approve(owner: AccountHash, spender: AccountHash, amount: U256) {
-        set_key(&new_key(&new_key("_allowances", owner), spender), amount);
+        let key = format!("_allowances_{}_{}", owner, spender);
+        set_key(&key, amount);
     }
 }
 
@@ -124,8 +126,3 @@ fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
         }
     }
 }
-
-fn new_key(a: &str, b: AccountHash) -> String {
-    format!("{}_{}", a, b)
-}
-
