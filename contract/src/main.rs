@@ -31,8 +31,8 @@ mod ERC20 {
         set_key("_name", tokenName);
         set_key("_symbol", tokenSymbol);
         set_key("_decimals", 18u8);
-        let balances_key = format!("_balances_{}", runtime::get_caller());
-        set_key(&balances_key, tokenTotalSupply);
+        let balance_key = format!("_balances_{}", runtime::get_caller());
+        set_key(&balance_key, tokenTotalSupply);
         set_key("_totalSupply", tokenTotalSupply);
     }
 
