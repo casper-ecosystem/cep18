@@ -31,29 +31,29 @@ mod ERC20 {
         set_key("_name", tokenName);
         set_key("_symbol", tokenSymbol);
         set_key("_decimals", 18u8);
-        let balance_key = format!("_balances_{}", runtime::get_caller());
-        set_key(&balance_key, tokenTotalSupply);
+        let balance = balance_key(&runtime::get_caller());
+        set_key(&balance, tokenTotalSupply);
         set_key("_totalSupply", tokenTotalSupply);
     }
 
     #[casperlabs_method]
-    fn name() {
-        ret(get_key::<String>("_name"));
+    fn name() -> String {
+        get_key("_name")
     }
 
     #[casperlabs_method]
-    fn symbol() {
-        ret(get_key::<String>("_symbol"));
+    fn symbol() -> String {
+        get_key("_symbol")
     }
 
     #[casperlabs_method]
-    fn decimals() {
-        ret(get_key::<u8>("_decimals"));
+    fn decimals() -> u8 {
+        get_key("_decimals")
     }
 
     #[casperlabs_method]
-    fn totalSupply() {
-        ret(get_key::<U256>("_totalSupply"));
+    fn totalSupply() -> U256 {
+        get_key("_totalSupply")
     }
 
     #[casperlabs_method]
@@ -62,15 +62,13 @@ mod ERC20 {
     }
 
     #[casperlabs_method]
-    fn balance_of(account: AccountHash) {
-        let key = format!("_balances_{}", account);
-        ret(get_key::<U256>(&key));
+    fn balance_of(account: AccountHash) -> U256 {
+        get_key(&balance_key(&account))
     }
 
     #[casperlabs_method]
-    fn allowance(owner: AccountHash, spender: AccountHash) {
-        let key = format!("_allowances_{}_{}", owner, spender);
-        ret(get_key::<U256>(&key));
+    fn allowance(owner: AccountHash, spender: AccountHash) -> U256 {
+        get_key(&allowance_key(&owner, &spender))
     }
 
     #[casperlabs_method]
@@ -80,7 +78,7 @@ mod ERC20 {
 
     #[casperlabs_method]
     fn transferFrom(owner: AccountHash, recipient: AccountHash, amount: U256) {
-        let key = format!("_allowances_{}_{}", owner, runtime::get_caller());
+        let key = allowance_key(&owner, &runtime::get_caller());
         _transfer(owner, recipient, amount);
         _approve(
             owner,
@@ -90,8 +88,8 @@ mod ERC20 {
     }
 
     fn _transfer(sender: AccountHash, recipient: AccountHash, amount: U256) {
-        let sender_key = format!("_balances_{}", sender);
-        let recipient_key = format!("_balances_{}", recipient);
+        let sender_key = balance_key(&sender);
+        let recipient_key = balance_key(&recipient);
         let new_sender_balance: U256 = (get_key::<U256>(&sender_key) - amount);
         set_key(&sender_key, new_sender_balance);
         let new_recipient_balance: U256 = (get_key::<U256>(&recipient_key) + amount);
@@ -99,8 +97,7 @@ mod ERC20 {
     }
 
     fn _approve(owner: AccountHash, spender: AccountHash, amount: U256) {
-        let key = format!("_allowances_{}_{}", owner, spender);
-        set_key(&key, amount);
+        set_key(&allowance_key(&owner, &spender), amount);
     }
 }
 
@@ -125,4 +122,12 @@ fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
             runtime::put_key(name, key);
         }
     }
+}
+
+fn balance_key(account: &AccountHash) -> String {
+    format!("_balances_{}", account)
+}
+
+fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
+    format!("_allowances_{}_{}", owner, sender)
 }
