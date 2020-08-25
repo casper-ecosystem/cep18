@@ -3,7 +3,13 @@
 Implementation of ERC20 token for the CasperLabs platform.
 
 ## Install
-Make sure `wasm32-unknown-unknown` is installed.
+Install `wasm32-unknown-unknown` and the Rust toolchain.
+
+```bash
+rustup install $(cat rust-toolchain)
+rustup target add --toolchain=$(cat rust-toolchain) wasm32-unknown-unknown
+```
+or 
 ```bash
 $ make prepare
 ```
