@@ -5,7 +5,7 @@ use casperlabs_types::{
 use casperlabs_types::PublicKey;
 pub mod account {
     use super::*;
-    pub const ALI: AccountHash = AccountHash::new([7u8; 32]);
+    pub const ALI: PublicKey = PublicKey::ed25519([3u8; 32]).unwrap();
     pub const BOB: AccountHash = AccountHash::new([8u8; 32]);
     pub const JOE: AccountHash = AccountHash::new([9u8; 32]);
 }
@@ -28,10 +28,9 @@ pub struct Token {
 
 impl Token {
     pub fn deployed() -> Token {
-  let test_account: PublicKey = PublicKey::ed25519([3u8; 32]).unwrap();
 
         let mut context = TestContextBuilder::new()
-            .with_public_key(test_account, test_account.to_account_hash(), U512::from(500_000_000_000_000_000u64))
+            .with_public_key(account::ALI, account::ALI.to_account_hash(), U512::from(500_000_000_000_000_000u64))
             .build();
 
         let session_code = Code::from("contract.wasm");
@@ -41,8 +40,8 @@ impl Token {
             "tokenTotalSupply" => token_cfg::total_supply()
         };
         let session = SessionBuilder::new(session_code, session_args)
-            .with_address(account::ALI)
-            .with_authorization_keys(&[test_account.to_account_hash()])
+            .with_address(account::ALI.to_account_hash())
+            .with_authorization_keys(&[account::ALI.to_account_hash()])
             .build();
         context.run(session);
         Token { context }
@@ -50,7 +49,7 @@ impl Token {
 
     fn contract_hash(&self) -> Hash {
         self.context
-            .query(account::ALI, &[format!("{}_hash", token_cfg::NAME)])
+            .query(account::ALI.to_account_hash(), &[format!("{}_hash", token_cfg::NAME)])
             .unwrap_or_else(|_| panic!("{} contract not found", token_cfg::NAME))
             .into_t()
             .unwrap_or_else(|_| panic!("{} has wrong type", token_cfg::NAME))
@@ -59,7 +58,7 @@ impl Token {
     fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
         match self
             .context
-            .query(account::ALI, &[token_cfg::NAME.to_string(), name.to_string()])
+            .query(account::ALI.to_account_hash(), &[token_cfg::NAME.to_string(), name.to_string()])
         {
             Err(_) => None,
             Ok(maybe_value) => {
