@@ -5,9 +5,9 @@ authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
 edition = "2018"
 
 [dependencies]
-contract = { package = "casper-contract", version = "0.6.0" }
-types = { package = "casper-types", version = "0.6.0" }
-casperlabs_contract_macro = { package = "casperlabs_contract_macro", version = "0.1.0"}
+contract = { package = "casper-contract", version="0.7.0" }
+types = { package = "casper-types", version="0.7.0" }
+casperlabs_contract_macro = { git = "https://github.com/CasperLabs/casperlabs_contract_macro", branch = "dev", package = "casperlabs-contract-macro"}
 
 [[bin]]
 name = "contract"
