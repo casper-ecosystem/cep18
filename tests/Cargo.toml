@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 casperlabs-contract = { package = "casper-contract", version="0.7.0" }
 casperlabs-types = { package = "casper-types", version="0.7.0" }
-casperlabs-engine-test-support = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
+casper-engine-test-support = "0.7.0"
 
 [features]
 default = ["casperlabs-contract/std", "casperlabs-types/std", "casperlabs-contract/test-support"]
