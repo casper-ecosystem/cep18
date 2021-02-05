@@ -2,7 +2,7 @@ use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestCo
 use casperlabs_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, CLTyped, RuntimeArgs, U256, U512,
 };
-
+use casperlabs_types::PublicKey;
 pub mod account {
     use super::*;
     pub const ALI: AccountHash = AccountHash::new([7u8; 32]);
@@ -28,10 +28,12 @@ pub struct Token {
 
 impl Token {
     pub fn deployed() -> Token {
+  let test_account: PublicKey = PublicKey::ed25519([3u8; 32]).unwrap();
+
         let mut context = TestContextBuilder::new()
-            .with_account(account::ALI, U512::from(128_000_000))
-            .with_account(account::BOB, U512::from(128_000_000))
+            .with_public_key(test_account, test_account.to_account_hash(), U512::from(500_000_000_000_000_000u64))
             .build();
+
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
             "tokenName" => token_cfg::NAME,
@@ -40,7 +42,7 @@ impl Token {
         };
         let session = SessionBuilder::new(session_code, session_args)
             .with_address(account::ALI)
-            .with_authorization_keys(&[account::ALI])
+            .with_authorization_keys(&[test_account.to_account_hash()])
             .build();
         context.run(session);
         Token { context }
@@ -57,7 +59,7 @@ impl Token {
     fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
         match self
             .context
-            .query(account::ALI, &[token_cfg::NAME, &name.to_string()])
+            .query(account::ALI, &[token_cfg::NAME.to_string(), name.to_string()])
         {
             Err(_) => None,
             Ok(maybe_value) => {
