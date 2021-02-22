@@ -5,10 +5,10 @@ authors = ["karandh <karan@casperlabs.io>", "Maciej Zieliński <maciej@casperlab
 edition = "2018"
 
 [dependencies]
-casperlabs-contract = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
-casperlabs-types = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
-casperlabs-engine-test-support = { git="https://github.com/CasperLabs/CasperLabs", branch="dev" }
+casper-contract = "0.7.6"
+casper-types = "0.7.6"
+casper-engine-test-support = "0.7.6"
 
 [features]
-default = ["casperlabs-contract/std", "casperlabs-types/std", "casperlabs-contract/test-support"]
+default = ["casper-contract/std", "casper-types/std", "casper-contract/test-support"]
 
