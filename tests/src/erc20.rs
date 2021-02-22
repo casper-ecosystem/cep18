@@ -1,14 +1,5 @@
-use casperlabs_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
-use casperlabs_types::{
-    account::AccountHash, bytesrepr::FromBytes, runtime_args, CLTyped, RuntimeArgs, U256, U512,
-};
-
-pub mod account {
-    use super::*;
-    pub const ALI: AccountHash = AccountHash::new([7u8; 32]);
-    pub const BOB: AccountHash = AccountHash::new([8u8; 32]);
-    pub const JOE: AccountHash = AccountHash::new([9u8; 32]);
-}
+use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
+use casper_types::{CLTyped, PublicKey, RuntimeArgs, U256, U512, account::AccountHash, bytesrepr::FromBytes, runtime_args};
 
 pub mod token_cfg {
     use super::*;
@@ -24,13 +15,20 @@ pub struct Sender(pub AccountHash);
 
 pub struct Token {
     context: TestContext,
+    pub ali: AccountHash,
+    pub bob: AccountHash,
+    pub joe: AccountHash
 }
 
 impl Token {
     pub fn deployed() -> Token {
+        let ali = PublicKey::ed25519([3u8; 32]).unwrap();
+        let bob = PublicKey::ed25519([6u8; 32]).unwrap();
+        let joe = PublicKey::ed25519([9u8; 32]).unwrap();
+
         let mut context = TestContextBuilder::new()
-            .with_account(account::ALI, U512::from(128_000_000))
-            .with_account(account::BOB, U512::from(128_000_000))
+            .with_public_key(ali, ali.to_account_hash(), U512::from(500_000_000_000_000_000u64))
+            .with_public_key(bob, bob.to_account_hash(), U512::from(500_000_000_000_000_000u64))
             .build();
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
@@ -39,16 +37,16 @@ impl Token {
             "tokenTotalSupply" => token_cfg::total_supply()
         };
         let session = SessionBuilder::new(session_code, session_args)
-            .with_address(account::ALI)
-            .with_authorization_keys(&[account::ALI])
+            .with_address(ali.to_account_hash())
+            .with_authorization_keys(&[ali.to_account_hash()])
             .build();
         context.run(session);
-        Token { context }
+        Token { context, ali: ali.to_account_hash(), bob: bob.to_account_hash(), joe: joe.to_account_hash() }
     }
 
     fn contract_hash(&self) -> Hash {
         self.context
-            .query(account::ALI, &[format!("{}_hash", token_cfg::NAME)])
+            .query(self.ali, &[format!("{}_hash", token_cfg::NAME)])
             .unwrap_or_else(|_| panic!("{} contract not found", token_cfg::NAME))
             .into_t()
             .unwrap_or_else(|_| panic!("{} has wrong type", token_cfg::NAME))
@@ -57,7 +55,7 @@ impl Token {
     fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
         match self
             .context
-            .query(account::ALI, &[token_cfg::NAME, &name.to_string()])
+            .query(self.ali, &[token_cfg::NAME.to_string(), name.to_string()])
         {
             Err(_) => None,
             Ok(maybe_value) => {
