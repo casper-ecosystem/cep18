@@ -1,273 +1,161 @@
 #![no_main]
-#![allow(unused_imports)]
-#![allow(unused_parens)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
 
-extern crate alloc;
-
-use alloc::{
-    collections::{BTreeMap, BTreeSet},
-    string::String,
-};
-use core::convert::TryInto;
-
-use casperlabs_contract_macro::{casperlabs_constructor, casperlabs_contract, casperlabs_method};
-use contract::{
-    contract_api::{runtime, storage},
-    unwrap_or_revert::UnwrapOrRevert,
-};
-use types::{
-    account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes},
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    runtime_args, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U256,
-};
-use core::{
-    ops::Deref,
-    ops::DerefMut, 
-};
+use dsl::{Map, runtime, storage, types::{U256, account::AccountHash}};
 
 #[derive(Default)]
-struct CasperVariable<T: FromBytes + ToBytes + CLTyped + Default>(String, Option<T>, bool);
-impl<T: FromBytes + ToBytes + CLTyped + Default> Deref for CasperVariable<T>  where T: FromBytes + CLTyped + Default {
-    type Target = Option<T>;
-    fn deref(&self) -> &Self::Target {
-        &self.1
-    }
-}
-impl<T: FromBytes + ToBytes + CLTyped + Default> DerefMut for CasperVariable<T>  where T: FromBytes + CLTyped + Default {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.change(true);
-        &mut self.1
-    }
-}
-impl<T: FromBytes + ToBytes + CLTyped + Default> CasperVariable<T> {
-    fn change(&mut self, state: bool) {
-        self.2 = state;
-    }
-    fn is_chanaged(&self) -> bool {
-        self.2
-    }
+struct ERC20 {
+    token_name: String, 
+    token_symbol: String,
+    total_supply: U256,
+    balances: Map<AccountHash, U256>
 }
 
-#[derive(Default)]
-struct CasperMap<T: FromBytes + ToBytes + CLTyped + Default>(String, Option<T>, bool);
-impl<T: FromBytes + ToBytes + CLTyped + Default> CasperMap<T> {
-    fn change(&mut self, state: bool) {
-        self.2 = state;
+impl ERC20 {
+
+    // #[casper_constructor]
+    pub fn new(token_name: String, token_symbol: String, total_supply: U256) -> ERC20 {
+        let mut erc20 = ERC20::default();
+        erc20.balances.set(&dsl::get_caller(), &total_supply);
+        erc20.total_supply = total_supply;
+        erc20.token_name = token_name;
+        erc20.token_symbol = token_symbol;
+        erc20
     }
-    fn is_chanaged(&self) -> bool {
-        self.2
+    
+    pub fn balanceOf(&self, address: &AccountHash) -> U256 {
+        return self.balances.get(address);
     }
-    fn get(&self, key: String) -> T {
-        get_key::<T>(key.as_str())
-    }
-    fn set(&self, key: String, value: T) {
-        set_key(key.as_str(), value)
-    }
-}
-
-trait GetKey {
-    fn get_key(&self) -> String;
-}
-impl GetKey for AccountHash {
-    fn get_key(&self) -> String {
-        balance_key(self)
-    }
-}
-impl GetKey for (AccountHash, AccountHash) {
-    fn get_key(&self) -> String {
-        allowance_key(&self.0, &self.1)
-    }
-}
-
-struct ERC20Context {
-    name: CasperVariable<String>,
-    symbol: CasperVariable<String>,
-    decimals: CasperVariable<u8>,
-    totalSupply: CasperVariable<U256>,
-    balances: CasperMap<U256>,
-    allowances: CasperMap<U256>
-}
-
-impl Default for ERC20Context {
-    fn default() -> Self {
-        ERC20Context {
-            name : CasperVariable::<String>("_name".to_string(), Some(get_key("_name")), false),
-            symbol : CasperVariable::<String>("_symbol".to_string(), Some(get_key("_symbol")), false),
-            decimals : CasperVariable::<u8>("_decimals".to_string(), Some(get_key("_decimals")), false),
-            totalSupply : CasperVariable::<U256>("_totalsupply".to_string(), Some(get_key("_totalsupply")), false),
-            balances: CasperMap::<U256>::default(),
-            allowances: CasperMap::<U256>::default()
-        }
-    }
-}
-
-impl ERC20Context {
-    pub fn new(tokenName: String, tokenSymbol: String, tokenTotalSupply: U256) -> Self {
-        ERC20Context {
-            name : CasperVariable::<String>("_name".to_string(), Some(tokenName), true),
-            symbol : CasperVariable::<String>("_symbol".to_string(), Some(tokenSymbol), true),
-            decimals : CasperVariable::<u8>("_decimals".to_string(), Some(18u8), true),
-            totalSupply : CasperVariable::<U256>("_totalsupply".to_string(), Some(tokenTotalSupply), true),
-            balances: CasperMap::<U256>::default(),
-            allowances: CasperMap::<U256>::default()
-        }
-    }
-
-    pub fn save(&mut self) {
-        if self.name.is_chanaged() {
-            set_key(self.name.0.as_str(), self.name.1.clone().unwrap());
-        }
-        if self.symbol.is_chanaged() {
-            set_key(self.symbol.0.as_str(), self.symbol.1.clone().unwrap());
-        }
-        if self.decimals.is_chanaged() {
-            set_key(self.decimals.0.as_str(), self.decimals.1.clone().unwrap());
-        }
-        if self.totalSupply.is_chanaged() {
-            set_key(self.totalSupply.0.as_str(), self.totalSupply.1.clone().unwrap());
-        }
-        if self.balances.is_chanaged() {
-            set_key(self.balances.0.as_str(), self.balances.1.clone().unwrap());
-        }
-        if self.allowances.is_chanaged() {
-            set_key(self.allowances.0.as_str(), self.allowances.1.clone().unwrap());
-        }
-    }
-}
-
-#[casperlabs_contract]
-mod ERC20 {
-    use crate::{ERC20Context, get_key};
-
-
-    #[casperlabs_constructor]
-    fn constructor(tokenName: String, tokenSymbol: String, tokenTotalSupply: U256) {
-        let mut context = ERC20Context::default();
-        let balanceKey = runtime::get_caller().get_key();
-        *context.name = Some(tokenName);
-        *context.symbol = Some(tokenSymbol);
-        *context.decimals = Some(18u8);
-        *context.totalSupply = Some(tokenTotalSupply);
-        context.balances.set(balanceKey, tokenTotalSupply);
-        context.save();
-    }
-
-    #[casperlabs_method]
-    fn name() -> String {
-        let context = ERC20Context::default();
-        context.name.clone().unwrap()
-    }
-
-    #[casperlabs_method]
-    fn symbol() -> String {
-        let context = ERC20Context::default();
-        context.symbol.clone().unwrap()
-    }
-
-    #[casperlabs_method]
-    fn decimals() -> u8 {
-        let context = ERC20Context::default();
-        context.decimals.clone().unwrap()
-    }
-
-    #[casperlabs_method]
-    fn totalSupply() -> U256 {
-        let context = ERC20Context::default();
-        context.totalSupply.clone().unwrap()
-    }
-
-    #[casperlabs_method]
-    fn transfer(recipient: AccountHash, amount: U256) {
-        let mut context = ERC20Context::default();
-        let owner = runtime::get_caller();
-
-        let owner_balance = context.balances.get(owner.get_key());
-        let recipient_balance = context.balances.get(recipient.get_key());
-
-        if (owner_balance < amount)  {
-            runtime::revert(1);
-        }
-
-        context.balances.set(owner.get_key(), owner_balance - amount);
-        context.balances.set(recipient.get_key(), recipient_balance + amount);
-
-        context.save();
-    }
-
-    #[casperlabs_method]
-    fn balance_of(account: AccountHash) -> U256 {
-        let context = ERC20Context::default();
-        context.balances.get(account.get_key())
-    }
-
-    #[casperlabs_method]
-    fn allowance(owner: AccountHash, spender: AccountHash) -> U256 {
-        let context = ERC20Context::default();
-        context.allowances.get((owner, spender).get_key())
-    }
-
-    #[casperlabs_method]
-    fn approve(spender: AccountHash, amount: U256) {
-        let mut context = ERC20Context::default();
-        let owner = runtime::get_caller();
-
-        context.allowances.set((owner, spender).get_key(), amount);
-
-        context.save();
-    }
-
-    #[casperlabs_method]
-    fn transferFrom(owner: AccountHash, recipient: AccountHash, amount: U256) {
-        let mut context = ERC20Context::default();
-
-        let owner_balance = context.balances.get(owner.get_key());
-        let recipient_balance = context.balances.get(recipient.get_key());
-
-        if (owner_balance < amount)  {
-            runtime::revert(1);
-        }
-
-        context.balances.set(owner.get_key(), owner_balance - amount);
-        context.balances.set(recipient.get_key(), recipient_balance + amount);
+    
+    pub fn transfer(&mut self, recipient: &AccountHash, amount: &U256) {
+        self.balances.set(recipient, &(self.balances.get(recipient) + amount));
+        self.balances.set(&runtime::get_caller(), &(self.balances.get(&runtime::get_caller()) - amount));
         
-        let spender = runtime::get_caller();
-        let owner_spender_allowance = context.allowances.get((owner, spender).get_key());
-        context.allowances.set((owner, spender).get_key(), owner_spender_allowance - amount);
-        
-        context.save();
     }
 }
+// --------------------------- Generated ------------------------------
 
-fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
-    match runtime::get_key(name) {
-        None => Default::default(),
-        Some(value) => {
-            let key = value.try_into().unwrap_or_revert();
-            storage::read(key).unwrap_or_revert().unwrap_or_revert()
+// ----- Save -----
+use dsl::{Save, UnwrapOrRevert};
+use types::{CLTyped, RuntimeArgs};
+use std::collections::BTreeSet;
+
+impl Save for ERC20 {
+    fn save(&self) {}
+}
+
+
+// ----- Constructor -----
+#[no_mangle]
+pub extern "C" fn new() {
+    let token_name: String = runtime::get_named_arg("token_name");
+    let token_symbol: String = runtime::get_named_arg("token_symbol");
+    let total_supply: U256 = runtime::get_named_arg("total_supply");
+    let contract = ERC20::new(token_name, token_symbol, total_supply);
+    contract.save();
+}
+
+// ----- Public Methods -----
+#[no_mangle]
+pub extern "C" fn balanceOf() {
+    let contract = ERC20::default();
+    let address: AccountHash = runtime::get_named_arg("address");
+    let result = contract.balanceOf(&address);
+    runtime::ret(types::CLValue::from_t(result).unwrap());
+}
+
+#[no_mangle]
+pub extern "C" fn transfer() {
+    let mut contract = ERC20::default();
+    let recipient: AccountHash = runtime::get_named_arg("recipient");
+    let amount: U256 = runtime::get_named_arg("amount");
+    contract.transfer(&recipient, &amount);
+}
+
+#[no_mangle]
+pub extern "C" fn call() {
+    let token_name: String = runtime::get_named_arg("token_name");
+    let token_symbol: String = runtime::get_named_arg("token_symbol");
+    let total_supply: U256 = runtime::get_named_arg("total_supply");
+
+    let (contract_package_hash, _) = storage::create_contract_package_at_hash();
+    let _constructor_access_uref: types::URef = storage::create_contract_user_group(
+        contract_package_hash,
+        "constructor_group",
+        1,
+        BTreeSet::new(),
+    )
+    .unwrap_or_revert()
+    .pop()
+    .unwrap_or_revert();
+    let constructor_group = types::Group::new("constructor_group");
+    let mut entry_points = types::EntryPoints::new();
+    entry_points.add_entry_point(types::EntryPoint::new(
+        String::from("new"),
+        vec![
+            types::Parameter::new("token_name", types::CLType::String),
+            types::Parameter::new("token_symbol", types::CLType::String),
+            types::Parameter::new("total_supply", types::CLType::U256),
+        ],
+        types::CLType::Unit,
+        types::EntryPointAccess::Groups(vec![constructor_group]),
+        types::EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(types::EntryPoint::new(
+        String::from("transfer"),
+        vec![
+            types::Parameter::new("recipient", AccountHash::cl_type()),
+            types::Parameter::new("amount", U256::cl_type()),
+        ],
+        types::CLType::Unit,
+        types::EntryPointAccess::Public,
+        types::EntryPointType::Contract,
+    ));
+
+    let (contract_hash, _) =
+        storage::add_contract_version(contract_package_hash, entry_points, Default::default());
+    runtime::put_key("ERC20", contract_hash.into());
+    let contract_hash_pack = storage::new_uref(contract_hash);
+    runtime::put_key("ERC20_hash", contract_hash_pack.into());
+    runtime::call_contract::<()>(contract_hash, "new", types::runtime_args! {
+        "token_name" => token_name,
+        "token_symbol" => token_symbol,
+        "total_supply" => total_supply
+    });
+}
+
+
+// --------------------------- DSL ------------------------------------
+mod dsl {
+
+    pub use contract::contract_api::runtime;
+    pub use contract::contract_api::storage;
+    pub use contract::unwrap_or_revert::UnwrapOrRevert;
+    pub use types;
+    use types::account::AccountHash;
+
+    #[derive(Default)]
+    pub struct Map<K: Default, V: Default> {
+        k: K,
+        v: V
+    }
+
+    impl<K: Clone + Default, V: Clone + Default> Map<K, V> {
+        pub fn get(&self, key: &K) -> V {
+            self.v.clone()
+        }
+    
+        pub fn set(&mut self, key: &K, value: &V) {
+            self.k = key.clone();
+            self.v = value.clone();
         }
     }
-}
 
-fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
-    match runtime::get_key(name) {
-        Some(key) => {
-            let key_ref = key.try_into().unwrap_or_revert();
-            storage::write(key_ref, value);
-        }
-        None => {
-            let key = storage::new_uref(value).into();
-            runtime::put_key(name, key);
-        }
+    pub trait Save {
+        fn save(&self);
     }
-}
 
-fn balance_key(account: &AccountHash) -> String {
-    format!("_balances_{}", account)
-}
+    pub fn get_caller() -> AccountHash {
+        runtime::get_caller()
+    }
 
-fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
-    format!("_allowances_{}_{}", owner, sender)
 }
