@@ -1,11 +1,11 @@
 #![no_main]
 
-use dsl::{GetKey, Map, runtime, storage, types::{U256, account::AccountHash}};
+use dsl::{GetKey, Map, Variable, runtime, storage, types::{U256, account::AccountHash}};
 
 struct ERC20 {
-    token_name: String, 
-    token_symbol: String,
-    total_supply: U256,
+    token_name: Variable<String>, 
+    token_symbol: Variable<String>,
+    total_supply: Variable<U256>,
     balances: Map<AccountHash, U256>,
     allowances: Map<(AccountHash, AccountHash), U256>
 }
@@ -16,10 +16,22 @@ impl ERC20 {
     pub fn new(token_name: String, token_symbol: String, total_supply: U256) -> ERC20 {
         let mut erc20 = ERC20::default();
         erc20.balances.set(&runtime::get_caller(), total_supply);
-        erc20.total_supply = total_supply;
-        erc20.token_name = token_name;
-        erc20.token_symbol = token_symbol;
+        erc20.total_supply = Variable::new(String::from("total_supply"), total_supply);
+        erc20.token_name = Variable::new(String::from("token_name"), token_name);
+        erc20.token_symbol = Variable::new(String::from("token_symbol"), token_symbol);
         erc20
+    }
+
+    pub fn name(&self) -> String {
+        self.token_name.get()
+    }
+
+    pub fn symbol(&self) -> String {
+        self.token_symbol.get()
+    }
+
+    pub fn total_supply(&self) -> U256 {
+        self.total_supply.get()
     }
     
     pub fn balance_of(&self, address: &AccountHash) -> U256 {
@@ -62,18 +74,24 @@ use std::collections::BTreeSet;
 
 impl Save for ERC20 {
     fn save(&self) {
-        set_key("token_name", self.token_name.clone());
-        set_key("token_symbol", self.token_symbol.clone());
-        set_key("total_supply", self.total_supply.clone());
+        if self.token_name.has_change() {
+            self.token_name.set();
+        }
+        if self.token_symbol.has_change() {
+            self.token_symbol.set();
+        }
+        if self.total_supply.has_change() {
+            self.total_supply.set();
+        }
     }
 }
 
 impl Default for ERC20 {
     fn default() -> Self {
         ERC20 {
-            token_name: get_key("token_name"),
-            token_symbol: get_key("token_symbol"),
-            total_supply: get_key("total_supply"),
+            token_name: Variable::new(String::from("token_name"), String::default()),
+            token_symbol: Variable::new(String::from("token_symbol"), String::default()),
+            total_supply: Variable::new(String::from("total_supply"), U256::default()),
             balances: Map::new(String::from("balances")),
             allowances: Map::new(String::from("allowances"))
         }
@@ -104,6 +122,27 @@ pub extern "C" fn new() {
 }
 
 // ----- Public Methods -----
+#[no_mangle]
+pub extern "C" fn name() {
+    let contract = ERC20::default();
+    let result = contract.name();
+    runtime::ret(types::CLValue::from_t(result).unwrap());
+}
+
+#[no_mangle]
+pub extern "C" fn symbol() {
+    let contract = ERC20::default();
+    let result = contract.symbol();
+    runtime::ret(types::CLValue::from_t(result).unwrap());
+}
+
+#[no_mangle]
+pub extern "C" fn totalSupply() {
+    let contract = ERC20::default();
+    let result = contract.total_supply();
+    runtime::ret(types::CLValue::from_t(result).unwrap());
+}
+
 #[no_mangle]
 pub extern "C" fn balanceOf() {
     let contract = ERC20::default();
@@ -227,7 +266,7 @@ pub extern "C" fn call() {
 // --------------------------- DSL ------------------------------------
 mod dsl {
 
-    use std::{convert::TryInto, hash::Hash, marker::PhantomData};
+    use std::{convert::TryInto, hash::Hash, marker::PhantomData, ops::{Deref, DerefMut}};
 
     pub use contract::contract_api::runtime;
     pub use contract::contract_api::storage;
@@ -262,6 +301,50 @@ mod dsl {
         pub fn set(&mut self, key: &K, value: V) {
             // self.storage.insert(key.get_key(&self.prefix), value);
             set_key(&key.get_key(&self.prefix), value)
+        }
+    }
+
+    pub struct Variable<V> {
+        prefix: String,
+        value_type: V,
+        has_change: bool
+    }
+
+    impl<V> Deref for Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
+        type Target = V;
+        fn deref(&self) -> &Self::Target {
+            &self.value_type
+        }
+    }
+
+    impl<V> DerefMut for Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
+        fn deref_mut(&mut self) -> &mut Self::Target {
+            self.has_change = true;
+            &mut self.value_type
+        }
+    }
+
+    impl<V> Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
+        pub fn new(prefix: String, value: V) -> Self {
+            Variable {
+                prefix: prefix,
+                value_type: value,
+                has_change: true
+            }
+        }
+
+        pub fn get(&self) -> V {
+            // self.storage.get(&key.get_key(&self.prefix)).unwrap()
+            get_key(&self.prefix)
+        }
+    
+        pub fn set(&self) {
+            // self.storage.insert(key.get_key(&self.prefix), value);
+            set_key(&self.prefix, self.value_type.clone())
+        }
+
+        pub fn has_change(&self) -> bool {
+            self.has_change
         }
     }
 
