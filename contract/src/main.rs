@@ -1,18 +1,26 @@
 #![no_main]
+use std::collections::BTreeSet;
+use types::{CLTyped, RuntimeArgs};
 
-use dsl::{GetKey, Map, Variable, runtime, storage, types::{U256, account::AccountHash}};
+mod dsl;
+use contract_vars::{ERC20Context, Save};
+use dsl::{
+    runtime, storage,
+    types::{account::AccountHash, U256},
+    GetKey, Map, UnwrapOrRevert, Variable,
+};
 
+#[derive(ERC20Context)]
 struct ERC20 {
-    token_name: Variable<String>, 
+    token_name: Variable<String>,
     token_symbol: Variable<String>,
     total_supply: Variable<U256>,
     balances: Map<AccountHash, U256>,
-    allowances: Map<(AccountHash, AccountHash), U256>
+    allowances: Map<(AccountHash, AccountHash), U256>,
 }
 
 // #[casper_contract]
 impl ERC20 {
-
     pub fn new(token_name: String, token_symbol: String, total_supply: U256) -> ERC20 {
         let mut erc20 = ERC20::default();
         erc20.balances.set(&runtime::get_caller(), total_supply);
@@ -33,11 +41,11 @@ impl ERC20 {
     pub fn total_supply(&self) -> U256 {
         self.total_supply.get()
     }
-    
+
     pub fn balance_of(&self, address: &AccountHash) -> U256 {
         self.balances.get(address)
     }
-    
+
     pub fn transfer(&mut self, recipient: AccountHash, amount: U256) {
         self._transfer(runtime::get_caller(), recipient, amount)
     }
@@ -57,57 +65,14 @@ impl ERC20 {
     }
 
     fn _transfer(&mut self, sender: AccountHash, recipient: AccountHash, amount: U256) {
-        self.balances.set(&sender, self.balances.get(&sender) - amount);
-        self.balances.set(&recipient, self.balances.get(&recipient) + amount);
+        self.balances
+            .set(&sender, self.balances.get(&sender) - amount);
+        self.balances
+            .set(&recipient, self.balances.get(&recipient) + amount);
     }
 
     fn _approve(&mut self, owner: AccountHash, spender: AccountHash, amount: U256) {
         self.allowances.set(&(owner, spender), amount);
-    }
-}
-// --------------------------- Generated ------------------------------
-
-// ----- Save -----
-use dsl::{Save, UnwrapOrRevert, get_key, set_key};
-use types::{CLTyped, RuntimeArgs};
-use std::collections::BTreeSet;
-
-impl Save for ERC20 {
-    fn save(&self) {
-        if self.token_name.has_change() {
-            self.token_name.set();
-        }
-        if self.token_symbol.has_change() {
-            self.token_symbol.set();
-        }
-        if self.total_supply.has_change() {
-            self.total_supply.set();
-        }
-    }
-}
-
-impl Default for ERC20 {
-    fn default() -> Self {
-        ERC20 {
-            token_name: Variable::new(String::from("token_name"), String::default()),
-            token_symbol: Variable::new(String::from("token_symbol"), String::default()),
-            total_supply: Variable::new(String::from("total_supply"), U256::default()),
-            balances: Map::new(String::from("balances")),
-            allowances: Map::new(String::from("allowances"))
-        }
-    }
-}
-
-
-impl GetKey for AccountHash {
-    fn get_key(&self, prefix: &String) -> String {
-        format!("{}_{}", prefix, self.to_string())
-    }
-}
-
-impl GetKey for (AccountHash, AccountHash) {
-    fn get_key(&self, prefix: &String) -> String {
-        format!("{}_{}_{}", prefix, self.0.to_string(), self.1.to_string())
     }
 }
 
@@ -215,7 +180,7 @@ pub extern "C" fn call() {
         types::EntryPointAccess::Groups(vec![constructor_group]),
         types::EntryPointType::Contract,
     ));
-    
+
     entry_points.add_entry_point(types::EntryPoint::new(
         String::from("transfer"),
         vec![
@@ -237,7 +202,7 @@ pub extern "C" fn call() {
         types::EntryPointAccess::Public,
         types::EntryPointType::Contract,
     ));
-    
+
     entry_points.add_entry_point(types::EntryPoint::new(
         String::from("transfer_from"),
         vec![
@@ -249,134 +214,19 @@ pub extern "C" fn call() {
         types::EntryPointAccess::Public,
         types::EntryPointType::Contract,
     ));
-    
+
     let (contract_hash, _) =
         storage::add_contract_version(contract_package_hash, entry_points, Default::default());
     runtime::put_key("ERC20", contract_hash.into());
     let contract_hash_pack = storage::new_uref(contract_hash);
     runtime::put_key("ERC20_hash", contract_hash_pack.into());
-    runtime::call_contract::<()>(contract_hash, "new", types::runtime_args! {
-        "token_name" => token_name,
-        "token_symbol" => token_symbol,
-        "total_supply" => total_supply
-    });
-}
-
-
-// --------------------------- DSL ------------------------------------
-mod dsl {
-
-    use std::{convert::TryInto, hash::Hash, marker::PhantomData, ops::{Deref, DerefMut}};
-
-    pub use contract::contract_api::runtime;
-    pub use contract::contract_api::storage;
-    pub use contract::unwrap_or_revert::UnwrapOrRevert;
-    pub use types;
-    use types::{CLTyped, bytesrepr::{FromBytes, ToBytes}};
-
-    pub struct Map<K, V> {
-        prefix: String,
-        // storage: HashMap<String, V>,
-        key_type: PhantomData<K>,
-        value_type: PhantomData<V>
-    }
-
-    impl<K, V> Map<K, V> where 
-        K: Clone + Default + GetKey + Eq + Hash,
-        V: Clone + Default + FromBytes + ToBytes + CLTyped
-    {
-        pub fn new(prefix: String) -> Self {
-            Map {
-                prefix: prefix,
-                key_type: PhantomData,
-                value_type: PhantomData
-            }
-        }
-
-        pub fn get(&self, key: &K) -> V {
-            // self.storage.get(&key.get_key(&self.prefix)).unwrap()
-            get_key(&key.get_key(&self.prefix))
-        }
-    
-        pub fn set(&mut self, key: &K, value: V) {
-            // self.storage.insert(key.get_key(&self.prefix), value);
-            set_key(&key.get_key(&self.prefix), value)
-        }
-    }
-
-    pub struct Variable<V> {
-        prefix: String,
-        value_type: V,
-        has_change: bool
-    }
-
-    impl<V> Deref for Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
-        type Target = V;
-        fn deref(&self) -> &Self::Target {
-            &self.value_type
-        }
-    }
-
-    impl<V> DerefMut for Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
-        fn deref_mut(&mut self) -> &mut Self::Target {
-            self.has_change = true;
-            &mut self.value_type
-        }
-    }
-
-    impl<V> Variable<V> where V: Clone + Default + FromBytes + ToBytes + CLTyped {
-        pub fn new(prefix: String, value: V) -> Self {
-            Variable {
-                prefix: prefix,
-                value_type: value,
-                has_change: true
-            }
-        }
-
-        pub fn get(&self) -> V {
-            // self.storage.get(&key.get_key(&self.prefix)).unwrap()
-            get_key(&self.prefix)
-        }
-    
-        pub fn set(&self) {
-            // self.storage.insert(key.get_key(&self.prefix), value);
-            set_key(&self.prefix, self.value_type.clone())
-        }
-
-        pub fn has_change(&self) -> bool {
-            self.has_change
-        }
-    }
-
-    pub trait Save {
-        fn save(&self);
-    }
-
-    pub trait GetKey {
-        fn get_key(&self, prefix: &String) -> String;
-    }
-
-    pub fn get_key<T: FromBytes + CLTyped + Default>(name: &str) -> T {
-        match runtime::get_key(name) {
-            None => Default::default(),
-            Some(value) => {
-                let key = value.try_into().unwrap_or_revert();
-                storage::read(key).unwrap_or_revert().unwrap_or_revert()
-            }
-        }
-    }
-    
-    pub fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
-        match runtime::get_key(name) {
-            Some(key) => {
-                let key_ref = key.try_into().unwrap_or_revert();
-                storage::write(key_ref, value);
-            }
-            None => {
-                let key = storage::new_uref(value).into();
-                runtime::put_key(name, key);
-            }
-        }
-    }
-    
+    runtime::call_contract::<()>(
+        contract_hash,
+        "new",
+        types::runtime_args! {
+            "token_name" => token_name,
+            "token_symbol" => token_symbol,
+            "total_supply" => total_supply
+        },
+    );
 }

@@ -2,7 +2,9 @@
 
 members = [
     "contract",
-	"tests"
+    "contract_macro",
+    "contract_vars",
+	"tests",
 ]
 
 [profile.release]
