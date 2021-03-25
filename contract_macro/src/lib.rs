@@ -1,9 +1,11 @@
 extern crate alloc;
 extern crate proc_macro;
+use std::ops::Add;
+
 use proc_macro::TokenStream;
-use proc_macro2::Span;
+use proc_macro2::{Ident, Span};
 use quote::{quote, quote_spanned};
-use syn::{self, FnArg, Data, DeriveInput, Fields, GenericParam, Generics, GenericArgument, Ident, Type, Path, PathArguments, parse_macro_input, parse_quote, spanned::Spanned};
+use syn::{self, FnArg, Data, DeriveInput, Fields, GenericParam, Generics, GenericArgument, Type, Path, PathArguments, parse_macro_input, parse_quote, spanned::Spanned};
 
 mod key {
     pub const __U64: &str = "u64";
@@ -11,15 +13,15 @@ mod key {
     pub const __STRING: &str = "String";
 }
 
-#[proc_macro_derive(ERC20Context)]
-pub fn casperlabs_context(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(Context)]
+pub fn casper_context(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree.
     let input = parse_macro_input!(input as DeriveInput);
 
     // Used in the quasi-quotation below as `#name`.
     let name = input.ident;
 
-    // Add a bound `T: ERC20Context` to every type parameter T.
+    // Add a bound `T: Context` to every type parameter T.
     let generics = add_trait_bounds(input.generics);
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
@@ -28,6 +30,9 @@ pub fn casperlabs_context(input: TokenStream) -> TokenStream {
 
     // Generate an expression to make save of each field
     let saves = create_save_fn(&input.data);
+
+    // Generate an expression to make GetKey impl
+    let getkeys = create_getkey_fn(&input.data);
 
     let gen = quote! {
         impl #impl_generics Default for #name #ty_generics #where_clause {
@@ -44,17 +49,7 @@ pub fn casperlabs_context(input: TokenStream) -> TokenStream {
             }
         }
 
-        impl GetKey for AccountHash {
-            fn get_key(&self, prefix: &String) -> String {
-                format!("{}_{}", prefix, self.to_string())
-            }
-        }
-        
-        impl GetKey for (AccountHash, AccountHash) {
-            fn get_key(&self, prefix: &String) -> String {
-                format!("{}_{}_{}", prefix, self.0.to_string(), self.1.to_string())
-            }
-        }
+        #getkeys
     };
 
     // Hand the output tokens back to the compiler.
@@ -65,7 +60,7 @@ pub fn casperlabs_context(input: TokenStream) -> TokenStream {
 // It loads the module of a given name and then iterates over the content of the
 // module
 #[proc_macro_attribute]
-pub fn casperlabs_contract(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn casper_contract(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let item: syn::ItemMod = syn::parse_macro_input!(input);
     let name = &item.ident;
     let mut deploy_args = proc_macro2::TokenStream::new();
@@ -95,7 +90,7 @@ pub fn casperlabs_contract(_attr: TokenStream, input: TokenStream) -> TokenStrea
 }
 
 #[proc_macro_attribute]
-pub fn casperlabs_initiator(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn casper_initiator(_attr: TokenStream, input: TokenStream) -> TokenStream {
     // An optional macro that loads the initating function for the contract which returns the BTreeMap
     // The macro itself does not return the BTreeMap
     let item: syn::ItemFn = syn::parse_macro_input!(input);
@@ -108,7 +103,7 @@ pub fn casperlabs_initiator(_attr: TokenStream, input: TokenStream) -> TokenStre
 }
 
 #[proc_macro_attribute]
-pub fn casperlabs_constructor(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn casper_constructor(_attr: TokenStream, input: TokenStream) -> TokenStream {
     // The macro responsible for generating the constructor
     let mut item: syn::ItemFn = syn::parse_macro_input!(input);
     let mut input_strings: Vec<String> = Vec::new();
@@ -157,7 +152,7 @@ pub fn casperlabs_constructor(_attr: TokenStream, input: TokenStream) -> TokenSt
 }
 
 #[proc_macro_attribute]
-pub fn casperlabs_method(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn casper_method(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut item: syn::ItemFn = syn::parse_macro_input!(input);
     let orignal_ident = item.sig.ident.clone();
     let return_type = item.sig.output.clone();
@@ -229,7 +224,7 @@ fn get_entry_points(
 )> {
     // The initial empty defintion Tokenstream that will be incrementally added to with various parts of the deploy function
     let mut definitions: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
-    // The start of the deploy function, which is mostly static and generic for any standard casperlabs contract
+    // The start of the deploy function, which is mostly static and generic for any standard casper contract
     let mut init = quote! {
         let (contract_package_hash, _) = storage::create_contract_package_at_hash();
         let _constructor_access_uref: URef = storage::create_contract_user_group(
@@ -249,15 +244,15 @@ fn get_entry_points(
     let mut contract_call: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
     // The constructor function has a different EntryAccessPoint as compared to regular function
     // We must thus create an identifier to see which of the annotated function is the constructor
-    let constructor_ident = Ident::new("casperlabs_constructor", Span::call_site());
+    let constructor_ident = Ident::new("casper_constructor", Span::call_site());
     // The intiating function must also be idenitfied so that the function can be placed in the deploy function
-    let member_ident = Ident::new("casperlabs_initiator", Span::call_site());
+    let member_ident = Ident::new("casper_initiator", Span::call_site());
     let mut init_ident: proc_macro2::TokenStream = quote! { Default::default() };
     // Empty token stream that will change depending on the type of function passed to it (constructor/method)
     let mut access_token: proc_macro2::TokenStream;
     // Loop over every possible function and match to see if it is indeed a function, the statment could be a literal like
     //  'use::super::*;'
-    //  For every #[casperlabs_methods] in the contract module
+    //  For every #[casper_methods] in the contract module
     let mut constructor_presence: bool = false;
     for func in funcs {
         if let syn::Item::Fn(func_body) = func {
@@ -277,7 +272,7 @@ fn get_entry_points(
                     contract_call.extend(call);
                     deploy_args.extend(__d_args);
                 } else {
-                    //  EntryAccessPoint for a regular casperlabs_method
+                    //  EntryAccessPoint for a regular casper_method
                     access_token = quote! { EntryPointAccess::Public };
                 }
                 let name = &func_body.sig.ident;
@@ -296,7 +291,7 @@ fn get_entry_points(
                     #arg
                     ]
                 };
-                // Setup each entry point for the casperlabs_method or one single entry point
+                // Setup each entry point for the casper_method or one single entry point
                 // for the constructor
                 let gen = quote! {
                     entry_points.add_entry_point(EntryPoint::new(
@@ -330,7 +325,7 @@ fn get_entry_points(
     }
     let string_name = format!("{}", name);
     let string_hash_name = format!("{}_hash", string_name);
-    //  Setup the tail end of the deploy function with remains mostly generic for all casperlabs contracts
+    //  Setup the tail end of the deploy function with remains mostly generic for all casper contracts
     let tail = quote! {
         let (contract_hash, _) = storage::add_contract_version(contract_package_hash, entry_points, #init_ident);
         runtime::put_key(#string_name,contract_hash.into());
@@ -578,11 +573,11 @@ fn get_cltype_from_parameter(arg_str: &Ident) -> proc_macro2::TokenStream {
     }
 }
 
-// Add a bound `T: ERC20Context` to every type parameter T.
+// Add a bound `T: Context` to every type parameter T.
 fn add_trait_bounds(mut generics: Generics) -> Generics {
     for param in &mut generics.params {
         if let GenericParam::Type(ref mut type_param) = *param {
-            type_param.bounds.push(parse_quote!(contract_vars::ERC20Context));
+            type_param.bounds.push(parse_quote!(contract_vars::Context));
         }
     }
     generics
@@ -602,21 +597,21 @@ fn create_default_fn(data: &Data) -> proc_macro2::TokenStream {
                                 let type_params = &typepath.path.segments.iter().next().unwrap().arguments;
                                 let generic_arg = match type_params {
                                     PathArguments::AngleBracketed(params) => params.args.iter().next().unwrap(),
-                                    _ => panic!("Variable: parse failed in generic arguments"),
+                                    _ => panic!("Variable: Default parse failed in generic arguments"),
                                 };
                                 match generic_arg {
                                     GenericArgument::Type(nty) => {
                                         let name_str = name.clone().unwrap().to_string();
                                         (&typepath.path.segments.iter().next().unwrap().ident, quote! { ::new(String::from(#name_str), #nty::default()) })
                                     },
-                                    _ => panic!("Variable: parse failed in generic arguments"),
+                                    _ => panic!("Variable: Default parse failed in generic arguments"),
                                 }
                             }
                             Type::Path(typepath) if typepath.qself.is_none() && path_is_map(&typepath.path) => {
                                 let name_str = name.clone().unwrap().to_string();
                                 (&typepath.path.segments.iter().next().unwrap().ident, quote! { ::new(String::from(#name_str)) })
                             } 
-                            _ => panic!("No parser: Paser only exists for Variable and Map")
+                            _ => panic!("No parser: Default parse only exists for Variable and Map")
                         };
                         if main_ty == "Variable" || main_ty == "Map" {
                             quote_spanned! {f.span() => #name: #main_ty#content,}
@@ -653,10 +648,75 @@ fn create_save_fn(data: &Data) -> proc_macro2::TokenStream {
                             Type::Path(typepath) if typepath.qself.is_none() && path_is_map(&typepath.path) => {
                                 (&typepath.path.segments.iter().next().unwrap().ident, quote! {})
                             } 
-                            _ => panic!("No parser: Paser only exists for Variable and Map")
+                            _ => panic!("No parser: Save parse only exists for Variable and Map")
                         };
                         if main_ty == "Variable" {
                             quote! {#sub_recurse}
+                        } else {
+                            quote! {}
+                        }
+                    });
+                    quote! {#(#recurse)*}
+                }
+                _ => quote! {}
+            }
+        }
+        Data::Enum(_) | Data::Union(_) => unimplemented!(),
+    }
+}
+
+// Generate an expression to make GetKey impl
+fn create_getkey_fn(data: &Data) -> proc_macro2::TokenStream {
+    match *data {
+        Data::Struct(ref data) => {
+            match data.fields {
+                Fields::Named(ref fields) => {
+                    let recurse = fields.named.iter().map(|f| {
+                        let ty = &f.ty;
+                        let (main_ty, content) = match ty {
+                            Type::Path(typepath) if typepath.qself.is_none() && path_is_map(&typepath.path) => {
+                                let type_params = &typepath.path.segments.iter().next().unwrap().arguments;
+                                let generic_arg = match type_params {
+                                    PathArguments::AngleBracketed(params) => params.args.iter().next().unwrap(),
+                                    _ => panic!("Variable: Default parse failed in generic arguments"),
+                                };
+                                match generic_arg {
+                                    GenericArgument::Type(nty) => {
+                                        (&typepath.path.segments.iter().next().unwrap().ident, quote! { #nty })
+                                    },
+                                    _ => panic!("Variable: Default parse failed in generic arguments"),
+                                }
+                            } 
+                            Type::Path(typepath) if typepath.qself.is_none() && path_is_variable(&typepath.path) => {
+                                (&typepath.path.segments.iter().next().unwrap().ident, quote! {})
+                            } 
+                            _ => panic!("No parser: GetKey parser only exists for Map")
+                        };
+                        if main_ty == "Map" {
+                            let mut content_str = content.to_string().replace(&['(', ')', ' '][..], "");
+                            let account_hash_cnt = content_str.matches("AccountHash").count();
+                            content_str = content_str.replace("AccountHash", "").replace(",", "");
+                            if !content_str.is_empty() || account_hash_cnt == 0 { 
+                                panic!("Map key should be AccountHash or (AccountHash, ... )");
+                            }
+                            let mut format_str = String::from("{}");
+                            let mut param_str = String::new();
+                            for i in 0..account_hash_cnt {
+                                format_str = format_str.add("_{}");
+                                param_str = param_str.add(&format!("self.{}.to_string(),", i));
+                            }
+                            if account_hash_cnt == 1 {
+                                param_str = String::from("self.to_string(),");
+                            }
+                            param_str.pop();
+                            let param_ident = param_str.parse::<::proc_macro2::TokenStream>().unwrap();
+                            quote! {
+                                impl GetKey for #content {
+                                    fn get_key(&self, prefix: &String) -> String {
+                                        format!(#format_str, prefix, #param_ident)
+                                    }
+                                }
+                            }
                         } else {
                             quote! {}
                         }

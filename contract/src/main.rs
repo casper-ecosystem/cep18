@@ -3,20 +3,20 @@ use std::collections::BTreeSet;
 use types::{CLTyped, RuntimeArgs};
 
 mod dsl;
-use contract_vars::{ERC20Context, Save};
+use contract_vars::{Context, Save};
 use dsl::{
     runtime, storage,
     types::{account::AccountHash, U256},
     GetKey, Map, UnwrapOrRevert, Variable,
 };
 
-#[derive(ERC20Context)]
+#[derive(Context)]
 struct ERC20 {
     token_name: Variable<String>,
     token_symbol: Variable<String>,
     total_supply: Variable<U256>,
     balances: Map<AccountHash, U256>,
-    allowances: Map<(AccountHash, AccountHash), U256>,
+    allowances: Map<(AccountHash, AccountHash), U256>
 }
 
 // #[casper_contract]
