@@ -1,6 +1,6 @@
 pub use contract_macro::*;
 
-pub trait ERC20Context {
+pub trait Context {
     fn func() {}
 }
 
