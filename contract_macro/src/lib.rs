@@ -4,7 +4,7 @@ use std::ops::Add;
 
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use quote::{quote, quote_spanned};
+use quote::{__private::ext::RepToTokensExt, quote, quote_spanned};
 use syn::{self, FnArg, Data, DeriveInput, Fields, GenericParam, Generics, GenericArgument, Type, Path, PathArguments, parse_macro_input, parse_quote, spanned::Spanned};
 
 mod key {
@@ -78,7 +78,11 @@ pub fn casper_method(_attr: TokenStream, input: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn casper_contract(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let item: syn::ItemImpl = syn::parse_macro_input!(input);
-    let name = Ident::new("ERC20", Span::call_site());
+    let name = match &*item.self_ty {
+        syn::Type::Path(tp) => tp.path.next().unwrap().get_ident().unwrap(),
+        _ => panic!("not supported tokens"),
+    };
+    // let name = Ident::new("ERC20", Span::call_site());
     let mut deploy_def = proc_macro2::TokenStream::new();
     let mut method_def = proc_macro2::TokenStream::new();
     let (deploy_def_content, method_def_content) = 
@@ -148,9 +152,10 @@ fn get_entry_points(
                 if constructor_ident == func_body.attrs[0].path.segments[0].ident {
                     constructor_presence = true;
                     access_token = quote! { EntryPointAccess::Groups(vec![constructor_group]) };
-                    let (call, __d_args) = get_call(&func_body);
+                    let (call, __d_args, definition_content) = get_call(&name, &func_body);
                     contract_call.extend(call);
                     deploy_args.extend(__d_args);
+                    definitions.extend(definition_content);
                 } else {
                     //  EntryAccessPoint for a regular casper_method
                     access_token = quote! { EntryPointAccess::Public };
@@ -232,7 +237,7 @@ pub fn casper_initiator(_attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 // Construct the content for the contract call to be placed in the deploy method
-fn get_call(init: &syn::ImplItemMethod) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+fn get_call(impl_name: &Ident, init: &syn::ImplItemMethod) -> (proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream) {
     // The name of the function that must be called
     let name = &init.sig.ident.clone();
     // Generate the string represenation of the function name
@@ -243,6 +248,7 @@ fn get_call(init: &syn::ImplItemMethod) -> (proc_macro2::TokenStream, proc_macro
     // takes. Thus we create a new empty token stream for it
     let mut args: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
     let mut decs: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+    let mut input_strings: Vec<String> = Vec::new();
     // For every argument in the arguments of the function defintion
     // Loop over and fill both token streams
     for indiviual_input in &init.sig.inputs {
@@ -255,6 +261,7 @@ fn get_call(init: &syn::ImplItemMethod) -> (proc_macro2::TokenStream, proc_macro
         let input_dec = quote! { #arg_name: #arg_type, };
         // Fill the arguments for the call_contract function
         args.extend(temp);
+        input_strings.push(arg);
         // Fill the arguments for the deploy function
         input_for_deploy.extend(input_dec);
         decs.extend(dec);
@@ -270,8 +277,18 @@ fn get_call(init: &syn::ImplItemMethod) -> (proc_macro2::TokenStream, proc_macro
             }
         );
     };
+    let string_input_arg = input_strings.join(",");
+    let input_args = string_input_arg.parse::<::proc_macro2::TokenStream>().unwrap();
+    let method = quote! {
+        #[no_mangle]
+        pub extern "C" fn #name() {
+            #decs
+            let contract = #impl_name::#name(#input_args);
+            contract.save();
+        }
+    };
     // Return the call_contract code, along with the inputs for the deploy
-    (gen, input_for_deploy)
+    (gen, input_for_deploy, method)
 }
 
 fn get_param(arg: &FnArg) -> proc_macro2::TokenStream {
