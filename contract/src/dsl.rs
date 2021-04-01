@@ -11,10 +11,20 @@ pub use contract::contract_api::runtime;
 pub use contract::contract_api::storage;
 pub use contract::unwrap_or_revert::UnwrapOrRevert;
 pub use types;
+pub use contract_macro::*;
 use types::{
     bytesrepr::{FromBytes, ToBytes},
     CLTyped,
 };
+
+pub trait Context {
+    fn func() {}
+}
+
+pub trait Save {
+    fn save(&self);
+}
+
 
 pub struct Map<K, V> {
     prefix: String,

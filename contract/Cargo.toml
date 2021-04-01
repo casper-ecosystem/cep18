@@ -9,14 +9,13 @@ contract = { package = "casper-contract", version="0.7.6" }
 types = { package = "casper-types", version="0.7.6" }
 # casperlabs_contract_macro = { git = "https://github.com/CasperLabs/casperlabs_contract_macro", branch = "dev", package = "casperlabs-contract-macro"}
 contract_macro = { path = "../contract_macro" }
-contract_vars = { path = "../contract_vars" }
 
 [[bin]]
 name = "contract"
 path = "src/main.rs"
 bench = false
 doctest = false
-test = false
+test = true
 
 [features]
 default = ["contract/std", "types/std"]
