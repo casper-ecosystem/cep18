@@ -1,14 +1,7 @@
 #![no_main]
-use std::collections::BTreeSet;
-use types::{
-    account::AccountHash,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    runtime_args, CLType, CLTyped, Group, Parameter, RuntimeArgs, URef, U256,
-};
 
-mod dsl;
-use contract_macro::{casper_constructor, casper_contract, casper_method};
-use dsl::{runtime, storage, Context, GetKey, Map, Save, UnwrapOrRevert, Variable};
+use casper_dsl::dsl::*;
+use casper_dsl::types::{account::AccountHash, U256};
 
 #[derive(Context)]
 struct ERC20 {
@@ -30,34 +23,42 @@ impl ERC20 {
         erc20.token_symbol = Variable::new(String::from("token_symbol"), token_symbol);
         erc20
     }
+
     #[casper_method]
     pub fn name(&self) -> String {
         self.token_name.get()
     }
+
     #[casper_method]
     pub fn symbol(&self) -> String {
         self.token_symbol.get()
     }
+
     #[casper_method]
     pub fn total_supply(&self) -> U256 {
         self.total_supply.get()
     }
+
     #[casper_method]
     pub fn balance_of(&self, address: AccountHash) -> U256 {
         self.balances.get(&address)
     }
+
     #[casper_method]
     pub fn transfer(&mut self, recipient: AccountHash, amount: U256) {
         self._transfer(runtime::get_caller(), recipient, amount)
     }
+
     #[casper_method]
     pub fn allowance(&self, owner: AccountHash, spender: AccountHash) -> U256 {
         self.allowances.get(&(owner, spender))
     }
+
     #[casper_method]
     pub fn approve(&mut self, spender: AccountHash, amount: U256) {
         self._approve(runtime::get_caller(), spender, amount);
     }
+
     #[casper_method]
     pub fn transfer_from(&mut self, owner: AccountHash, recipient: AccountHash, amount: U256) {
         let spender = runtime::get_caller();

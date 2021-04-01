@@ -2,7 +2,6 @@
 
 members = [
     "contract",
-    "contract_macro",
 	"tests",
 ]
 

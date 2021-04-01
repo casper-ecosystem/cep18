@@ -5,10 +5,7 @@ authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
 edition = "2018"
 
 [dependencies]
-contract = { package = "casper-contract", version="0.7.6" }
-types = { package = "casper-types", version="0.7.6" }
-# casperlabs_contract_macro = { git = "https://github.com/CasperLabs/casperlabs_contract_macro", branch = "dev", package = "casperlabs-contract-macro"}
-contract_macro = { path = "../contract_macro" }
+casper-dsl = { git = "https://github.com/casper-ecosystem/casper-dsl", branch = "dev" }
 
 [[bin]]
 name = "contract"
@@ -16,6 +13,3 @@ path = "src/main.rs"
 bench = false
 doctest = false
 test = true
-
-[features]
-default = ["contract/std", "types/std"]
