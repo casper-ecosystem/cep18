@@ -18,9 +18,9 @@ impl ERC20 {
     pub fn new(token_name: String, token_symbol: String, total_supply: U256) -> ERC20 {
         let mut erc20 = ERC20::default();
         erc20.balances.set(&runtime::get_caller(), total_supply);
-        erc20.total_supply = Variable::new(String::from("total_supply"), total_supply);
-        erc20.token_name = Variable::new(String::from("token_name"), token_name);
-        erc20.token_symbol = Variable::new(String::from("token_symbol"), token_symbol);
+        *erc20.total_supply = total_supply;
+        *erc20.token_name = token_name;
+        *erc20.token_symbol = token_symbol;
         erc20
     }
 
