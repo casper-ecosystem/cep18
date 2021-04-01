@@ -3,7 +3,6 @@
 members = [
     "contract",
     "contract_macro",
-    "contract_vars",
 	"tests",
 ]
 

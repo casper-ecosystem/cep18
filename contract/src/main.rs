@@ -8,8 +8,7 @@ use types::{
 
 mod dsl;
 use contract_macro::{casper_constructor, casper_contract, casper_method};
-use contract_vars::{Context, Save};
-use dsl::{runtime, storage, GetKey, Map, UnwrapOrRevert, Variable};
+use dsl::{runtime, storage, Context, GetKey, Map, Save, UnwrapOrRevert, Variable};
 
 #[derive(Context)]
 struct ERC20 {
