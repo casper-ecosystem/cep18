@@ -5,9 +5,9 @@ authors = ["karandh <karan@casperlabs.io>", "Maciej Zieliński <maciej@casperlab
 edition = "2018"
 
 [dependencies]
-casper-contract = "0.7.6"
-casper-types = "0.7.6"
-casper-engine-test-support = "0.7.6"
+casper-contract = "1.1.0"
+casper-types = "1.1.0"
+casper-engine-test-support = "1.1.0"
 
 [features]
 default = ["casper-contract/std", "casper-types/std", "casper-contract/test-support"]

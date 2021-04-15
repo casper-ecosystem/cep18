@@ -18,22 +18,9 @@ use contract::{
 use types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
+    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
     runtime_args, CLType, CLTyped, CLValue, Group, Parameter, RuntimeArgs, URef, U256,
 };
-
-#[no_mangle]
-pub extern "C" fn constructor() {
-    let tokenName: String = runtime::get_named_arg("tokenName");
-    let tokenSymbol: String = runtime::get_named_arg("tokenSymbol");
-    let tokenTotalSupply: U256 = runtime::get_named_arg("tokenTotalSupply");
-    set_key("_name", tokenName);
-    set_key("_symbol", tokenSymbol);
-    set_key("_decimals", 18u8);
-    let balance = balance_key(&runtime::get_caller());
-    set_key(&balance, tokenTotalSupply);
-    set_key("_totalSupply", tokenTotalSupply);
-}
 
 #[no_mangle]
 pub extern "C" fn name() {
@@ -101,29 +88,8 @@ pub extern "C" fn call() {
     let tokenName: String = runtime::get_named_arg("tokenName");
     let tokenSymbol: String = runtime::get_named_arg("tokenSymbol");
     let tokenTotalSupply: U256 = runtime::get_named_arg("tokenTotalSupply");
-    let (contract_package_hash, _) = storage::create_contract_package_at_hash();
-    let _constructor_access_uref: URef = storage::create_contract_user_group(
-        contract_package_hash,
-        "constructor_group",
-        1,
-        BTreeSet::new(),
-    )
-    .unwrap_or_revert()
-    .pop()
-    .unwrap_or_revert();
-    let constructor_group = Group::new("constructor_group");
+
     let mut entry_points = EntryPoints::new();
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("constructor"),
-        vec![
-            Parameter::new("tokenName", CLType::String),
-            Parameter::new("tokenSymbol", CLType::String),
-            Parameter::new("tokenTotalSupply", CLType::U256),
-        ],
-        CLType::Unit,
-        EntryPointAccess::Groups(vec![constructor_group]),
-        EntryPointType::Contract,
-    ));
     entry_points.add_entry_point(EntryPoint::new(
         String::from("name"),
         vec![],
@@ -200,20 +166,17 @@ pub extern "C" fn call() {
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
-    let (contract_hash, _) =
-        storage::add_contract_version(contract_package_hash, entry_points, Default::default());
+
+    let mut named_keys = NamedKeys::new();
+    named_keys.insert("_name".to_string(), storage::new_uref(tokenName).into());
+    named_keys.insert("_symbol".to_string(), storage::new_uref(tokenSymbol).into());
+    named_keys.insert("_decimals".to_string(), storage::new_uref(18u8).into());
+    named_keys.insert("_totalSupply".to_string(), storage::new_uref(tokenTotalSupply).into());
+    named_keys.insert(balance_key(&runtime::get_caller()), storage::new_uref(tokenTotalSupply).into());
+
+    let (contract_hash, _) = storage::new_locked_contract(entry_points, Some(named_keys), None, None);
     runtime::put_key("ERC20", contract_hash.into());
-    let contract_hash_pack = storage::new_uref(contract_hash);
-    runtime::put_key("ERC20_hash", contract_hash_pack.into());
-    runtime::call_contract::<()>(contract_hash, "constructor", {
-        let mut named_args = RuntimeArgs::new();
-        named_args.insert("tokenName", tokenName).unwrap();
-        named_args.insert("tokenSymbol", tokenSymbol).unwrap();
-        named_args
-            .insert("tokenTotalSupply", tokenTotalSupply)
-            .unwrap();
-        named_args
-    });
+    runtime::put_key("ERC20_hash", storage::new_uref(contract_hash).into());
 }
 
 fn _transfer(sender: AccountHash, recipient: AccountHash, amount: U256) {
