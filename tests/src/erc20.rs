@@ -1,10 +1,10 @@
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
-use casper_types::{CLTyped, PublicKey, RuntimeArgs, U256, U512, account::AccountHash, bytesrepr::FromBytes, runtime_args};
+use casper_types::{CLTyped, PublicKey, RuntimeArgs, U256, U512, account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType};
 
 pub mod token_cfg {
     use super::*;
     pub const NAME: &str = "ERC20";
-    pub const SYMBOL: &str = "STX";
+    pub const SYMBOL: &str = "ERC";
     pub const DECIMALS: u8 = 18;
     pub fn total_supply() -> U256 {
         1_000.into()
@@ -22,13 +22,13 @@ pub struct Token {
 
 impl Token {
     pub fn deployed() -> Token {
-        let ali = PublicKey::ed25519([3u8; 32]).unwrap();
-        let bob = PublicKey::ed25519([6u8; 32]).unwrap();
-        let joe = PublicKey::ed25519([9u8; 32]).unwrap();
+        let ali = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
+        let bob = PublicKey::ed25519_from_bytes([6u8; 32]).unwrap();
+        let joe = PublicKey::ed25519_from_bytes([9u8; 32]).unwrap();
 
         let mut context = TestContextBuilder::new()
-            .with_public_key(ali, ali.to_account_hash(), U512::from(500_000_000_000_000_000u64))
-            .with_public_key(bob, bob.to_account_hash(), U512::from(500_000_000_000_000_000u64))
+            .with_public_key(ali.clone(), U512::from(500_000_000_000_000_000u64))
+            .with_public_key(bob.clone(), U512::from(500_000_000_000_000_000u64))
             .build();
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
