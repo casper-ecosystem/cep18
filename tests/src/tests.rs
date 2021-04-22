@@ -1,6 +1,4 @@
-use crate::erc20::{
-    token_cfg, Sender, Token,
-};
+use crate::erc20::{token_cfg, Sender, Token};
 
 #[test]
 fn test_erc20_deploy() {

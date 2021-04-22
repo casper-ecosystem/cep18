@@ -1,5 +1,8 @@
 use casper_engine_test_support::{Code, Hash, SessionBuilder, TestContext, TestContextBuilder};
-use casper_types::{CLTyped, PublicKey, RuntimeArgs, U256, U512, account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType};
+use casper_types::{
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, AsymmetricType, CLTyped, PublicKey,
+    RuntimeArgs, U256, U512,
+};
 
 pub mod token_cfg {
     use super::*;
@@ -17,7 +20,7 @@ pub struct Token {
     context: TestContext,
     pub ali: AccountHash,
     pub bob: AccountHash,
-    pub joe: AccountHash
+    pub joe: AccountHash,
 }
 
 impl Token {
@@ -41,7 +44,12 @@ impl Token {
             .with_authorization_keys(&[ali.to_account_hash()])
             .build();
         context.run(session);
-        Token { context, ali: ali.to_account_hash(), bob: bob.to_account_hash(), joe: joe.to_account_hash() }
+        Token {
+            context,
+            ali: ali.to_account_hash(),
+            bob: bob.to_account_hash(),
+            joe: joe.to_account_hash(),
+        }
     }
 
     fn contract_hash(&self) -> Hash {
