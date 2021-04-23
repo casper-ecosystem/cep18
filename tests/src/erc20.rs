@@ -30,8 +30,8 @@ impl Token {
         let joe = PublicKey::ed25519_from_bytes([9u8; 32]).unwrap();
 
         let mut context = TestContextBuilder::new()
-            .with_public_key(ali.clone(), U512::from(500_000_000_000_000_000u64))
-            .with_public_key(bob.clone(), U512::from(500_000_000_000_000_000u64))
+            .with_public_key(ali, U512::from(500_000_000_000_000_000u64))
+            .with_public_key(bob, U512::from(500_000_000_000_000_000u64))
             .build();
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
