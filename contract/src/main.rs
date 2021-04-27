@@ -171,10 +171,17 @@ pub extern "C" fn call() {
     named_keys.insert("_name".to_string(), storage::new_uref(tokenName).into());
     named_keys.insert("_symbol".to_string(), storage::new_uref(tokenSymbol).into());
     named_keys.insert("_decimals".to_string(), storage::new_uref(18u8).into());
-    named_keys.insert("_totalSupply".to_string(), storage::new_uref(tokenTotalSupply).into());
-    named_keys.insert(balance_key(&runtime::get_caller()), storage::new_uref(tokenTotalSupply).into());
+    named_keys.insert(
+        "_totalSupply".to_string(),
+        storage::new_uref(tokenTotalSupply).into(),
+    );
+    named_keys.insert(
+        balance_key(&runtime::get_caller()),
+        storage::new_uref(tokenTotalSupply).into(),
+    );
 
-    let (contract_hash, _) = storage::new_locked_contract(entry_points, Some(named_keys), None, None);
+    let (contract_hash, _) =
+        storage::new_locked_contract(entry_points, Some(named_keys), None, None);
     runtime::put_key("ERC20", contract_hash.into());
     runtime::put_key("ERC20_hash", storage::new_uref(contract_hash).into());
 }
