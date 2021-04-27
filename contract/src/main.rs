@@ -100,12 +100,12 @@ pub extern "C" fn call() {
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit
+        CLType::Unit,
     ));
     entry_points.add_entry_point(endpoint(
         "balance_of",
         vec![Parameter::new("account", AccountHash::cl_type())],
-        CLType::U256
+        CLType::U256,
     ));
     entry_points.add_entry_point(endpoint(
         "allowance",
@@ -113,7 +113,7 @@ pub extern "C" fn call() {
             Parameter::new("owner", AccountHash::cl_type()),
             Parameter::new("spender", AccountHash::cl_type()),
         ],
-        CLType::U256
+        CLType::U256,
     ));
     entry_points.add_entry_point(endpoint(
         "approve",
@@ -121,7 +121,7 @@ pub extern "C" fn call() {
             Parameter::new("spender", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit
+        CLType::Unit,
     ));
     entry_points.add_entry_point(endpoint(
         "transfer_from",
@@ -130,7 +130,7 @@ pub extern "C" fn call() {
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit
+        CLType::Unit,
     ));
 
     let mut named_keys = NamedKeys::new();
