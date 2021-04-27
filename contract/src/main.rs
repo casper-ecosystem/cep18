@@ -41,7 +41,7 @@ pub extern "C" fn decimals() {
 }
 
 #[no_mangle]
-pub extern "C" fn totalSupply() {
+pub extern "C" fn total_supply() {
     let val: U256 = get_key("_totalSupply");
     ret(val)
 }
@@ -76,11 +76,11 @@ pub extern "C" fn transfer() {
 }
 
 #[no_mangle]
-pub extern "C" fn transferFrom() {
+pub extern "C" fn transfer_from() {
     let owner: AccountHash = runtime::get_named_arg("owner");
     let recipient: AccountHash = runtime::get_named_arg("recipient");
     let amount: U256 = runtime::get_named_arg("amount");
-    _transferFrom(owner, recipient, amount);
+    _transfer_from(owner, recipient, amount);
 }
 
 #[no_mangle]
@@ -90,81 +90,42 @@ pub extern "C" fn call() {
     let tokenTotalSupply: U256 = runtime::get_named_arg("tokenTotalSupply");
 
     let mut entry_points = EntryPoints::new();
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("name"),
-        vec![],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("symbol"),
-        vec![],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("decimals"),
-        vec![],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("totalSupply"),
-        vec![],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("transfer"),
+    entry_points.add_entry_point(endpoint("name", vec![]));
+    entry_points.add_entry_point(endpoint("symbol", vec![]));
+    entry_points.add_entry_point(endpoint("decimals", vec![]));
+    entry_points.add_entry_point(endpoint("total_supply", vec![]));
+    entry_points.add_entry_point(endpoint(
+        "transfer",
         vec![
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
     ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("balance_of"),
+    entry_points.add_entry_point(endpoint(
+        "balance_of",
         vec![Parameter::new("account", AccountHash::cl_type())],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
     ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("allowance"),
+    entry_points.add_entry_point(endpoint(
+        "allowance",
         vec![
             Parameter::new("owner", AccountHash::cl_type()),
             Parameter::new("spender", AccountHash::cl_type()),
         ],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
     ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("approve"),
+    entry_points.add_entry_point(endpoint(
+        "approve",
         vec![
             Parameter::new("spender", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
     ));
-    entry_points.add_entry_point(EntryPoint::new(
-        String::from("transferFrom"),
+    entry_points.add_entry_point(endpoint(
+        "transfer_from",
         vec![
             Parameter::new("owner", AccountHash::cl_type()),
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
     ));
 
     let mut named_keys = NamedKeys::new();
@@ -195,7 +156,7 @@ fn _transfer(sender: AccountHash, recipient: AccountHash, amount: U256) {
     set_key(&recipient_key, new_recipient_balance);
 }
 
-fn _transferFrom(owner: AccountHash, recipient: AccountHash, amount: U256) {
+fn _transfer_from(owner: AccountHash, recipient: AccountHash, amount: U256) {
     let key = allowance_key(&owner, &runtime::get_caller());
     _transfer(owner, recipient, amount);
     _approve(
@@ -242,4 +203,14 @@ fn balance_key(account: &AccountHash) -> String {
 
 fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
     format!("_allowances_{}_{}", owner, sender)
+}
+
+fn endpoint(name: &str, param: Vec<Parameter>) -> EntryPoint {
+    EntryPoint::new(
+        String::from(name),
+        param,
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
 }
