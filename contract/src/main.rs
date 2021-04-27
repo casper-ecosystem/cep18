@@ -90,20 +90,22 @@ pub extern "C" fn call() {
     let tokenTotalSupply: U256 = runtime::get_named_arg("tokenTotalSupply");
 
     let mut entry_points = EntryPoints::new();
-    entry_points.add_entry_point(endpoint("name", vec![]));
-    entry_points.add_entry_point(endpoint("symbol", vec![]));
-    entry_points.add_entry_point(endpoint("decimals", vec![]));
-    entry_points.add_entry_point(endpoint("total_supply", vec![]));
+    entry_points.add_entry_point(endpoint("name", vec![], CLType::String));
+    entry_points.add_entry_point(endpoint("symbol", vec![], CLType::String));
+    entry_points.add_entry_point(endpoint("decimals", vec![], CLType::U8));
+    entry_points.add_entry_point(endpoint("total_supply", vec![], CLType::U32));
     entry_points.add_entry_point(endpoint(
         "transfer",
         vec![
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
+        CLType::Unit
     ));
     entry_points.add_entry_point(endpoint(
         "balance_of",
         vec![Parameter::new("account", AccountHash::cl_type())],
+        CLType::U256
     ));
     entry_points.add_entry_point(endpoint(
         "allowance",
@@ -111,6 +113,7 @@ pub extern "C" fn call() {
             Parameter::new("owner", AccountHash::cl_type()),
             Parameter::new("spender", AccountHash::cl_type()),
         ],
+        CLType::U256
     ));
     entry_points.add_entry_point(endpoint(
         "approve",
@@ -118,6 +121,7 @@ pub extern "C" fn call() {
             Parameter::new("spender", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
+        CLType::Unit
     ));
     entry_points.add_entry_point(endpoint(
         "transfer_from",
@@ -126,6 +130,7 @@ pub extern "C" fn call() {
             Parameter::new("recipient", AccountHash::cl_type()),
             Parameter::new("amount", CLType::U256),
         ],
+        CLType::Unit
     ));
 
     let mut named_keys = NamedKeys::new();
@@ -205,11 +210,11 @@ fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
     format!("_allowances_{}_{}", owner, sender)
 }
 
-fn endpoint(name: &str, param: Vec<Parameter>) -> EntryPoint {
+fn endpoint(name: &str, param: Vec<Parameter>, ret: CLType) -> EntryPoint {
     EntryPoint::new(
         String::from(name),
         param,
-        CLType::Unit,
+        ret,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
