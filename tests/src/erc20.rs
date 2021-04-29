@@ -86,24 +86,24 @@ impl Token {
     }
 
     pub fn name(&self) -> String {
-        self.query_contract("_name").unwrap()
+        self.query_contract("name").unwrap()
     }
 
     pub fn symbol(&self) -> String {
-        self.query_contract("_symbol").unwrap()
+        self.query_contract("symbol").unwrap()
     }
 
     pub fn decimals(&self) -> u8 {
-        self.query_contract("_decimals").unwrap()
+        self.query_contract("decimals").unwrap()
     }
 
     pub fn balance_of(&self, account: AccountHash) -> U256 {
-        let key = format!("_balances_{}", account);
+        let key = format!("balances_{}", account);
         self.query_contract(&key).unwrap_or_default()
     }
 
     pub fn allowance(&self, owner: AccountHash, spender: AccountHash) -> U256 {
-        let key = format!("_allowances_{}_{}", owner, spender);
+        let key = format!("allowances_{}_{}", owner, spender);
         self.query_contract(&key).unwrap_or_default()
     }
 

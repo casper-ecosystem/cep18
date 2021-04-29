@@ -24,25 +24,25 @@ use types::{
 
 #[no_mangle]
 pub extern "C" fn name() {
-    let val: String = get_key("_name");
+    let val: String = get_key("name");
     ret(val)
 }
 
 #[no_mangle]
 pub extern "C" fn symbol() {
-    let val: String = get_key("_symbol");
+    let val: String = get_key("symbol");
     ret(val)
 }
 
 #[no_mangle]
 pub extern "C" fn decimals() {
-    let val: u8 = get_key("_decimals");
+    let val: u8 = get_key("decimals");
     ret(val)
 }
 
 #[no_mangle]
 pub extern "C" fn total_supply() {
-    let val: U256 = get_key("_totalSupply");
+    let val: U256 = get_key("total_supply");
     ret(val)
 }
 
@@ -134,11 +134,11 @@ pub extern "C" fn call() {
     ));
 
     let mut named_keys = NamedKeys::new();
-    named_keys.insert("_name".to_string(), storage::new_uref(tokenName).into());
-    named_keys.insert("_symbol".to_string(), storage::new_uref(tokenSymbol).into());
-    named_keys.insert("_decimals".to_string(), storage::new_uref(18u8).into());
+    named_keys.insert("name".to_string(), storage::new_uref(tokenName).into());
+    named_keys.insert("symbol".to_string(), storage::new_uref(tokenSymbol).into());
+    named_keys.insert("decimals".to_string(), storage::new_uref(18u8).into());
     named_keys.insert(
-        "_totalSupply".to_string(),
+        "total_supply".to_string(),
         storage::new_uref(tokenTotalSupply).into(),
     );
     named_keys.insert(
@@ -203,11 +203,11 @@ fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
 }
 
 fn balance_key(account: &AccountHash) -> String {
-    format!("_balances_{}", account)
+    format!("balances_{}", account)
 }
 
 fn allowance_key(owner: &AccountHash, sender: &AccountHash) -> String {
-    format!("_allowances_{}_{}", owner, sender)
+    format!("allowances_{}_{}", owner, sender)
 }
 
 fn endpoint(name: &str, param: Vec<Parameter>, ret: CLType) -> EntryPoint {
