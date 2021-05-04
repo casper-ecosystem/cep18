@@ -8,7 +8,7 @@ pub mod token_cfg {
     use super::*;
     pub const NAME: &str = "ERC20";
     pub const SYMBOL: &str = "ERC";
-    pub const DECIMALS: u8 = 18;
+    pub const DECIMALS: u8 = 8;
     pub fn total_supply() -> U256 {
         1_000.into()
     }
@@ -35,9 +35,10 @@ impl Token {
             .build();
         let session_code = Code::from("contract.wasm");
         let session_args = runtime_args! {
-            "tokenName" => token_cfg::NAME,
-            "tokenSymbol" => token_cfg::SYMBOL,
-            "tokenTotalSupply" => token_cfg::total_supply()
+            "token_name" => token_cfg::NAME,
+            "token_symbol" => token_cfg::SYMBOL,
+            "token_decimals" => token_cfg::DECIMALS,
+            "token_total_supply" => token_cfg::total_supply()
         };
         let session = SessionBuilder::new(session_code, session_args)
             .with_address(ali.to_account_hash())

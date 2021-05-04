@@ -85,9 +85,10 @@ pub extern "C" fn transfer_from() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let tokenName: String = runtime::get_named_arg("tokenName");
-    let tokenSymbol: String = runtime::get_named_arg("tokenSymbol");
-    let tokenTotalSupply: U256 = runtime::get_named_arg("tokenTotalSupply");
+    let token_name: String = runtime::get_named_arg("token_name");
+    let token_symbol: String = runtime::get_named_arg("token_symbol");
+    let token_decimals: u8 = runtime::get_named_arg("token_decimals");
+    let token_total_supply: U256 = runtime::get_named_arg("token_total_supply");
 
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(endpoint("name", vec![], CLType::String));
@@ -134,16 +135,19 @@ pub extern "C" fn call() {
     ));
 
     let mut named_keys = NamedKeys::new();
-    named_keys.insert("name".to_string(), storage::new_uref(tokenName).into());
-    named_keys.insert("symbol".to_string(), storage::new_uref(tokenSymbol).into());
-    named_keys.insert("decimals".to_string(), storage::new_uref(18u8).into());
+    named_keys.insert("name".to_string(), storage::new_uref(token_name).into());
+    named_keys.insert("symbol".to_string(), storage::new_uref(token_symbol).into());
+    named_keys.insert(
+        "decimals".to_string(),
+        storage::new_uref(token_decimals).into(),
+    );
     named_keys.insert(
         "total_supply".to_string(),
-        storage::new_uref(tokenTotalSupply).into(),
+        storage::new_uref(token_total_supply).into(),
     );
     named_keys.insert(
         balance_key(&runtime::get_caller()),
-        storage::new_uref(tokenTotalSupply).into(),
+        storage::new_uref(token_total_supply).into(),
     );
 
     let (contract_hash, _) =
