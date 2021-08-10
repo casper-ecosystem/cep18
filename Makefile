@@ -2,18 +2,18 @@ prepare:
 	rustup target add wasm32-unknown-unknown
 
 build-contract:
-	cargo build --release -p contract --target wasm32-unknown-unknown
+	cargo build --release -p erc20 --target wasm32-unknown-unknown
 
 test-only:
-	cargo test -p tests
+	cargo test -p erc20-tests
 
 copy-wasm-file-to-test:
-	cp target/wasm32-unknown-unknown/release/contract.wasm tests/wasm
+	cp target/wasm32-unknown-unknown/release/*.wasm erc20-tests/wasm
 
 test: build-contract copy-wasm-file-to-test test-only
 
 clippy:
-	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
+	cargo clippy --all-targets --all -- -D warnings -A clippy::new-without-default
 
 check-lint: clippy
 	cargo fmt --all -- --check
@@ -23,4 +23,4 @@ lint: clippy
 	
 clean:
 	cargo clean
-	rm -rf tests/wasm/contract.wasm
+	rm -rf erc20-tests/wasm/*.wasm
