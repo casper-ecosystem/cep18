@@ -10,6 +10,9 @@ Make sure `wasm32-unknown-unknown` is installed.
 $ make prepare
 ```
 
+It's also recommended to have [wasm-strip](https://github.com/WebAssembly/wabt)
+available in your PATH to reduce the size of compiled Wasm.
+
 ### Build Smart Contract
 ```bash
 $ make build-contract

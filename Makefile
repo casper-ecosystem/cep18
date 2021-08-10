@@ -3,6 +3,7 @@ prepare:
 
 build-contract:
 	cargo build --release -p erc20 --target wasm32-unknown-unknown
+	wasm-strip target/wasm32-unknown-unknown/release/erc20-token.wasm 2>/dev/null | true
 
 test-only:
 	cargo test -p erc20-tests
