@@ -80,11 +80,12 @@ boilerplate code and allows for **rapid development**.
 #### Test Env Crate
 `utils/test-env` is a small library written on top of 
 `casper-engine-test-support`. It proviedes two structs:
-    *  `TestEnv` wraps `TestContext` and provides user accounts with initial
-       CSPR balances. It is implemented using `Arc<Mutex<...>>` so it can
-       be copied, especial between `TestContract` instances.
-    *  `TestContract` wraps an instance of `TestEnv` and simplifies calling
-       contracts and reading named keys and dictionaries.
+
+* `TestEnv` wraps `TestContext` and provides user accounts with initial
+  CSPR balances. It is implemented using `Arc<Mutex<...>>` so it can
+  be copied, especial between `TestContract` instances.
+* `TestContract` wraps an instance of `TestEnv` and simplifies calling
+  contracts and reading named keys and dictionaries.
 
 ##### Test Example
 ```rust
@@ -137,12 +138,12 @@ fn test_multiple_tokens() {
 #### Contract Utils Crate
 `utils/contract-utils` contains a common building blocks for writing smart
 contract:
-    * `contract_context.rs` provides `ContractContext` trait that provides 
-      `get_caller` and `self_addr` methods.
-    * `data.rs` provides helper methods to work with dictionaries and named
-      keys.
-    * `admin_control.rs` provids `AdminControl` trait allows to add admin
-      list functionality.
+* `contract_context.rs` provides `ContractContext` trait that provides 
+  `get_caller` and `self_addr` methods.
+* `data.rs` provides helper methods to work with dictionaries and named
+  keys.
+* `admin_control.rs` provids `AdminControl` trait allows to add admin
+  list functionality.
 
 #### Contract Interace Crate
 `utils/contract-interface` introduces `contract_interface` procedural
