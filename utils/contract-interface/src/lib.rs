@@ -1,3 +1,7 @@
+#![no_std]
+
+extern crate alloc;
+
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
@@ -8,6 +12,8 @@ use syn::{
 
 #[proc_macro_attribute]
 pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream {
+    use alloc::string::ToString;
+
     let attr_args = parse_macro_input!(attr as AttributeArgs);
     let contract_name = attr_args[0].clone();
 
@@ -26,7 +32,7 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
         // Parse the whole method.
         if let TraitItem::Method(method) = item {
             let method_name = method.sig.ident;
-            let method_name_str = format!("{}", method_name);
+            let method_name_str = method_name.to_string();
             let return_type = match method.sig.output {
                 ReturnType::Default => None,
                 ReturnType::Type(_, ty) => Some(*ty),
@@ -40,7 +46,7 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
                     if let Pat::Ident(pat_ident) = *pat_type.pat {
                         let arg_name = &pat_ident.ident;
                         let arg_type = *pat_type.ty;
-                        let arg_string = format!("{}", arg_name);
+                        let arg_string = arg_name.to_string();
                         arg_loads.extend(quote! {
                             let #arg_name: #arg_type = casper_contract::contract_api::runtime::get_named_arg(#arg_string);
                         });
@@ -64,9 +70,9 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
                 add_entry_points.extend(quote! {
                     entry_points.add_entry_point(casper_types::EntryPoint::new(
                         #method_name_str,
-                        vec![#params],
+                        alloc::vec![#params],
                         #entry_point_return_type,
-                        casper_types::EntryPointAccess::Groups(vec![casper_types::Group::new("constructor")]),
+                        casper_types::EntryPointAccess::Groups(alloc::vec![casper_types::Group::new("constructor")]),
                         casper_types::EntryPointType::Contract
                     ));
                 });
@@ -74,7 +80,7 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
                 add_entry_points.extend(quote! {
                     entry_points.add_entry_point(casper_types::EntryPoint::new(
                         #method_name_str,
-                        vec![#params],
+                        alloc::vec![#params],
                         #entry_point_return_type,
                         casper_types::EntryPointAccess::Public,
                         casper_types::EntryPointType::Contract
@@ -105,7 +111,7 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
                 };
 
                 for arg_name in arg_names {
-                    let arg_name_str = format!("{}", arg_name);
+                    let arg_name_str = arg_name.to_string();
                     runtime_args.extend(quote! {
                         constructor_args.insert(#arg_name_str, #arg_name).unwrap_or_revert();
                     })
@@ -129,16 +135,16 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
 
                         let _: () = runtime::call_versioned_contract(package_hash, None, "constructor", constructor_args);
 
-                        let mut urefs = std::collections::BTreeSet::new();
+                        let mut urefs = alloc::collections::BTreeSet::new();
                         urefs.insert(constructor_access);
                         storage::remove_contract_user_group_urefs(package_hash, "constructor", urefs).unwrap_or_revert();
 
-                        let contract_name: String = runtime::get_named_arg("contract_name");
-                        runtime::put_key(&format!("{}_package_hash", contract_name), package_hash.into());
-                        runtime::put_key(&format!("{}_package_hash_wrapped", contract_name), storage::new_uref(package_hash).into());
-                        runtime::put_key(&format!("{}_contract_hash", contract_name), contract_hash.into());
-                        runtime::put_key(&format!("{}_contract_hash_wrapped", contract_name), storage::new_uref(contract_hash).into());
-                        runtime::put_key(&format!("{}_package_access_token", contract_name), access_token.into());
+                        let contract_name: alloc::string::String = runtime::get_named_arg("contract_name");
+                        runtime::put_key(&alloc::format!("{}_package_hash", contract_name), package_hash.into());
+                        runtime::put_key(&alloc::format!("{}_package_hash_wrapped", contract_name), storage::new_uref(package_hash).into());
+                        runtime::put_key(&alloc::format!("{}_contract_hash", contract_name), contract_hash.into());
+                        runtime::put_key(&alloc::format!("{}_contract_hash_wrapped", contract_name), storage::new_uref(contract_hash).into());
+                        runtime::put_key(&alloc::format!("{}_package_access_token", contract_name), access_token.into());
                     }
                 });
             }
@@ -155,7 +161,7 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
     });
 
     match call_fn {
-        None => panic!("'construct' metod not found!"),
+        None => panic!("'construct' method not found!"),
         Some(call_fn) => {
             result.extend(quote! {
                 #call_fn

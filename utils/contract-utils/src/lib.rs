@@ -1,3 +1,7 @@
+#![no_std]
+
+extern crate alloc;
+
 mod admin_control;
 mod contract_context;
 mod data;

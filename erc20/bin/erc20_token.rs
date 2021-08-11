@@ -1,4 +1,9 @@
 #![no_main]
+#![no_std]
+
+extern crate alloc;
+
+use alloc::string::String;
 
 use casper_types::{Key, U256};
 use contract_interface::contract_interface;
