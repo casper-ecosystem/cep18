@@ -70,16 +70,13 @@ Tests are implemented in `erc20-tests/src/erc20_tests.rs`.
 
 ### Utils
 
-The repository contains 3 utility crates:
+The repository contains 2 utility crates:
 
 * `utils/test-env`
 * `utils/contract-utils`
-* `utils/contract-interface`
 
 The utility code after review and adoption should be moved to a separate repo
-and eventually be added to `casper-contract` and `casper-engine-test-support`. 
-The functionality provided by the utils crates releases a smart contract developer
-from writing boilerplate code and allows for **rapid development**.
+and eventually be added to `casper-contract` and `casper-engine-test-support`.
 
 #### Test Env Crate
 `utils/test-env` is a small library written on top of 
@@ -149,151 +146,3 @@ contracts:
 * `admin_control.rs` provides the `AdminControl` trait to support admin
   list functionality.
 
-#### Contract Interface Crate
-`utils/contract-interface` introduces the `contract_interface` procedural
-macro that generates entry points definitions, `no_mangle` functions
-and the call method.
-
-Consider the following example of a simple counter contract.
-```rust
-#![no_main]
-#![no_std]
-
-extern crate alloc;
-
-use casper_contract::unwrap_or_revert::UnwrapOrRevert;
-use contract_interface::contract_interface;
-use contract_utils::{get_key, set_key};
-
-struct Counter {}
-
-impl Counter {
-    fn constructor(&mut self) {
-        set_key("counter", 0u64);
-    }
-
-    fn increment(&mut self, step: u64) {
-        set_key("counter", self.get_value() + step);
-    }
-
-    fn get_value(&mut self) -> u64 {
-        get_key("counter").unwrap_or_revert()
-    }
-}
-
-#[contract_interface(Counter)]
-trait CounterInterface {
-    fn constructor(&mut self);
-    fn increment(&mut self, step: u64);
-    fn get_value(&mut self) -> u64;
-}
-```
-
-It expands into.
-```rust
-#![no_main]
-#![no_std]
-
-extern crate alloc;
-use casper_contract::unwrap_or_revert::UnwrapOrRevert;
-use contract_interface::contract_interface;
-use contract_utils::{get_key, set_key};
-
-struct Counter {}
-
-impl Counter {
-    fn constructor(&mut self) {
-        set_key("counter", 0u64);
-    }
-
-    fn increment(&mut self, step: u64) {
-        set_key("counter", self.get_value() + step);
-    }
-
-    fn get_value(&mut self) -> u64 {
-        get_key("counter").unwrap_or_revert()
-    }
-}
-
-trait CounterInterface {
-    fn constructor(&mut self);
-    fn increment(&mut self, step: u64);
-    fn get_value(&mut self) -> u64;
-}
-
-#[no_mangle]
-fn constructor() {
-    Counter {}.constructor();
-}
-
-#[no_mangle]
-fn increment() {
-    let step: u64 = casper_contract::contract_api::runtime::get_named_arg("step");
-    Counter {}.increment(step);
-}
-
-#[no_mangle]
-fn get_value() {
-    use casper_contract::unwrap_or_revert::UnwrapOrRevert;
-    let ret: u64 = Counter {}.get_value();
-    casper_contract::contract_api::runtime::ret(
-        casper_types::CLValue::from_t(ret).unwrap_or_revert(),
-    );
-}
-
-fn get_entry_points() -> casper_types::EntryPoints {
-    use casper_types::CLTyped;
-    let mut entry_points = casper_types::EntryPoints::new();
-    entry_points.add_entry_point(casper_types::EntryPoint::new(
-        "constructor",
-        ::alloc::vec::Vec::new(),
-        <()>::cl_type(),
-        casper_types::EntryPointAccess::Groups(<[_]>::into_vec(box [casper_types::Group::new(
-            "constructor",
-        )])),
-        casper_types::EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(casper_types::EntryPoint::new(
-        "increment",
-        vec![casper_types::Parameter::new("step", <u64>::cl_type())],
-        <()>::cl_type(),
-        casper_types::EntryPointAccess::Public,
-        casper_types::EntryPointType::Contract,
-    ));
-    entry_points.add_entry_point(casper_types::EntryPoint::new(
-        "get_value",
-        ::alloc::vec::Vec::new(),
-        <u64>::cl_type(),
-        casper_types::EntryPointAccess::Public,
-        casper_types::EntryPointType::Contract,
-    ));
-    entry_points
-}
-
-#[no_mangle]
-fn call() {
-    use casper_contract::contract_api::{storage, runtime};
-    use casper_contract::unwrap_or_revert::UnwrapOrRevert;
-    let (package_hash, access_token) = storage::create_contract_package_at_hash();
-    let (contract_hash, _) =
-        storage::add_contract_version(package_hash, get_entry_points(), Default::default());
-    let mut constructor_args = casper_types::RuntimeArgs::new();
-    let constructor_access: casper_types::URef =
-        storage::create_contract_user_group(package_hash, "constructor", 1, Default::default())
-            .unwrap_or_revert()
-            .pop()
-            .unwrap_or_revert();
-    let _: () =
-        runtime::call_versioned_contract(package_hash, None, "constructor", constructor_args);
-    let mut urefs = alloc::collections::BTreeSet::new();
-    urefs.insert(constructor_access);
-    storage::remove_contract_user_group_urefs(package_hash, "constructor", urefs)
-        .unwrap_or_revert();
-    let contract_name: alloc::string::String = runtime::get_named_arg("contract_name");
-    runtime::put_key(&alloc::format!("{}_package_hash", contract_name), package_hash.into());
-    runtime::put_key(&alloc::format!("{}_package_hash_wrapped", contract_name), storage::new_uref(package_hash).into());
-    runtime::put_key(&alloc::format!("{}_contract_hash", contract_name), contract_hash.into());
-    runtime::put_key(&alloc::format!("{}_contract_hash_wrapped", contract_name), storage::new_uref(contract_hash).into());
-    runtime::put_key(&alloc::format!("{}_package_access_token", contract_name), access_token.into());
-}
-```

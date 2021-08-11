@@ -8,7 +8,6 @@ edition = "2018"
 casper-contract = "1.3.2"
 casper-types = "1.3.2"
 contract-utils = { path = "../utils/contract-utils" }
-contract-interface = { path = "../utils/contract-interface" }
 
 [[bin]]
 name = "erc20-token"
