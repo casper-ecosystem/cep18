@@ -83,10 +83,10 @@ pub fn contract_interface(attr: TokenStream, input: TokenStream) -> TokenStream 
             }
 
             let return_stm = match &return_type {
-                None => quote! { #contract_name{}.#method_name(#arg_names); },
+                None => quote! { #contract_name::default().#method_name(#arg_names); },
                 Some(ty) => quote! {
                     use casper_contract::unwrap_or_revert::UnwrapOrRevert;
-                    let ret: #ty = #contract_name{}.#method_name(#arg_names);
+                    let ret: #ty = #contract_name::default().#method_name(#arg_names);
                     casper_contract::contract_api::runtime::ret(casper_types::CLValue::from_t(ret).unwrap_or_revert());
                 },
             };

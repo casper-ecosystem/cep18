@@ -1,15 +1,20 @@
-use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::unwrap_or_revert::UnwrapOrRevert;
 use casper_types::{system::CallStackElement, Key};
 
+use crate::ContractStorage;
+
 pub trait ContractContext {
+    fn storage(&self) -> &ContractStorage;
+
     fn get_caller(&self) -> Key {
-        let call_stack = runtime::get_call_stack();
+        let call_stack = self.storage().call_stack();
         let caller = call_stack.get(call_stack.len() - 2);
         element_to_key(caller.unwrap_or_revert())
     }
 
-    fn self_addr(&self) -> Key {
-        element_to_key(runtime::get_call_stack().last().unwrap_or_revert())
+    fn self_addr(&mut self) -> Key {
+        let call_stack = self.storage().call_stack();
+        element_to_key(call_stack.last().unwrap_or_revert())
     }
 }
 

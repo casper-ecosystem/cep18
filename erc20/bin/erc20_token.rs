@@ -2,12 +2,18 @@
 
 use casper_types::{Key, U256};
 use contract_interface::contract_interface;
-use contract_utils::ContractContext;
+use contract_utils::{ContractContext, ContractStorage};
 use erc20::{self, ERC20};
 
-struct Token {}
+#[derive(Default)]
+struct Token(ContractStorage);
 
-impl ContractContext for Token {}
+impl ContractContext for Token {
+    fn storage(&self) -> &ContractStorage {
+        &self.0
+    }
+}
+
 impl ERC20 for Token {}
 
 impl Token {
