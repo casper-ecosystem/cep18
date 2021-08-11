@@ -1,7 +1,6 @@
 # CasperLabs ERC20
 
 Implementation of the ERC20 token standard for the Casper platform.
-It enables developers to implement custom tokens in minutes.
 
 ## Usage
 ### Install
@@ -39,16 +38,21 @@ The following code shows how to override the `transfer` method to alwasy mint
 one additional token for a sender. 
 
 ```rust
-struct Token {}
+#[derive(Default)]
+struct Token(ContractStorage);
 
-impl ContractContext for Token {}
+impl ContractContext for Token {
+    fn storage(&self) -> &ContractStorage {
+        &self.0
+    }
+}
+
 impl ERC20 for Token {}
 
 impl Token {
-    ...
-    fn transfer(&mut self, recipient: Key, amount: U256) {
-        ERC20::mint(self, self.get_caller(), U256::one());
-        ERC20::transfer(self, recipient, amount);
+    fn constructor(&mut self, name: String, symbol: String, decimals: u8, initial_supply: U256) {
+        ERC20::init(self, name, symbol, decimals);
+        ERC20::mint(self, self.get_caller(), initial_supply);
     }
 }
 ```
