@@ -1,4 +1,5 @@
-use std::sync::{Arc, Mutex};
+use alloc::{sync::Arc, vec::Vec};
+use spin::Mutex;
 
 use casper_contract::contract_api::runtime;
 use casper_types::system::CallStackElement;
@@ -17,7 +18,7 @@ impl Default for ContractStorage {
 
 impl ContractStorage {
     pub fn call_stack(&self) -> Arc<Vec<CallStackElement>> {
-        let mut call_stack_wrapper = self.call_stack.lock().unwrap();
+        let mut call_stack_wrapper = self.call_stack.lock();
         call_stack_wrapper.clone().unwrap_or_else(|| {
             let call_stack = Arc::new(runtime::get_call_stack());
             *call_stack_wrapper = Some(call_stack.clone());
