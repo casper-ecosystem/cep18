@@ -50,6 +50,12 @@ impl TestEnv {
     }
 }
 
+impl Default for TestEnv {
+    fn default() -> Self {
+        TestEnv::new()
+    }
+}
+
 struct TestEnvState {
     context: TestContext,
     accounts: Vec<AccountHash>,

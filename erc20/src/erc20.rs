@@ -1,3 +1,5 @@
+use alloc::string::String;
+
 use casper_types::{Key, U256};
 use contract_utils::ContractContext;
 
