@@ -1,4 +1,5 @@
-use std::convert::TryInto;
+use alloc::string::{String, ToString};
+use core::convert::TryInto;
 
 use casper_contract::{
     contract_api::{runtime, storage},
