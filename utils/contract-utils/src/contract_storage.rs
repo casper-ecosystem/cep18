@@ -8,20 +8,9 @@ pub trait ContractStorage {
     fn call_stack(&self) -> &[CallStackElement];
 }
 
-pub trait WithStorage<Storage: ContractStorage> {
-    fn storage(&self) -> &Storage;
-}
-
+#[derive(Default)]
 pub struct OnChainContractStorage {
     call_stack: OnceCell<Vec<CallStackElement>>,
-}
-
-impl Default for OnChainContractStorage {
-    fn default() -> Self {
-        OnChainContractStorage {
-            call_stack: OnceCell::default(),
-        }
-    }
 }
 
 impl ContractStorage for OnChainContractStorage {

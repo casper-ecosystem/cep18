@@ -7,19 +7,18 @@ use alloc::string::String;
 
 use casper_types::{Key, U256};
 use contract_interface::contract_interface;
-use contract_utils::{ContractContext, OnChainContractStorage, WithStorage};
+use contract_utils::{ContractContext, OnChainContractStorage};
 use erc20::{self, ERC20};
 
 #[derive(Default)]
 struct Token(OnChainContractStorage);
 
-impl WithStorage<OnChainContractStorage> for Token {
+impl ContractContext<OnChainContractStorage> for Token {
     fn storage(&self) -> &OnChainContractStorage {
         &self.0
     }
 }
 
-impl ContractContext<OnChainContractStorage> for Token {}
 impl ERC20<OnChainContractStorage> for Token {}
 
 impl Token {

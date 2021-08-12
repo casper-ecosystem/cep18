@@ -1,9 +1,11 @@
 use casper_contract::unwrap_or_revert::UnwrapOrRevert;
 use casper_types::{system::CallStackElement, Key};
 
-use crate::{contract_storage::WithStorage, ContractStorage};
+use crate::ContractStorage;
 
-pub trait ContractContext<Storage: ContractStorage>: WithStorage<Storage> {
+pub trait ContractContext<Storage: ContractStorage> {
+    fn storage(&self) -> &Storage;
+
     fn get_caller(&self) -> Key {
         let call_stack = self.storage().call_stack();
         let caller = call_stack.get(call_stack.len() - 2);
