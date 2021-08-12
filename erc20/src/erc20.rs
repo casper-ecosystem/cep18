@@ -1,11 +1,11 @@
 use alloc::string::String;
 
 use casper_types::{Key, U256};
-use contract_utils::ContractContext;
+use contract_utils::{ContractContext, ContractStorage};
 
 use crate::data::{self, Allowances, Balances};
 
-pub trait ERC20: ContractContext {
+pub trait ERC20<Storage: ContractStorage>: ContractContext<Storage> {
     fn init(&mut self, name: String, symbol: String, decimals: u8) {
         data::set_name(name);
         data::set_symbol(symbol);

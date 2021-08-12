@@ -13,19 +13,19 @@ use casper_types::{
     runtime_args, CLTyped, CLValue, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints,
     Group, Key, Parameter, RuntimeArgs, URef, U256,
 };
-use contract_utils::{ContractContext, ContractStorage};
+use contract_utils::{ContractContext, OnChainContractStorage};
 use erc20::{self, ERC20};
 
 #[derive(Default)]
-struct Token(ContractStorage);
+struct Token(OnChainContractStorage);
 
-impl ContractContext for Token {
-    fn storage(&self) -> &ContractStorage {
+impl ContractContext<OnChainContractStorage> for Token {
+    fn storage(&self) -> &OnChainContractStorage {
         &self.0
     }
 }
 
-impl ERC20 for Token {}
+impl ERC20<OnChainContractStorage> for Token {}
 
 impl Token {
     fn constructor(&mut self, name: String, symbol: String, decimals: u8, initial_supply: U256) {

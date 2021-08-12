@@ -4,11 +4,11 @@ use casper_contract::{
 };
 use casper_types::{ApiError, Key};
 
-use crate::{ContractContext, Dict};
+use crate::{ContractContext, ContractStorage, Dict};
 
 const ADMINS_DICT: &str = "admins";
 
-pub trait AdminControl: ContractContext {
+pub trait AdminControl<Storage: ContractStorage>: ContractContext<Storage> {
     fn init(&mut self) {
         Admins::init();
     }

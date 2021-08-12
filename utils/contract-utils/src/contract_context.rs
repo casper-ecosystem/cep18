@@ -3,8 +3,8 @@ use casper_types::{system::CallStackElement, Key};
 
 use crate::ContractStorage;
 
-pub trait ContractContext {
-    fn storage(&self) -> &ContractStorage;
+pub trait ContractContext<Storage: ContractStorage> {
+    fn storage(&self) -> &Storage;
 
     fn get_caller(&self) -> Key {
         let call_stack = self.storage().call_stack();
