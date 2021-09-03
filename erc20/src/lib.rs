@@ -10,16 +10,16 @@ mod erc20;
 mod install;
 
 pub use entrypoints::get_entry_points;
-pub use erc20::SimpleERC20;
+pub use erc20::ERC20;
 pub use install::install_new;
 
-pub static ERC20_INSTANCE: OnceCell<Box<dyn SimpleERC20>> = OnceCell::new();
+pub static ERC20_INSTANCE: OnceCell<Box<dyn ERC20>> = OnceCell::new();
 
 extern "C" {
     pub fn init_erc20();
 }
 
-pub fn set_erc20_instance(instance: Box<dyn SimpleERC20>) {
+pub fn set_erc20_instance(instance: Box<dyn ERC20>) {
     if ERC20_INSTANCE.set(instance).is_err() {
         runtime::revert(ApiError::User(1));
     }

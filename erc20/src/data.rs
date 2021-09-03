@@ -88,3 +88,11 @@ pub fn total_supply() -> U256 {
 pub fn set_total_supply(total_supply: U256) {
     set_key(TOTAL_SUPPLY, total_supply);
 }
+
+pub fn init_data(name: String, symbol: String, decimals: u8) {
+    set_name(name);
+    set_symbol(symbol);
+    set_decimals(decimals);
+    Balances::init();
+    Allowances::init();
+}

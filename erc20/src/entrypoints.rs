@@ -24,14 +24,13 @@ fn constructor() {
     let name: String = runtime::get_named_arg("name");
     let symbol: String = runtime::get_named_arg("symbol");
     let decimals: u8 = runtime::get_named_arg("decimals");
-    let initial_supply: U256 = runtime::get_named_arg("initial_supply");
     unsafe {
         init_erc20();
     };
     ERC20_INSTANCE
         .get()
         .unwrap_or_revert()
-        .constructor(name, symbol, decimals, initial_supply);
+        .constructor(name, symbol, decimals);
 }
 
 #[no_mangle]
@@ -96,7 +95,6 @@ pub fn get_entry_points() -> EntryPoints {
             Parameter::new("name", String::cl_type()),
             Parameter::new("symbol", String::cl_type()),
             Parameter::new("decimals", u8::cl_type()),
-            Parameter::new("initial_supply", U256::cl_type()),
         ],
         <()>::cl_type(),
         EntryPointAccess::Groups(vec![Group::new("constructor")]),

@@ -3,14 +3,9 @@ use contract_utils::Context;
 
 use crate::data::{self, Allowances, Balances};
 
-pub trait SimpleERC20: Context + Send + Sync {
-    fn constructor(&self, name: String, symbol: String, decimals: u8, initial_supply: U256) {
-        data::set_name(name);
-        data::set_symbol(symbol);
-        data::set_decimals(decimals);
-        Balances::init();
-        Allowances::init();
-        self.mint(self.get_caller(), initial_supply);
+pub trait ERC20: Context + Send + Sync {
+    fn constructor(&self, name: String, symbol: String, decimals: u8) {
+        data::init_data(name, symbol, decimals);
     }
 
     fn balance_of(&self, owner: Key) -> U256 {

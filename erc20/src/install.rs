@@ -4,7 +4,7 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{runtime_args, RuntimeArgs, URef, U256};
+use casper_types::{runtime_args, RuntimeArgs, URef};
 
 use crate::get_entry_points;
 
@@ -18,14 +18,12 @@ pub fn install_new() {
     let name: String = runtime::get_named_arg("name");
     let symbol: String = runtime::get_named_arg("symbol");
     let decimals: u8 = runtime::get_named_arg("decimals");
-    let initial_supply: U256 = runtime::get_named_arg("initial_supply");
 
     // Prepare constructor args
     let constructor_args = runtime_args! {
         "name" => name,
         "symbol" => symbol,
         "decimals" => decimals,
-        "initial_supply" => initial_supply
     };
 
     // Add the constructor group to the package hash with a single URef.
