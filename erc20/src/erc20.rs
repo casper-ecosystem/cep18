@@ -1,36 +1,35 @@
-use alloc::string::String;
-
 use casper_types::{Key, U256};
-use contract_utils::{ContractContext, ContractStorage};
+use contract_utils::Context;
 
 use crate::data::{self, Allowances, Balances};
 
-pub trait ERC20<Storage: ContractStorage>: ContractContext<Storage> {
-    fn init(&mut self, name: String, symbol: String, decimals: u8) {
+pub trait SimpleERC20: Context + Send + Sync {
+    fn constructor(&self, name: String, symbol: String, decimals: u8, initial_supply: U256) {
         data::set_name(name);
         data::set_symbol(symbol);
         data::set_decimals(decimals);
         Balances::init();
         Allowances::init();
+        self.mint(self.get_caller(), initial_supply);
     }
 
-    fn balance_of(&mut self, owner: Key) -> U256 {
+    fn balance_of(&self, owner: Key) -> U256 {
         Balances::instance().get(&owner)
     }
 
-    fn transfer(&mut self, recipient: Key, amount: U256) {
+    fn transfer(&self, recipient: Key, amount: U256) {
         self.make_transfer(self.get_caller(), recipient, amount);
     }
 
-    fn approve(&mut self, spender: Key, amount: U256) {
+    fn approve(&self, spender: Key, amount: U256) {
         Allowances::instance().set(&self.get_caller(), &spender, amount);
     }
 
-    fn allowance(&mut self, owner: Key, spender: Key) -> U256 {
+    fn allowance(&self, owner: Key, spender: Key) -> U256 {
         Allowances::instance().get(&owner, &spender)
     }
 
-    fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256) {
+    fn transfer_from(&self, owner: Key, recipient: Key, amount: U256) {
         let allowances = Allowances::instance();
         let spender = self.get_caller();
         let spender_allowance = allowances.get(&owner, &spender);
@@ -38,7 +37,7 @@ pub trait ERC20<Storage: ContractStorage>: ContractContext<Storage> {
         self.make_transfer(owner, recipient, amount);
     }
 
-    fn mint(&mut self, recipient: Key, amount: U256) {
+    fn mint(&self, recipient: Key, amount: U256) {
         let balances = Balances::instance();
         let balance = balances.get(&recipient);
         balances.set(&recipient, balance + amount);
@@ -46,7 +45,7 @@ pub trait ERC20<Storage: ContractStorage>: ContractContext<Storage> {
         data::set_total_supply(data::total_supply() + amount);
     }
 
-    fn make_transfer(&mut self, sender: Key, recipient: Key, amount: U256) {
+    fn make_transfer(&self, sender: Key, recipient: Key, amount: U256) {
         let balances = Balances::instance();
 
         let sender_balance = balances.get(&sender);
@@ -56,7 +55,7 @@ pub trait ERC20<Storage: ContractStorage>: ContractContext<Storage> {
         balances.set(&recipient, recipient_balance + amount);
     }
 
-    fn total_supply(&mut self) -> U256 {
+    fn total_supply(&self) -> U256 {
         data::total_supply()
     }
 }

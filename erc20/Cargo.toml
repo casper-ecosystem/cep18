@@ -8,6 +8,7 @@ edition = "2018"
 casper-contract = "1.3.2"
 casper-types = "1.3.2"
 contract-utils = { path = "../utils/contract-utils" }
+once_cell = "1.8.0"
 
 [[bin]]
 name = "erc20-token"
@@ -15,3 +16,6 @@ path = "bin/erc20_token.rs"
 bench = false
 doctest = false
 test = false
+
+[features]
+default = ["casper-contract/std", "casper-types/std"]
