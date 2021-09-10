@@ -23,7 +23,7 @@ jobs:
         profile: minimal
         components: rustfmt, clippy
     # Needed for gcc install
-    - run: sudo apt update && sudo apt install -y build-essential
+    - run: sudo apt update && sudo apt install -y build-essential wabt
     - run: make prepare
     - run: make check-lint
     - run: make test
