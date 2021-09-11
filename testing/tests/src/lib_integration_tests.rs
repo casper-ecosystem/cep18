@@ -435,7 +435,6 @@ fn test_approve_for(
     assert_eq!(total_supply, initial_supply);
 }
 
-#[ignore]
 #[test]
 fn should_have_queryable_properties() {
     let (mut builder, TestContext { erc20_token, .. }) = setup();
@@ -469,7 +468,6 @@ fn should_have_queryable_properties() {
     assert_eq!(inverted_owner_balance, U256::zero());
 }
 
-#[ignore]
 #[test]
 fn should_not_store_balances_or_allowances_under_account_after_install() {
     let (builder, _contract_hash) = setup();
@@ -483,7 +481,6 @@ fn should_not_store_balances_or_allowances_under_account_after_install() {
     assert!(!named_keys.contains_key(ALLOWANCES_KEY), "{:?}", named_keys);
 }
 
-#[ignore]
 #[test]
 fn should_transfer_account_to_account() {
     let (mut builder, test_context) = setup();
@@ -502,7 +499,6 @@ fn should_transfer_account_to_account() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_account_to_contract() {
     let (mut builder, test_context) = setup();
@@ -522,7 +518,6 @@ fn should_transfer_account_to_contract() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_contract_to_contract() {
     let (mut builder, test_context) = setup();
@@ -545,7 +540,6 @@ fn should_transfer_contract_to_contract() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_contract_to_account() {
     let (mut builder, test_context) = setup();
@@ -569,7 +563,6 @@ fn should_transfer_contract_to_account() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_full_owned_amount() {
     let (mut builder, TestContext { erc20_token, .. }) = setup();
@@ -622,7 +615,6 @@ fn should_transfer_full_owned_amount() {
     assert_eq!(total_supply, initial_supply);
 }
 
-#[ignore]
 #[test]
 fn should_not_transfer_more_than_owned_balance() {
     let (mut builder, TestContext { erc20_token, .. }) = setup();
@@ -682,7 +674,6 @@ fn should_not_transfer_more_than_owned_balance() {
     assert_eq!(total_supply, initial_supply);
 }
 
-#[ignore]
 #[test]
 fn should_approve_funds_account_to_account() {
     let (mut builder, test_context) = setup();
@@ -696,7 +687,6 @@ fn should_approve_funds_account_to_account() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_approve_funds_account_to_contract() {
     let (mut builder, test_context) = setup();
@@ -709,7 +699,6 @@ fn should_approve_funds_account_to_contract() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_approve_funds_contract_to_account() {
     let (mut builder, test_context) = setup();
@@ -726,7 +715,6 @@ fn should_approve_funds_contract_to_account() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_approve_funds_contract_to_contract() {
     let (mut builder, test_context) = setup();
@@ -743,7 +731,6 @@ fn should_approve_funds_contract_to_contract() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_not_transfer_from_without_enough_allowance() {
     let (mut builder, TestContext { erc20_token, .. }) = setup();
@@ -802,7 +789,6 @@ fn should_not_transfer_from_without_enough_allowance() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_from_from_account_to_account() {
     let (mut builder, TestContext { erc20_token, .. }) = setup();
@@ -875,7 +861,6 @@ fn should_transfer_from_from_account_to_account() {
     );
 }
 
-#[ignore]
 #[test]
 fn should_transfer_from_account_by_contract() {
     let (
@@ -958,7 +943,6 @@ fn should_transfer_from_account_by_contract() {
     );
 }
 
-#[ignore]
 #[test]
 fn test_mint_and_burn_tokens() {
     let mint_amount = U256::one();
@@ -1026,7 +1010,6 @@ fn test_mint_and_burn_tokens() {
     );
 }
 
-#[ignore]
 #[test]
 fn test_should_not_burn_above_balance() {
     let mint_amount = U256::MAX;
@@ -1070,7 +1053,6 @@ fn test_should_not_burn_above_balance() {
     );
 }
 
-#[ignore]
 #[test]
 fn test_should_not_mint_above_limits() {
     let mint_amount = U256::MAX;

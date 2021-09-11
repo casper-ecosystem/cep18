@@ -4,28 +4,23 @@ CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 prepare:
 	rustup target add wasm32-unknown-unknown
 
-build-contract/%:
-	cargo build --release -p $* --target wasm32-unknown-unknown
-	wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$*).wasm
-
 .PHONY:	build-contracts
-build-contracts: build-contract/erc20-token build-contract/erc20-test build-contract/erc20-test-call
+build-contracts:
+	cargo build --release --target wasm32-unknown-unknown $(patsubst %, -p %, $(ALL_CONTRACTS))
+	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm 2>/dev/null | true;)
 
-.PHONY: test-only
-
-test/%:
-	cargo test -p $*
-
-test-all: test/erc20-tests test/tests
-	cargo test -p tests -- --ignored
-
-test: build-contracts test-all
+test: build-contracts
+	cargo test
 
 clippy:
-	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
+	cargo clippy --all-targets -- -D warnings
+	cargo clippy --all-targets -p erc20-token --target wasm32-unknown-unknown -- -D warnings
 
 check-lint: clippy
 	cargo fmt --all -- --check
 
 lint: clippy
 	cargo fmt --all
+
+clean:
+	cargo clean

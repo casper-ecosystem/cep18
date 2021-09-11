@@ -1,54 +1,54 @@
-//! Named constants used through the ERC20 contract.
+//! Constants used by the ERC20 contract.
 
-/// Named constant of `name`
-pub(crate) const NAME_KEY: &str = "name";
-/// Named constant of `symbol`
-pub(crate) const SYMBOL_KEY: &str = "symbol";
-/// Named constant of `decimals`
-pub(crate) const DECIMALS_KEY: &str = "decimals";
-/// Named constant of `contract`
-pub const ERC20_TOKEN_CONTRACT_KEY: &str = "erc20_token_contract";
-/// Named constant of `balances`
-pub(crate) const BALANCES_KEY: &str = "balances";
-/// Named constant of `allowances`
-pub(crate) const ALLOWANCES_KEY: &str = "allowances";
-/// Named constant of `total_supply`
-pub(crate) const TOTAL_SUPPLY_KEY: &str = "total_supply";
+/// Name of named-key for `name`.
+pub const NAME_KEY_NAME: &str = "name";
+/// Name of named-key for `symbol`
+pub const SYMBOL_KEY_NAME: &str = "symbol";
+/// Name of named-key for `decimals`
+pub const DECIMALS_KEY_NAME: &str = "decimals";
+/// Name of named-key for `contract`
+pub const ERC20_TOKEN_CONTRACT_KEY_NAME: &str = "erc20_token_contract";
+/// Name of dictionary-key for `balances`
+pub const BALANCES_KEY_NAME: &str = "balances";
+/// Name of dictionary-key for `allowances`
+pub const ALLOWANCES_KEY_NAME: &str = "allowances";
+/// Name of named-key for `total_supply`
+pub const TOTAL_SUPPLY_KEY_NAME: &str = "total_supply";
 
-/// Named constant for method `name`.
-pub const METHOD_NAME: &str = "name";
-/// Named constant for method `symbol`.
-pub const METHOD_SYMBOL: &str = "symbol";
-/// Named constant for method `decimals`.
-pub const METHOD_DECIMALS: &str = "decimals";
-/// Named constant for method `balance_of`.
-pub const METHOD_BALANCE_OF: &str = "balance_of";
-/// Named constant for method `transfer`.
-pub const METHOD_TRANSFER: &str = "transfer";
-/// Named constant for method `approve`.
-pub const METHOD_APPROVE: &str = "approve";
-/// Named constant for method `allowance`.
-pub const METHOD_ALLOWANCE: &str = "allowance";
-/// Named constant for method `transfer_from`.
-pub const METHOD_TRANSFER_FROM: &str = "transfer_from";
-/// Named constant for method `total_supply`.
-pub const METHOD_TOTAL_SUPPLY: &str = "total_supply";
+/// Name of `name` entry point.
+pub const NAME_ENTRY_POINT_NAME: &str = "name";
+/// Name of `symbol` entry point.
+pub const SYMBOL_ENTRY_POINT_NAME: &str = "symbol";
+/// Name of `decimals` entry point.
+pub const DECIMALS_ENTRY_POINT_NAME: &str = "decimals";
+/// Name of `balance_of` entry point.
+pub const BALANCE_OF_ENTRY_POINT_NAME: &str = "balance_of";
+/// Name of `transfer` entry point.
+pub const TRANSFER_ENTRY_POINT_NAME: &str = "transfer";
+/// Name of `approve` entry point.
+pub const APPROVE_ENTRY_POINT_NAME: &str = "approve";
+/// Name of `allowance` entry point.
+pub const ALLOWANCE_ENTRY_POINT_NAME: &str = "allowance";
+/// Name of `transfer_from` entry point.
+pub const TRANSFER_FROM_ENTRY_POINT_NAME: &str = "transfer_from";
+/// Name of `total_supply` entry point.
+pub const TOTAL_SUPPLY_ENTRY_POINT_NAME: &str = "total_supply";
 
-/// Named constant for `address`.
-pub const ARG_ADDRESS: &str = "address";
-/// Named constant for `owner`.
-pub const ARG_OWNER: &str = "owner";
-/// Named constant for `spender`.
-pub const ARG_SPENDER: &str = "spender";
-/// Named constant for `amount`.
-pub const ARG_AMOUNT: &str = "amount";
-/// Named constant for `recipient`.
-pub const ARG_RECIPIENT: &str = "recipient";
-/// Named constant for `name`.
-pub const ARG_NAME: &str = "name";
-/// Named constant for `symbol`.
-pub const ARG_SYMBOL: &str = "symbol";
-/// Named constant for `decimals`.
-pub const ARG_DECIMALS: &str = "decimals";
-/// Named constant for `total_supply`.
-pub const ARG_TOTAL_SUPPLY: &str = "total_supply";
+/// Name of `address` runtime argument.
+pub const ADDRESS_RUNTIME_ARG_NAME: &str = "address";
+/// Name of `owner` runtime argument.
+pub const OWNER_RUNTIME_ARG_NAME: &str = "owner";
+/// Name of `spender` runtime argument.
+pub const SPENDER_RUNTIME_ARG_NAME: &str = "spender";
+/// Name of `amount` runtime argument.
+pub const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
+/// Name of `recipient` runtime argument.
+pub const RECIPIENT_RUNTIME_ARG_NAME: &str = "recipient";
+/// Name of `name` runtime argument.
+pub const NAME_RUNTIME_ARG_NAME: &str = "name";
+/// Name of `symbol` runtime argument.
+pub const SYMBOL_RUNTIME_ARG_NAME: &str = "symbol";
+/// Name of `decimals` runtime argument.
+pub const DECIMALS_RUNTIME_ARG_NAME: &str = "decimals";
+/// Name of `total_supply` runtime argument.
+pub const TOTAL_SUPPLY_RUNTIME_ARG_NAME: &str = "total_supply";

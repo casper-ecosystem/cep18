@@ -6,8 +6,8 @@ use casper_types::{
     CLType, CLTyped, ContractHash, Key,
 };
 
-/// An enum representing either an account hash, or a contract hash.
-#[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone, Copy)]
+/// An enum representing an [`AccountHash`] or a [`ContractHash`].
+#[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Address {
     /// Represents an account hash.
     Account(AccountHash),
@@ -15,30 +15,9 @@ pub enum Address {
     Contract(ContractHash),
 }
 
-impl From<ContractHash> for Address {
-    fn from(v: ContractHash) -> Self {
-        Self::Contract(v)
-    }
-}
-
-impl From<AccountHash> for Address {
-    fn from(v: AccountHash) -> Self {
-        Self::Account(v)
-    }
-}
-
 impl Address {
-    /// Creates new Key instance by consuming self. Returns either a `Key::Account` or a
-    /// `Key::Contract`.
-    pub fn into_key(self) -> Key {
-        match self {
-            Address::Account(account_hash) => Key::Account(account_hash),
-            Address::Contract(contract_hash) => Key::Hash(contract_hash.value()),
-        }
-    }
-
-    /// Returns wrapped account if this is an [`AccountHash`].
-    pub fn as_account(&self) -> Option<&AccountHash> {
+    /// Returns the inner account hash if `self` is the `Account` variant.
+    pub fn as_account_hash(&self) -> Option<&AccountHash> {
         if let Self::Account(v) = self {
             Some(v)
         } else {
@@ -46,12 +25,33 @@ impl Address {
         }
     }
 
-    /// Returns wrapped contract hash if this is a [`ContractHash`].
-    pub fn as_contract(&self) -> Option<&ContractHash> {
+    /// Returns the inner contract hash if `self` is the `Contract` variant.
+    pub fn as_contract_hash(&self) -> Option<&ContractHash> {
         if let Self::Contract(v) = self {
             Some(v)
         } else {
             None
+        }
+    }
+}
+
+impl From<ContractHash> for Address {
+    fn from(contract_hash: ContractHash) -> Self {
+        Self::Contract(contract_hash)
+    }
+}
+
+impl From<AccountHash> for Address {
+    fn from(account_hash: AccountHash) -> Self {
+        Self::Account(account_hash)
+    }
+}
+
+impl From<Address> for Key {
+    fn from(address: Address) -> Self {
+        match address {
+            Address::Account(account_hash) => Key::Account(account_hash),
+            Address::Contract(contract_hash) => Key::Hash(contract_hash.value()),
         }
     }
 }
@@ -64,17 +64,17 @@ impl CLTyped for Address {
 
 impl ToBytes for Address {
     fn to_bytes(&self) -> Result<Vec<u8>, bytesrepr::Error> {
-        self.into_key().to_bytes()
+        Key::from(*self).to_bytes()
     }
 
     fn serialized_length(&self) -> usize {
-        self.into_key().serialized_length()
+        Key::from(*self).serialized_length()
     }
 }
 
 impl FromBytes for Address {
     fn from_bytes(bytes: &[u8]) -> Result<(Self, &[u8]), bytesrepr::Error> {
-        let (key, rem) = Key::from_bytes(bytes)?;
+        let (key, remainder) = Key::from_bytes(bytes)?;
 
         let address = match key {
             Key::Account(account_hash) => Address::Account(account_hash),
@@ -85,6 +85,6 @@ impl FromBytes for Address {
             _ => return Err(bytesrepr::Error::Formatting),
         };
 
-        Ok((address, rem))
+        Ok((address, remainder))
     }
 }
