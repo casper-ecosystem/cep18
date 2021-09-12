@@ -10,13 +10,13 @@ use casper_types::{bytesrepr::FromBytes, system::CallStackElement, CLTyped, URef
 use crate::{error::Error, Address};
 
 /// Gets [`URef`] under a name.
-pub fn get_uref(name: &str) -> URef {
+pub(crate) fn get_uref(name: &str) -> URef {
     let key = runtime::get_key(name).unwrap_or_revert();
     key.try_into().unwrap_or_revert()
 }
 
 /// Reads value from a named key.
-pub fn read_from<T>(name: &str) -> T
+pub(crate) fn read_from<T>(name: &str) -> T
 where
     T: FromBytes + CLTyped,
 {
@@ -51,7 +51,7 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
 ///
 /// This function ensures that only session code can execute this function, and disallows stored
 /// session/stored contracts.
-pub fn get_immediate_caller_address() -> Result<Address, Error> {
+pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
     get_immediate_call_stack_item()
         .map(call_stack_element_to_address)
         .ok_or(Error::InvalidContext)
@@ -60,7 +60,7 @@ pub fn get_immediate_caller_address() -> Result<Address, Error> {
 /// Gets the caller address which is stored on the top of the call stack.
 ///
 /// This is similar to what [`runtime::get_caller`] does but it also supports stored contracts.
-pub fn get_caller_address() -> Result<Address, Error> {
+pub(crate) fn get_caller_address() -> Result<Address, Error> {
     let call_stack = runtime::get_call_stack();
     let top_of_the_stack = call_stack
         .into_iter()

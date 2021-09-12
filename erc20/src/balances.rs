@@ -4,11 +4,11 @@ use alloc::string::String;
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::ToBytes, URef, U256};
 
-use crate::{constants::BALANCES_KEY, detail, error::Error, Address};
+use crate::{constants::BALANCES_KEY_NAME, detail, error::Error, Address};
 
 /// Creates a dictionary item key for a dictionary item.
 #[inline]
-fn make_dictionary_item_key(owner: &Address) -> String {
+fn make_dictionary_item_key(owner: Address) -> String {
     let preimage = owner.to_bytes().unwrap_or_revert();
     // NOTE: As for now dictionary item keys are limited to 64 characters only. Instead of using
     // hashing (which will effectively hash a hash) we'll use base64. Preimage is about 33 bytes for
@@ -19,23 +19,23 @@ fn make_dictionary_item_key(owner: &Address) -> String {
     base64::encode(&preimage)
 }
 
-pub fn get_balances_uref() -> URef {
-    detail::get_uref(BALANCES_KEY)
+pub(crate) fn get_balances_uref() -> URef {
+    detail::get_uref(BALANCES_KEY_NAME)
 }
 
 /// Writes token balance of a specified account into a dictionary.
-pub fn write_balance_to(balances_uref: &URef, address: &Address, amount: U256) {
+pub(crate) fn write_balance_to(balances_uref: URef, address: Address, amount: U256) {
     let dictionary_item_key = make_dictionary_item_key(address);
-    storage::dictionary_put(*balances_uref, &dictionary_item_key, amount);
+    storage::dictionary_put(balances_uref, &dictionary_item_key, amount);
 }
 
 /// Reads token balance of a specified account.
 ///
 /// If a given account does not have balances in the system, then a 0 is returned.
-pub fn read_balance_from(balances_uref: &URef, address: &Address) -> U256 {
+pub(crate) fn read_balance_from(balances_uref: URef, address: Address) -> U256 {
     let dictionary_item_key = make_dictionary_item_key(address);
 
-    storage::dictionary_get(*balances_uref, &dictionary_item_key)
+    storage::dictionary_get(balances_uref, &dictionary_item_key)
         .unwrap_or_revert()
         .unwrap_or_default()
 }
@@ -44,10 +44,10 @@ pub fn read_balance_from(balances_uref: &URef, address: &Address) -> U256 {
 ///
 /// This function should not be used directly by contract's entrypoint as it does not validate the
 /// sender.
-pub fn transfer_balance(
-    balances_uref: &URef,
-    sender: &Address,
-    recipient: &Address,
+pub(crate) fn transfer_balance(
+    balances_uref: URef,
+    sender: Address,
+    recipient: Address,
     amount: U256,
 ) -> Result<(), Error> {
     let new_sender_balance = {

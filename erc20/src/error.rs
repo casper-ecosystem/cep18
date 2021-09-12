@@ -1,11 +1,18 @@
 //! Error handling on the casper platform.
 use casper_types::ApiError;
 
-/// Represents error conditions of the erc20 contract.
+/// Errors which can be returned by the library.
 ///
-/// For user errors users can use [`Error::User`] variant.
+/// When an `Error` is returned from a smart contract, it is converted to an [`ApiError::User`].
+///
+/// Where a smart contract consuming this library needs to define further error variants, it can
+/// return those via the [`Error::User`] variant or equivalently via the [`ApiError::User`]
+/// variant.
+///
+/// Such a user error should be in the range `[0..(u16::MAX - 4)]` (i.e. [0, 65532]) to avoid
+/// conflicting with the other `Error` variants.
 pub enum Error {
-    /// ERC20 contract called from within invalid context.
+    /// ERC20 contract called from within an invalid context.
     InvalidContext,
     /// Spender does not have enough balance.
     InsufficientBalance,
