@@ -188,8 +188,7 @@ impl ERC20 {
         self.read_allowance(owner, spender)
     }
 
-    /// Mints `amount` new tokens and adds them to `owner`'s balance. Does not check or adjust the
-    /// total supply.
+    /// Mints `amount` new tokens and adds them to `owner`'s balance and to the token total supply.
     ///
     /// # Security
     ///
@@ -209,7 +208,7 @@ impl ERC20 {
         Ok(())
     }
 
-    /// Burns (i.e. subtracts) `amount` of tokens from `owner`'s balance. Does not adjust the total
+    /// Burns (i.e. subtracts) `amount` of tokens from `owner`'s balance and from the token total
     /// supply.
     ///
     /// # Security
