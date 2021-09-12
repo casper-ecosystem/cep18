@@ -1,0 +1,17 @@
+[package]
+name = "erc20-token"
+authors = ["Michał Papierski <michal@casperlabs.io>"]
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+casper-contract = "1.3.2"
+casper-erc20 = { path = "../../erc20" }
+casper-types = "1.3.2"
+
+[[bin]]
+name = "erc20_token"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false

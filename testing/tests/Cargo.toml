@@ -1,0 +1,16 @@
+[package]
+name = "tests"
+version = "0.1.0"
+edition = "2018"
+authors = ["Michał Papierski <michal@casperlabs.io>"]
+
+[dependencies]
+casper-types = "1.3.2"
+casper-engine-test-support = "1.3.2"
+casper-execution-engine = "1.3.2"
+once_cell = "1.8.0"
+
+[lib]
+name = "tests"
+bench = false
+doctest = false

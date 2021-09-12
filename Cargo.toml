@@ -1,9 +1,20 @@
 [workspace]
-
 members = [
-    "contract",
-	"tests"
+    "erc20",
+    "testing/tests",
+    "testing/erc20-test",
+    "testing/erc20-test-call",
+    "example/erc20-token",
+    "example/erc20-tests"
+]
+default-members = [
+    "erc20",
+    "testing/tests",
+    "testing/erc20-test",
+    "testing/erc20-test-call",
+    "example/erc20-tests"
 ]
 
 [profile.release]
+codegen-units = 1
 lto = true

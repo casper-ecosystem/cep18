@@ -1,20 +1,20 @@
-# CasperLabs ERC20
+# Casper ERC20
 
-Implementation of ERC20 token for the CasperLabs platform.
+A library and example implementation of ERC20 token for the Casper network.
 
 ## Install
-Make sure `wasm32-unknown-unknown` is installed.
-```bash
-$ make prepare
+Make sure the `wasm32-unknown-unknown` Rust target is installed.
+```
+make prepare
 ```
 
-## Build Smart Contract
-```bash
-$ make build-contract
+## Build Smart Contracts
+To build the example ERC20 contract and supporting test contracts:
+```
+make build-contracts
 ```
 
 ## Test
-Test logic and smart contract.
-```bash
-$ make test
+```
+make test
 ```
