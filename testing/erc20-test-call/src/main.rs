@@ -17,10 +17,11 @@ use casper_erc20::{
     Address,
 };
 use casper_types::{
-    runtime_args, CLTyped, ContractHash, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints,
-    Key, Parameter, RuntimeArgs, U256,
+    bytesrepr::ToBytes, runtime_args, CLTyped, ContractHash, EntryPoint, EntryPointAccess,
+    EntryPointType, EntryPoints, Key, Parameter, RuntimeArgs, U256,
 };
 
+const CHECK_TOTAL_SUPPLY_ENTRY_POINT_NAME: &str = "check_total_supply";
 const CHECK_BALANCE_OF_ENTRY_POINT_NAME: &str = "check_balance_of";
 const TRANSFER_AS_STORED_CONTRACT_ENTRY_POINT_NAME: &str = "transfer_as_stored_contract";
 const APPROVE_AS_STORED_CONTRACT_ENTRY_POINT_NAME: &str = "approve_as_stored_contract";
@@ -32,6 +33,28 @@ const OWNER_RUNTIME_ARG_NAME: &str = "owner";
 const SPENDER_RUNTIME_ARG_NAME: &str = "spender";
 const RESULT_KEY: &str = "result";
 const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
+
+fn store_result<T: CLTyped + ToBytes>(result: T) {
+    match runtime::get_key(RESULT_KEY) {
+        Some(Key::URef(uref)) => storage::write(uref, result),
+        Some(_) => unreachable!(),
+        None => {
+            let new_uref = storage::new_uref(result);
+            runtime::put_key(RESULT_KEY, new_uref.into());
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn check_total_supply() {
+    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let total_supply: U256 = runtime::call_contract(
+        token_contract,
+        casper_erc20::constants::TOTAL_SUPPLY_ENTRY_POINT_NAME,
+        RuntimeArgs::default(),
+    );
+    store_result(total_supply);
+}
 
 #[no_mangle]
 extern "C" fn check_balance_of() {
@@ -47,14 +70,7 @@ extern "C" fn check_balance_of() {
         balance_args,
     );
 
-    match runtime::get_key(RESULT_KEY) {
-        Some(Key::URef(uref)) => storage::write(uref, result),
-        Some(_) => unreachable!(),
-        None => {
-            let new_uref = storage::new_uref(result);
-            runtime::put_key(RESULT_KEY, new_uref.into());
-        }
-    }
+    store_result(result);
 }
 
 #[no_mangle]
@@ -73,14 +89,7 @@ extern "C" fn check_allowance_of() {
         allowance_args,
     );
 
-    match runtime::get_key(RESULT_KEY) {
-        Some(Key::URef(uref)) => storage::write(uref, result),
-        Some(_) => unreachable!(),
-        None => {
-            let new_uref = storage::new_uref(result);
-            runtime::put_key(RESULT_KEY, new_uref.into());
-        }
-    }
+    store_result(result);
 }
 
 #[no_mangle]
@@ -134,6 +143,16 @@ extern "C" fn approve_as_stored_contract() {
 #[no_mangle]
 pub extern "C" fn call() {
     let mut entry_points = EntryPoints::new();
+    let check_total_supply_entrypoint = EntryPoint::new(
+        String::from(CHECK_TOTAL_SUPPLY_ENTRY_POINT_NAME),
+        vec![Parameter::new(
+            TOKEN_CONTRACT_RUNTIME_ARG_NAME,
+            ContractHash::cl_type(),
+        )],
+        <()>::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    );
     let check_balance_of_entrypoint = EntryPoint::new(
         String::from(CHECK_BALANCE_OF_ENTRY_POINT_NAME),
         vec![
@@ -193,6 +212,7 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     );
 
+    entry_points.add_entry_point(check_total_supply_entrypoint);
     entry_points.add_entry_point(check_balance_of_entrypoint);
     entry_points.add_entry_point(check_allowance_of_entrypoint);
     entry_points.add_entry_point(transfer_as_stored_contract_entrypoint);

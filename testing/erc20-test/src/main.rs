@@ -74,6 +74,7 @@ impl TestToken {
             EntryPointType::Contract,
         );
 
+        entry_points.add_entry_point(casper_erc20::entry_points::total_supply());
         entry_points.add_entry_point(casper_erc20::entry_points::balance_of());
         entry_points.add_entry_point(mint_entrypoint);
         entry_points.add_entry_point(burn_entrypoint);
@@ -108,6 +109,12 @@ impl DerefMut for TestToken {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.erc20
     }
+}
+
+#[no_mangle]
+pub extern "C" fn total_supply() {
+    let val = TestToken::default().total_supply();
+    runtime::ret(CLValue::from_t(val).unwrap_or_revert());
 }
 
 #[no_mangle]

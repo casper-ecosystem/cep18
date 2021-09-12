@@ -22,6 +22,7 @@ pub mod constants;
 mod detail;
 pub mod entry_points;
 mod error;
+mod total_supply;
 
 use alloc::string::{String, ToString};
 
@@ -45,14 +46,30 @@ pub use error::Error;
 pub struct ERC20 {
     balances_uref: OnceCell<URef>,
     allowances_uref: OnceCell<URef>,
+    total_supply_uref: OnceCell<URef>,
 }
 
 impl ERC20 {
-    fn new(balances_uref: URef, allowances_uref: URef) -> Self {
+    fn new(balances_uref: URef, allowances_uref: URef, total_supply_uref: URef) -> Self {
         Self {
             balances_uref: balances_uref.into(),
             allowances_uref: allowances_uref.into(),
+            total_supply_uref: total_supply_uref.into(),
         }
+    }
+
+    fn total_supply_uref(&self) -> URef {
+        *self
+            .total_supply_uref
+            .get_or_init(total_supply::total_supply_uref)
+    }
+
+    fn read_total_supply(&self) -> U256 {
+        total_supply::read_total_supply_from(self.total_supply_uref())
+    }
+
+    fn write_total_supply(&self, total_supply: U256) {
+        total_supply::write_total_supply_to(self.total_supply_uref(), total_supply)
     }
 
     fn balances_uref(&self) -> URef {
@@ -127,7 +144,7 @@ impl ERC20 {
 
     /// Returns the total supply of the token.
     pub fn total_supply(&self) -> U256 {
-        detail::read_from(TOTAL_SUPPLY_KEY_NAME)
+        self.read_total_supply()
     }
 
     /// Returns the balance of `owner`.
@@ -183,7 +200,12 @@ impl ERC20 {
             let balance = self.read_balance(owner);
             balance.checked_add(amount).ok_or(Error::Overflow)?
         };
+        let new_total_supply = {
+            let total_supply: U256 = self.read_total_supply();
+            total_supply.checked_add(amount).ok_or(Error::Overflow)?
+        };
         self.write_balance(owner, new_balance);
+        self.write_total_supply(new_total_supply);
         Ok(())
     }
 
@@ -201,7 +223,12 @@ impl ERC20 {
                 .checked_sub(amount)
                 .ok_or(Error::InsufficientBalance)?
         };
+        let new_total_supply = {
+            let total_supply = self.read_total_supply();
+            total_supply.checked_sub(amount).ok_or(Error::Overflow)?
+        };
         self.write_balance(owner, new_balance);
+        self.write_total_supply(new_total_supply);
         Ok(())
     }
 
@@ -223,6 +250,8 @@ impl ERC20 {
     ) -> Result<ERC20, Error> {
         let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
         let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
+        // We need to hold on a RW access rights because tokens can be minted or burned.
+        let total_supply_uref = storage::new_uref(initial_supply).into_read_write();
 
         let mut named_keys = NamedKeys::new();
 
@@ -241,10 +270,7 @@ impl ERC20 {
             Key::from(decimals_uref)
         };
 
-        let total_supply_key = {
-            let total_supply_uref = storage::new_uref(initial_supply).into_read();
-            Key::from(total_supply_uref)
-        };
+        let total_supply_key = Key::from(total_supply_uref);
 
         let balances_dictionary_key = {
             // Sets up initial balance for the caller - either an account, or a contract.
@@ -275,6 +301,10 @@ impl ERC20 {
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
 
-        Ok(ERC20::new(balances_uref, allowances_uref))
+        Ok(ERC20::new(
+            balances_uref,
+            allowances_uref,
+            total_supply_uref,
+        ))
     }
 }

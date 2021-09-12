@@ -51,6 +51,7 @@ const ARG_SPENDER: &str = "spender";
 
 const METHOD_TRANSFER_FROM: &str = "transfer_from";
 
+const CHECK_TOTAL_SUPPLY_ENTRYPOINT: &str = "check_total_supply";
 const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
 const CHECK_ALLOWANCE_OF_ENTRYPOINT: &str = "check_allowance_of";
 const ARG_TOKEN_CONTRACT: &str = "token_contract";
@@ -189,6 +190,37 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     };
 
     (builder, test_context)
+}
+
+fn erc20_check_total_supply(
+    builder: &mut InMemoryWasmTestBuilder,
+    erc20_contract_hash: &ContractHash,
+) -> U256 {
+    let account = builder
+        .get_account(*DEFAULT_ACCOUNT_ADDR)
+        .expect("should have account");
+
+    let erc20_test_contract_hash = account
+        .named_keys()
+        .get(ERC20_TEST_CALL_KEY)
+        .and_then(|key| key.into_hash())
+        .map(ContractHash::new)
+        .expect("should have test contract hash");
+
+    let check_total_supply_args = runtime_args! {
+        ARG_TOKEN_CONTRACT => *erc20_contract_hash,
+    };
+
+    let exec_request = ExecuteRequestBuilder::contract_call_by_hash(
+        *DEFAULT_ACCOUNT_ADDR,
+        erc20_test_contract_hash,
+        CHECK_TOTAL_SUPPLY_ENTRYPOINT,
+        check_total_supply_args,
+    )
+    .build();
+    builder.exec(exec_request).expect_success().commit();
+
+    builder.get_value(erc20_test_contract_hash, RESULT_KEY)
 }
 
 fn erc20_check_balance_of(
@@ -964,6 +996,7 @@ fn test_mint_and_burn_tokens() {
         erc20_check_balance_of(&mut builder, &test_contract, TOKEN_OWNER_ADDRESS_2),
         U256::from(TOKEN_OWNER_AMOUNT_2)
     );
+    let total_supply_before_mint = erc20_check_total_supply(&mut builder, &test_contract);
 
     let mint_request = ExecuteRequestBuilder::contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
@@ -987,6 +1020,13 @@ fn test_mint_and_burn_tokens() {
         U256::from(TOKEN_OWNER_AMOUNT_2)
     );
 
+    let total_supply_after_mint = erc20_check_total_supply(&mut builder, &test_contract);
+    assert_eq!(
+        total_supply_after_mint,
+        total_supply_before_mint + mint_amount,
+    );
+    let total_supply_before_burn = total_supply_after_mint;
+
     let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         test_contract,
@@ -1008,6 +1048,13 @@ fn test_mint_and_burn_tokens() {
         erc20_check_balance_of(&mut builder, &test_contract, TOKEN_OWNER_ADDRESS_2),
         U256::from(TOKEN_OWNER_AMOUNT_2)
     );
+    let total_supply_after_burn = erc20_check_total_supply(&mut builder, &test_contract);
+    assert_eq!(
+        total_supply_after_burn,
+        total_supply_before_burn - mint_amount,
+    );
+
+    assert_eq!(total_supply_after_burn, total_supply_before_mint);
 }
 
 #[test]
