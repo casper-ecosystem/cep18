@@ -15,8 +15,8 @@ use casper_erc20::{
     Address, Error, ERC20,
 };
 use casper_types::{
-    account::AccountHash, CLType, CLTyped, CLValue, ContractHash, EntryPoint, EntryPointAccess,
-    EntryPointType, EntryPoints, Parameter, U256,
+    account::AccountHash, CLType, CLTyped, CLValue, ContractPackageHash, EntryPoint,
+    EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256,
 };
 
 const MINT_ENTRY_POINT_NAME: &str = "mint";
@@ -32,7 +32,7 @@ const TOKEN_TOTAL_SUPPLY: u64 = 1_000_000_000;
 
 const TOKEN_OWNER_ADDRESS_1: Address = Address::Account(AccountHash::new([42; 32]));
 const TOKEN_OWNER_AMOUNT_1: u64 = 1_000_000;
-const TOKEN_OWNER_ADDRESS_2: Address = Address::Contract(ContractHash::new([42; 32]));
+const TOKEN_OWNER_ADDRESS_2: Address = Address::Contract(ContractPackageHash::new([42; 32]));
 const TOKEN_OWNER_AMOUNT_2: u64 = 2_000_000;
 
 #[derive(Default)]

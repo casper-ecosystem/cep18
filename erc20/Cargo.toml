@@ -1,6 +1,6 @@
 [package]
 name = "casper-erc20"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 authors = ["Michał Papierski <michal@casperlabs.io>"]
 description = "A library for developing ERC20 tokens for the Casper network."
