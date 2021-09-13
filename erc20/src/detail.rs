@@ -49,7 +49,6 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
             contract_package_hash,
             ..
         } => {
-            // Co
             Address::from(contract_package_hash)
         }
     }

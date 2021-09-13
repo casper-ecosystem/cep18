@@ -36,8 +36,8 @@ impl Address {
 }
 
 impl From<ContractPackageHash> for Address {
-    fn from(contract_hash: ContractPackageHash) -> Self {
-        Self::Contract(contract_hash)
+    fn from(contract_package_hash: ContractPackageHash) -> Self {
+        Self::Contract(contract_package_hash)
     }
 }
 
