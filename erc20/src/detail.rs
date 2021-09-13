@@ -45,7 +45,10 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
             // with an ERC20 token caller's address will be used.
             Address::from(account_hash)
         }
-        CallStackElement::StoredContract { contract_hash, .. } => Address::from(contract_hash),
+        CallStackElement::StoredContract {
+            contract_package_hash,
+            ..
+        } => Address::from(contract_package_hash),
     }
 }
 

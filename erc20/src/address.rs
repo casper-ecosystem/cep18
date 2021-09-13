@@ -3,16 +3,16 @@ use alloc::vec::Vec;
 use casper_types::{
     account::AccountHash,
     bytesrepr::{self, FromBytes, ToBytes},
-    CLType, CLTyped, ContractHash, Key,
+    CLType, CLTyped, ContractPackageHash, Key,
 };
 
-/// An enum representing an [`AccountHash`] or a [`ContractHash`].
+/// An enum representing an [`AccountHash`] or a [`ContractPackageHash`].
 #[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Address {
     /// Represents an account hash.
     Account(AccountHash),
-    /// Represents a contract hash.
-    Contract(ContractHash),
+    /// Represents a contract package hash.
+    Contract(ContractPackageHash),
 }
 
 impl Address {
@@ -26,7 +26,7 @@ impl Address {
     }
 
     /// Returns the inner contract hash if `self` is the `Contract` variant.
-    pub fn as_contract_hash(&self) -> Option<&ContractHash> {
+    pub fn as_contract_package_hash(&self) -> Option<&ContractPackageHash> {
         if let Self::Contract(v) = self {
             Some(v)
         } else {
@@ -35,9 +35,9 @@ impl Address {
     }
 }
 
-impl From<ContractHash> for Address {
-    fn from(contract_hash: ContractHash) -> Self {
-        Self::Contract(contract_hash)
+impl From<ContractPackageHash> for Address {
+    fn from(contract_package_hash: ContractPackageHash) -> Self {
+        Self::Contract(contract_package_hash)
     }
 }
 
@@ -51,7 +51,7 @@ impl From<Address> for Key {
     fn from(address: Address) -> Self {
         match address {
             Address::Account(account_hash) => Key::Account(account_hash),
-            Address::Contract(contract_hash) => Key::Hash(contract_hash.value()),
+            Address::Contract(contract_package_hash) => Key::Hash(contract_package_hash.value()),
         }
     }
 }
@@ -78,9 +78,9 @@ impl FromBytes for Address {
 
         let address = match key {
             Key::Account(account_hash) => Address::Account(account_hash),
-            Key::Hash(raw_contract_hash) => {
-                let contract_hash = ContractHash::new(raw_contract_hash);
-                Address::Contract(contract_hash)
+            Key::Hash(raw_contract_package_hash) => {
+                let contract_package_hash = ContractPackageHash::new(raw_contract_package_hash);
+                Address::Contract(contract_package_hash)
             }
             _ => return Err(bytesrepr::Error::Formatting),
         };

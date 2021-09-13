@@ -9,8 +9,8 @@ use casper_execution_engine::core::{
     execution::Error as ExecError,
 };
 use casper_types::{
-    account::AccountHash, runtime_args, system::mint, ApiError, ContractHash, Key, PublicKey,
-    RuntimeArgs, SecretKey, U256,
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, ApiError, CLTyped,
+    ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
 };
 
 const EXAMPLE_ERC20_TOKEN: &str = "erc20_token.wasm";
@@ -104,7 +104,7 @@ fn invert_erc20_address(address: Key) -> Key {
 struct TestContext {
     erc20_token: ContractHash,
     test_contract: ContractHash,
-    erc20_test_call: ContractHash,
+    erc20_test_call: ContractPackageHash,
 }
 
 fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
@@ -180,7 +180,7 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .named_keys()
         .get(ERC20_TEST_CALL_KEY)
         .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
+        .map(ContractPackageHash::new)
         .expect("should have contract hash");
 
     let test_context = TestContext {
@@ -204,23 +204,41 @@ fn erc20_check_total_supply(
         .named_keys()
         .get(ERC20_TEST_CALL_KEY)
         .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
+        .map(ContractPackageHash::new)
         .expect("should have test contract hash");
 
     let check_total_supply_args = runtime_args! {
         ARG_TOKEN_CONTRACT => *erc20_contract_hash,
     };
 
-    let exec_request = ExecuteRequestBuilder::contract_call_by_hash(
+    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         erc20_test_contract_hash,
+        None,
         CHECK_TOTAL_SUPPLY_ENTRYPOINT,
         check_total_supply_args,
     )
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    builder.get_value(erc20_test_contract_hash, RESULT_KEY)
+    get_test_result(builder, erc20_test_contract_hash)
+}
+
+fn get_test_result<T: FromBytes + CLTyped>(
+    builder: &mut InMemoryWasmTestBuilder,
+    erc20_test_contract_hash: ContractPackageHash,
+) -> T {
+    let contract_package = builder
+        .get_contract_package(erc20_test_contract_hash)
+        .expect("should have contract package");
+    let enabled_versions = contract_package.enabled_versions();
+    let (_version, contract_hash) = enabled_versions
+        .iter()
+        .rev()
+        .next()
+        .expect("should have latest version");
+
+    builder.get_value(*contract_hash, RESULT_KEY)
 }
 
 fn erc20_check_balance_of(
@@ -236,23 +254,24 @@ fn erc20_check_balance_of(
         .named_keys()
         .get(ERC20_TEST_CALL_KEY)
         .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
+        .map(ContractPackageHash::new)
         .expect("should have test contract hash");
 
     let check_balance_args = runtime_args! {
         ARG_TOKEN_CONTRACT => *erc20_contract_hash,
         ARG_ADDRESS => address,
     };
-    let exec_request = ExecuteRequestBuilder::contract_call_by_hash(
+    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         erc20_test_contract_hash,
+        None,
         CHECK_BALANCE_OF_ENTRYPOINT,
         check_balance_args,
     )
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    builder.get_value(erc20_test_contract_hash, RESULT_KEY)
+    get_test_result(builder, erc20_test_contract_hash)
 }
 
 fn erc20_check_allowance_of(
@@ -273,7 +292,7 @@ fn erc20_check_allowance_of(
         .named_keys()
         .get(ERC20_TEST_CALL_KEY)
         .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
+        .map(ContractPackageHash::new)
         .expect("should have test contract hash");
 
     let check_balance_args = runtime_args! {
@@ -281,16 +300,17 @@ fn erc20_check_allowance_of(
         ARG_OWNER => owner,
         ARG_SPENDER => spender,
     };
-    let exec_request = ExecuteRequestBuilder::contract_call_by_hash(
+    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         erc20_test_contract_hash,
+        None,
         CHECK_ALLOWANCE_OF_ENTRYPOINT,
         check_balance_args,
     )
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    builder.get_value(erc20_test_contract_hash, RESULT_KEY)
+    get_test_result(builder, erc20_test_contract_hash)
 }
 
 fn test_erc20_transfer(
@@ -373,9 +393,10 @@ fn make_erc20_transfer_request(
             },
         )
         .build(),
-        Key::Hash(contract_hash) => ExecuteRequestBuilder::contract_call_by_hash(
+        Key::Hash(contract_package_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            ContractHash::new(contract_hash),
+            ContractPackageHash::new(contract_package_hash),
+            None,
             METHOD_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
                 ARG_TOKEN_CONTRACT => *erc20_token,
@@ -405,9 +426,10 @@ fn make_erc20_approve_request(
             },
         )
         .build(),
-        Key::Hash(contract_hash) => ExecuteRequestBuilder::contract_call_by_hash(
+        Key::Hash(contract_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            ContractHash::new(contract_hash),
+            ContractPackageHash::new(contract_hash),
+            None,
             METHOD_APPROVE_AS_STORED_CONTRACT,
             runtime_args! {
                 ARG_TOKEN_CONTRACT => *erc20_token,
@@ -937,9 +959,10 @@ fn should_transfer_from_account_by_contract() {
     )
     .build();
 
-    let transfer_from_request_1 = ExecuteRequestBuilder::contract_call_by_hash(
+    let transfer_from_request_1 = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         erc20_test_call,
+        None,
         METHOD_FROM_AS_STORED_CONTRACT,
         erc20_transfer_from_args,
     )

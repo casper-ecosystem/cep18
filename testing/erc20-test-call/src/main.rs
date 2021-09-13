@@ -3,7 +3,10 @@
 
 extern crate alloc;
 
-use alloc::{string::String, vec};
+use alloc::{
+    string::{String, ToString},
+    vec,
+};
 
 use casper_contract::{
     self,
@@ -219,7 +222,10 @@ pub extern "C" fn call() {
     entry_points.add_entry_point(approve_as_stored_contract_entrypoint);
     entry_points.add_entry_point(transfer_from_as_stored_contract_entrypoint);
 
-    let (contract_hash, _version) = storage::new_contract(entry_points, None, None, None);
-
-    runtime::put_key(ERC20_TEST_CALL_KEY, contract_hash.into());
+    let (_contract_hash, _version) = storage::new_contract(
+        entry_points,
+        None,
+        Some(ERC20_TEST_CALL_KEY.to_string()),
+        None,
+    );
 }
