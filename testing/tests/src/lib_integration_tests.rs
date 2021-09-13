@@ -221,7 +221,6 @@ fn erc20_check_total_supply(
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    // builder.get_value(erc20_test_contract_hash, RESULT_KEY)
     get_test_result(builder, erc20_test_contract_hash)
 }
 
