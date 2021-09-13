@@ -48,9 +48,7 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
         CallStackElement::StoredContract {
             contract_package_hash,
             ..
-        } => {
-            Address::from(contract_package_hash)
-        }
+        } => Address::from(contract_package_hash),
     }
 }
 
