@@ -50,6 +50,10 @@ pub(crate) fn transfer_balance(
     recipient: Address,
     amount: U256,
 ) -> Result<(), Error> {
+    if sender == recipient || amount.is_zero() {
+        return Ok(());
+    }
+
     let new_sender_balance = {
         let sender_balance = read_balance_from(balances_uref, sender);
         sender_balance
