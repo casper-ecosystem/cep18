@@ -61,8 +61,6 @@ pub(crate) fn transfer_balance(
             .ok_or(Error::InsufficientBalance)?
     };
 
-    write_balance_to(balances_uref, sender, new_sender_balance);
-
     let new_recipient_balance = {
         let recipient_balance = read_balance_from(balances_uref, recipient);
         recipient_balance
@@ -70,6 +68,7 @@ pub(crate) fn transfer_balance(
             .ok_or(Error::Overflow)?
     };
 
+    write_balance_to(balances_uref, sender, new_sender_balance);
     write_balance_to(balances_uref, recipient, new_recipient_balance);
 
     Ok(())
