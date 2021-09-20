@@ -167,6 +167,9 @@ impl ERC20 {
         amount: U256,
     ) -> Result<(), Error> {
         let spender = detail::get_immediate_caller_address()?;
+        if amount.is_zero() {
+            return Ok(());
+        }
         let spender_allowance = self.read_allowance(owner, spender);
         let new_spender_allowance = spender_allowance
             .checked_sub(amount)
