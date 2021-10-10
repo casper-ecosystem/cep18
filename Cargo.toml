@@ -3,16 +3,21 @@ members = [
     "erc20",
     "testing/tests",
     "testing/erc20-test",
+    "testing/erc20-staking-test",
     "testing/erc20-test-call",
     "example/erc20-token",
-    "example/erc20-tests"
+    "example/erc20-tests",
+    "example/erc20-staking-token",
+    "example/erc20-staking-tests"
 ]
+
 default-members = [
     "erc20",
     "testing/tests",
     "testing/erc20-test",
     "testing/erc20-test-call",
-    "example/erc20-tests"
+    "example/erc20-tests",
+    "example/erc20-staking-tests"
 ]
 
 [profile.release]
