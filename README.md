@@ -18,3 +18,7 @@ make build-contracts
 ```
 make test
 ```
+
+## Javascript client SDK
+
+A javascript client SDK can be used to interact with the ERC20 contract. It is available in it's own [repository](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client).
