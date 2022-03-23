@@ -43,4 +43,8 @@ A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-
 
 ## Documentation
 
-For more information, visit the [ERC-20 How-To Guide](https://casper.network/docs/workflow/erc-20-sample-guide) and the [ERC-20 tutorial](https://casper.network/docs/erc20).
+For more information, visit the below guides:
+-  [ERC-20 Tutorial](TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an ERC-20 contract. 
+-  [ERC-20 How-To Guide](https://casper.network/docs/workflow/erc-20-sample-guide) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an ERC-20 contract.
+
+
