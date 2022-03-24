@@ -207,7 +207,6 @@ casper-client get-deploy \
 
 ## Querying with Arguments
 This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [erc20 contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
-:::
 
 Use the command template below to query the network state with arguments:
 
@@ -230,8 +229,7 @@ git clone https://github.com/casper-ecosystem/erc20.git
 ```
 ### Getting an IP Address from a Testnet Peer
 
-Use [peers](https://testnet.cspr.live/tools/peers) site to get the node ip address.
-Eg:  http://95.216.24.237:7777
+Use [peers](https://testnet.cspr.live/tools/peers) to get the node IP address; for example, http://95.216.24.237:7777.
 
 ### Viewing the Network Status
 
@@ -279,7 +277,7 @@ This result contains the network state before the deploy. You can see the `named
 ```
 
 </details>
-
+<br></br>
 
 ### Deploying the Contract
 
@@ -685,6 +683,7 @@ This contains the header, payment, and session details along with the execution 
 ```
 
 </details>
+<br></br>
 
 ### Querying Contract Entry Points
 
@@ -697,7 +696,7 @@ casper-client query-global-state --node-address http://95.216.24.237:7777 \
 -q "test_contract/name"
 ```
 
-Result:
+**Result**:
 
 You can see that the name is `CasperTest` in this example.
 ```bash
