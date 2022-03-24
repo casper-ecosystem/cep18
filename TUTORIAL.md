@@ -130,18 +130,7 @@ make test
 ```
 
 ## Getting an IP Address from a Testnet Peer 
-Use the [acquire node address](https://casper.network/docs/workflow/setup/#acquire-node-address-from-network-peers) section to get a node-ip-address. We use [peers](https://testnet.cspr.live/tools/peers) on Testnet since we are deploying to the Testnet. Select a peer address from the list and do the address format as below,
-
----
-**Note**
-Acquire a node address from the Testnet and use port '7777' instead of '35000' to send your deploy. If the selected peer is unresponsive, pick a different peer and try again
-
----
-
-A list of peers from Testnet :
-
-<img src="../erc20/images/testnet-peers.png" alt="import-crates" title="erc20-deploy-flow">
-
+We will use a Testnet [peer](https://testnet.cspr.live/tools/peers) to send the deploy. Read the guide to [acquiring a node address](https://casper.network/docs/workflow/setup/#acquire-node-address-from-network-peers) if needed. 
 
 ## Viewing the Network Status
 This query captures any information related to the state of the blockchain at the specific time denoted by the network's state root hash.  You need to have the state root hash and the account hash to run the query.
