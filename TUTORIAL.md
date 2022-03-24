@@ -55,7 +55,7 @@ Since this is a Rust implementation of the ERC-20 token for Casper, we will go o
 -   [casper_types](https://docs.rs/casper-types/latest/casper_types/) - Types used to allow creation of Wasm contracts and tests for use on the Casper Network
 -   [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) - A library for developing ERC-20 tokens for the Casper Network
 
-Here is the code snippet which imports those crates,
+Here is the code snippet which imports those crates:
 
 <img src="../erc20/images/erc20-implementation-install-crates.png" alt="import-crates" title="import-crates">
 
@@ -69,7 +69,7 @@ Initializing the contract happens through the `call()` function inside the [cont
 
 The code snippet for initializing the contract should look like this:
 
-<img src="../erc20/images/erc20-call.png" alt="import-crates" title="call-function">
+<img src="../erc20/images/erc20-call.png" alt="call-function" title="call-function">
 
 ## Contract Methods {#contract-methods}
 
@@ -108,7 +108,7 @@ Let's dive into the deployment process.
 ## Basic Flow {#basic-flow}
 Here are the basic steps to deploy the ERC-20 contract on the Casper Network.
 
-<img src="../erc20/images/erc20-deploy-flow.png" alt="import-crates" title="erc20-deploy-flow">
+<img src="../erc20/images/erc20-deploy-flow.png" alt="erc20-deploy-flow" title="erc20-deploy-flow">
 
 ## Cloning the ERC-20 Contract {#cloning-the-erc-20-contract}
 This step includes cloning and preparing the ERC-20 contract for the deployment.
