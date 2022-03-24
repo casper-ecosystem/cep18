@@ -137,21 +137,23 @@ This query captures any information related to the state of the blockchain at th
 
 **Getting the state root hash**
 
-This marks a snapshot of the network state at a moment in time.
+Get the state root hash, which marks a snapshot of the network state at a moment in time. Use the [Node IP address](#getting-an-ip-address-from-a-testnet-peer) taken from a Testnet peer.
+
 ```bash
 casper-client get-state-root-hash --node-address http://<HOST:PORT>
 ```
-- `<HOST:PORT>`: Use the [Node IP address](#getting-an-ip-address-from-a-testnet-peer) taken from a Testnet peer
 
 **Getting the account hash**
 
-Run the following command and supply the path to your *public key* in hexadecimal format to get the account hash.
+Run the following command and supply the path to your public key in hexadecimal format to get the account hash.
+
 ```bash
 casper-client account-address --public-key "[PATH_TO_YOUR_KEY]/public_key_hex"
 ```
 **Querying the network state**
 
 Use the command template below to query the network status with regard to your account.
+
 ```bash
 casper-client query-global-state \
 --node-address http://<HOST:PORT> \
