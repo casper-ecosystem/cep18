@@ -162,7 +162,14 @@ casper-client query-global-state \
 ```
 
 ## Deploying the Contract
-Now you can deploy the contract on the network and check how it behaves. Use the following command template to deploy the contract:
+Now you can deploy the contract to the network and check how it behaves. 
+
+If you are performing the deploy on the Mainnet, we recommend trying several put deploys on the Testnet to understand the exact amount required for that deploy. Refer to the [note about gas price](https://casper.network/docs/dapp-dev-guide/deploying-contracts/#a-note-about-gas-prices) to understand more about payment amounts and gas price adjustments.
+
+**We currently do not refund any tokens as part of a deploy.** For example, if you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the remaining 9 CSPR. Refer to the [computational cost and gas amounts](https://casper.network/docs/design/execution-semantics#execution-semantics-gas) for further details.
+
+Use the following command template to deploy the contract:
+
 ```bash
 casper-client put-deploy \
     --node-address http://<HOST:PORT> \
@@ -176,17 +183,7 @@ casper-client put-deploy \
 - `PAYMENT_AMOUNT`: Gas amount in tokens needed for contract execution. If there are no adequate tokens, the deploy will not execute and return an error
 - `WASM FILE PATH`: The session-path argument should point to the location of your compiled ERC-20 WASM file
 
----
-**Note**
-- If you are performing the deploy on the Mainnet, we recommend trying several put deploys on the Testnet to understand the exact amount required for that deploy. Refer to the [note about gas price](https://casper.network/docs/dapp-dev-guide/deploying-contracts/#a-note-about-gas-prices) to understand more about payment amounts and gas price adjustments
-
-- **We currently do not refund any tokens as part of a deploy.**
-
-  Eg:- If you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the extra 9 CSPR. Refer to the [computational cost and gas amounts](https://casper.network/docs/design/execution-semantics#execution-semantics-gas) for further details
-
----
-
-Find the sample *put-deploy* command below:
+Here is a sample *put-deploy* command:
 
 ```bash
 casper-client put-deploy \
