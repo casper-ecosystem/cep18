@@ -42,20 +42,9 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an example implementation of the ERC-20 token for the Casper Network. The ERC-20 standard is defined in an [Ethereum Improvement Proposal (EIP)](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#).
+In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation]((https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs)) of the ERC-20 token for the Casper Network. This section explains the example contract in more detail.
 
-The reference contract implementation is on the [example contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) . The next sections explain the main functionalities of the ERC-20 contract in that file. 
-Those are,
-1.  [Installing Required Crates](#installing-required-crates)
-2.  [Initializing the Contract](#initializing-the-contract)
-3.  [Implementing Contract Methods](#contract-methods)
-
----
-**Note**
- To successfully execute this reference contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile the contract. To execute the contract you need to deploy the .wasm file on the network.
-
- ---
-
+**Note**: To successfully execute the contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile it. To execute the contract you need to deploy the .wasm file on the network.
 
 
 ## Installing Required Crates
