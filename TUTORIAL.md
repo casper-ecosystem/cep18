@@ -47,7 +47,7 @@ In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library 
 **Note**: To successfully execute the contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile it. To execute the contract you need to deploy the .wasm file on the network.
 
 
-## Installing Required Crates
+## Installing Required Crates {#installing-crates}
 
 Since this is a Rust implementation of the ERC-20 token for Casper, we will go over a few implementation details. Casper contracts require the following crates to be included:
 
@@ -64,14 +64,14 @@ Here is the code snippet which imports those crates,
 
 
 
-## Initializing the Contract
+## Initializing the Contract {#initializing-the-contract}
 Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`, which require to start the token supply.
 
 The code snippet for initializing the contract should look like this:
 
 <img src="../erc20/images/erc20-call.png" alt="import-crates" title="call-function">
 
-## Contract Methods
+## Contract Methods {#contract-methods}
 
 This section briefly explains the contract methods used in our ERC-20 contract.
 
@@ -94,24 +94,23 @@ Contract methods are:
 
 # Contract Deployment
 
-
 Now that you have implemented the smart contract for ERC-20, it's time to deploy it to the blockchain. Deploying the ERC-20 contract is similar to deploying other smart contracts, while only the WASM files and parameters will differ. Refer to the [Deploying Contracts](https://casper.network/docs/dapp-dev-guide/deploying-contracts/) section to learn more about overall contract deployment.
 
 Let's dive into the deployment process.
 
-### Pre-requisites
+### Deploy Prerequisites {#deploy-prerequisites}
 
 - Set up your machine as per the [prerequisites](https://casper.network/docs/workflow/setup/)
 - Ensure you have [set up an account](https://casper.network/docs/workflow/setup#setting-up-an-account) with a public and secret key pair to initiate the deploy
 - Since we are deploying to the Casper Testnet, ensure your [Testnet faucet account](https://testnet.cspr.live/tools/faucet) contains enough CSPR tokens to perform the contract execution. Follow the guide to [fund your account](https://casper.network/docs/workflow/setup#fund-your-account) or to [transfer tokens](https://casper.network/docs/workflow/token-transfer#2-the-faucet) as needed
 - Install the [Casper command-line client](https://casper.network/docs/dapp-dev-guide/tutorials/counter/setup/) to interact with the network
 
-## Basic Flow
+## Basic Flow {#basic-flow}
 Here are the basic steps to deploy the ERC-20 contract on the Casper Network.
 
 <img src="../erc20/images/erc20-deploy-flow.png" alt="import-crates" title="erc20-deploy-flow">
 
-## Cloning the ERC-20 Contract
+## Cloning the ERC-20 Contract {#cloning-the-erc-20-contract}
 This step includes cloning and preparing the ERC-20 contract for the deployment.
 1. Clone the ERC-20 contract from the repository
 ```bash
@@ -129,10 +128,10 @@ make build-contracts
 make test
 ```
 
-## Getting an IP Address from a Testnet Peer 
+## Getting an IP Address from a Testnet Peer {#getting-an-ip-address}
 We will use a Testnet [peer](https://testnet.cspr.live/tools/peers) to send the deploy. Read the guide to [acquiring a node address](https://casper.network/docs/workflow/setup/#acquire-node-address-from-network-peers) if needed. 
 
-## Viewing the Network Status
+## Viewing the Network Status {#viewing-network-status}
 This query captures any information related to the state of the blockchain at the specific time denoted by the network's state root hash.  You need to have the state root hash and the account hash to run the query.
 
 **Getting the state root hash**
@@ -161,7 +160,7 @@ casper-client query-global-state \
 --key [ACCOUNT_HASH]
 ```
 
-## Deploying the Contract
+## Deploying the Contract {#deploying-the-contract}
 Now you can deploy the contract to the network and check how it behaves. 
 
 If you are performing the deploy on the Mainnet, we recommend trying several put deploys on the Testnet to understand the exact amount required for that deploy. Refer to the [note about gas price](https://casper.network/docs/dapp-dev-guide/deploying-contracts/#a-note-about-gas-prices) to understand more about payment amounts and gas price adjustments.
@@ -194,18 +193,18 @@ casper-client put-deploy \
 --session-path "<machine-path>/erc20/target/wasm32-unknown-unknown/release/erc20_test.wasm"
 ```
 
-## Querying the Network Status
+## Querying the Network Status {#querying-the-network-status}
 You need to get the newest state root hash to view the network status because it has changed with the deploy. The account hash remains the same since you are using the same account. Follow the [view the network state](#viewing-the-network-status) to execute this step with the new state root hash.
 
 
-## Verifying the Deploy
+## Verifying the Deploy {#verifying-the-deploy}
 Now you can verify the applied deploy using the `get deploy` command. This will output the details of the applied deploy.
 ```bash
 casper-client get-deploy \
 --node-address http://<HOST:PORT> [DEPLOY_HASH]
 ```
 
-## Querying with Arguments
+## Querying with Arguments {#querying-with-arguments}
 This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [erc20 contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
 
 Use the command template below to query the network state with arguments:
@@ -219,7 +218,7 @@ casper-client query-global-state \
 ```
 
 
-## Sample Deploy on Testnet
+## Sample Deploy on Testnet {#sample-deploy-testnet}
 The following steps will guide you through the process with actual values and results.
 
 ### Cloning the ERC-20 Contract
