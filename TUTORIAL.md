@@ -60,8 +60,7 @@ Here is the code snippet which imports those crates,
 <img src="../erc20/images/erc20-implementation-install-crates.png" alt="import-crates" title="import-crates">
 
 
-**Note**
-In Rust, the keyword `use` is like an include statement in C/C++.
+**Note**: In Rust, the keyword `use` is like an include statement in C/C++.
 
 
 
@@ -104,9 +103,8 @@ Let's dive into the deployment process.
 
 - Set up your machine as per the [prerequisites](https://casper.network/docs/workflow/setup/)
 - Ensure you have [set up an account](https://casper.network/docs/workflow/setup#setting-up-an-account) with a public and secret key pair to initiate the deploy
-- Since we are deploying to the Casper Testnet, ensure your [Testnet faucet account](https://testnet.cspr.live/tools/faucet) contains enough CSPR tokens to perform the contract execution. Follow [fund your account](https://casper.network/docs/workflow/setup#fund-your-account) guide to add CSPR tokens to your account
-  - CSPR Tokens are used to pay for the transactions on the Casper Network. Follow the [transfer tokens](https://casper.network/docs/workflow/token-transfer#2-the-faucet) guide to learn more about token transferring on the Casper Testnet
-- Install [Casper client](https://casper.network/docs/dapp-dev-guide/tutorials/counter/setup/) to interact with the network
+- Since we are deploying to the Casper Testnet, ensure your [Testnet faucet account](https://testnet.cspr.live/tools/faucet) contains enough CSPR tokens to perform the contract execution. Follow the guide to [fund your account](https://casper.network/docs/workflow/setup#fund-your-account) or to [transfer tokens](https://casper.network/docs/workflow/token-transfer#2-the-faucet) as needed
+- Install the [Casper command-line client](https://casper.network/docs/dapp-dev-guide/tutorials/counter/setup/) to interact with the network
 
 ## Basic Flow
 Here are the basic steps to deploy the ERC-20 contract on the Casper Network.
