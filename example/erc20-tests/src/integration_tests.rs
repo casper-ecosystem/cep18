@@ -1,3 +1,5 @@
+#[cfg(test)]pub mod utils;
+
 #[cfg(test)]
 mod test_fixture;
 
@@ -5,7 +7,7 @@ mod test_fixture;
 mod tests {
     use casper_types::{Key, U256};
 
-    use crate::test_fixture::{Sender, TestFixture};
+    use crate::test_fixture::TestFixture;
 
     #[test]
     fn should_install() {
@@ -31,7 +33,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.bob),
             transfer_amount_1,
-            Sender(fixture.ali),
+            fixture.ali,
         );
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
@@ -46,7 +48,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.ali),
             transfer_amount_2,
-            Sender(fixture.bob),
+            fixture.bob,
         );
         assert_eq!(
             fixture.balance_of(Key::from(fixture.ali)),
@@ -68,7 +70,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.bob),
             initial_ali_balance,
-            Sender(fixture.ali),
+            fixture.ali,
         );
 
         assert_eq!(
@@ -83,7 +85,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.ali),
             initial_ali_balance,
-            Sender(fixture.bob),
+            fixture.bob,
         );
 
         assert_eq!(
@@ -107,7 +109,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.bob),
             initial_ali_balance + U256::one(),
-            Sender(fixture.ali),
+            fixture.ali,
         );
     }
 
@@ -126,7 +128,7 @@ mod tests {
         let owner_balance_before = fixture
             .balance_of(Key::from(owner))
             .expect("owner should have balance");
-        fixture.approve(Key::from(spender), approve_amount, Sender(owner));
+        fixture.approve(Key::from(spender), approve_amount, owner);
         assert_eq!(
             fixture.allowance(Key::from(owner), Key::from(spender)),
             Some(approve_amount)
@@ -136,7 +138,7 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             transfer_amount,
-            Sender(spender),
+            spender,
         );
 
         assert_eq!(
@@ -169,7 +171,7 @@ mod tests {
         let spender = fixture.bob;
         let recipient = fixture.joe;
 
-        fixture.approve(Key::from(spender), approve_amount, Sender(owner));
+        fixture.approve(Key::from(spender), approve_amount, owner);
         assert_eq!(
             fixture.allowance(Key::from(owner), Key::from(spender)),
             Some(approve_amount)
@@ -179,7 +181,7 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             approve_amount + U256::one(),
-            Sender(spender),
+            spender,
         );
     }
 }
