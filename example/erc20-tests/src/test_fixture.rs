@@ -133,12 +133,15 @@ impl TestFixture {
         let key = Key::Hash(self.contract_hash.value());
         match query_dictionary_item(
             &self.builder, key, Some(consts::BALANCES_KEY_NAME.to_string()), item_key)
-            .expect("should be stored value. (balance_of)")
-            .as_cl_value()
-            .expect("should be cl value. (balance_of)")
-            .clone()
-            .into_t(){
-                Ok(value)=>Some(value),
+            {
+                Ok(value)=>Some(
+                    value
+                        .as_cl_value()
+                        .expect("should be cl value. (balance_of)")
+                        .clone()
+                        .into_t()
+                        .expect("cannot convert into type")
+                    ),
                 Err(_)=> None
             }
     }
