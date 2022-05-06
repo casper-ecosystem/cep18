@@ -1,4 +1,4 @@
-# ERC-20 Tutorial
+# Fungible Tokens on Casper - Tutorial
 
 This tutorial introduces an implementation of the ERC-20 standard for the Casper blockchain. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
 
