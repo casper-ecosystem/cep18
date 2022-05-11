@@ -1,6 +1,6 @@
 # Casper ERC-20
 
-A library for developing ERC-20 tokens for the Casper Network.
+A library for developing ERC-20 (Fungible Token) tokens for the Casper Network.
 
 The main functionality is provided via the ERC-20 struct, and is intended to be consumed by a smart contract written to be deployed on the Casper Network.
 
