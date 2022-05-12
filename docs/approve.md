@@ -79,7 +79,7 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 <br><br/>
 
 
-### Approving C to spend 10 of B’s ERC-20 tokens
+### Approving C to spend 10 of B’s Fungible Tokens
 
 ```bash
 casper-client put-deploy -n http://3.143.158.19:7777 \

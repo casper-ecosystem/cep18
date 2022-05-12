@@ -1,6 +1,6 @@
 # Transfers
 
-## Transfer 50 ERC-20 Tokens from A to B
+## Transfer 50 Fungible Tokens from A to B
 
 ```bash
 casper-client put-deploy -n http://3.143.158.19:7777 \
@@ -38,7 +38,7 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 <img src="/images/transferUref.png" alt="transferUref" title="Transfer URef">
 <br><br/>
 
-### Transfer of 20 ERC-20 Tokens from B to C
+### Transfer of 20 Fungible Tokens from B to C
 
 ```bash
 casper-client put-deploy -n http://3.143.158.19:7777 \
@@ -131,7 +131,7 @@ casper-client put-deploy -n http://3.143.158.19:7777 \
 
 **Invoking `allowance` entry point to check for the allowance**
 
-As we did for `balance_of` to read out the balance values, we must perform a similar invoking of the `allowance` entry point of the main ERC-20 contract.
+As we did for `balance_of` to read out the balance values, we must perform a similar invoking of the `allowance` entry point of the main fungible token contract.
 
 ```bash
 casper-client put-deploy -n http://3.143.158.19:7777 \
@@ -153,7 +153,7 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 <img src="/images/invoke-bal-a.png" alt="invoke-bal-a" title="Invoking balance_of for User A">
 <br><br/>
 
-### Transfer 10 ERC-20 Tokens from B’s Allowance to D
+### Transfer 10 Fungible Tokens from B’s Allowance to D
 
 ```bash
 casper-client put-deploy -n http://3.143.158.19:7777 \

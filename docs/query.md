@@ -16,7 +16,7 @@ This will return the `Contract Package` object:
 
 > In the `contract_hash` field, the hash value represents the stored contract which we will invoke later on.
 
-The utility contract invokes the `balance_of` and `allowance` entry point of the main ERC-20 contract. Once the value is returned, the utility contract will write either a balance or an allowance value to a URef within its named keys, called `result`. We will query the utility contract object to read the URef.
+The utility contract invokes the `balance_of` and `allowance` entry point of the main fungible token contract. Once the value is returned, the utility contract will write either a balance or an allowance value to a URef within its named keys, called `result`. We will query the utility contract object to read the URef.
 
 ```bash
 casper-client query-global-state -n http://3.143.158.19:7777 \
@@ -28,7 +28,7 @@ The named keys field, which will contain an entry called `result` with some URef
 
 <img src="/images/uref.png" alt="URef" title="URef">
 
-We will use this URef value to check the balances and allowances of users within the ERC-20 contract.
+We will use this URef value to check the balances and allowances of users within the fungible token contract.
 
 Refer to the [token transfer](/transfer.md)  guide to follow the next steps.
 
