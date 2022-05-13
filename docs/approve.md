@@ -1,5 +1,5 @@
 
-# Approvals
+# Token Approvals
 
 ### Transfer 10 Tokens from an Allowance of only 5
 

@@ -1,4 +1,4 @@
-# Transfers
+# Token Transfers
 
 ## Transfer 50 Fungible Tokens from A to B
 
