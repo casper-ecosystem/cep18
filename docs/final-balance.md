@@ -86,3 +86,5 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 ```
 <img src="/images/finalBalanceCheckuserD.png" alt="finalBalanceCheckuserD" title="Final Balance for User D">
 <br><br/>
+
+This marks the end of the Casper fungible token sample guide documentation.
