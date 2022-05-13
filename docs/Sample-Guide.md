@@ -94,9 +94,9 @@ At this point, the account that installed both the main contract and the helper 
 
 ### Next Steps
 In the following sections, sample guide explains the querying of the contract package, token transfers and approvals, and final balance checks with code samples. 
-- [Query the contract package](/query.md)
-- [Token transfer](/transfer.md)
-- [Token approval](/approve.md)
-- [Check final balance](/final-balance.md)
+- [Query the contract package](query.md)
+- [Token transfer](transfer.md)
+- [Token approval](approve.md)
+- [Check final balance](final-balance.md)
 
 
