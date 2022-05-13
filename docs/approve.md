@@ -276,5 +276,5 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 <img src="/images/invokingToCheckCsAllowance3.png" alt="invokingToCheckCsAllowance3" title="Invoking to Check Cs Allowance">
 <br><br/>
 
-Refer to the [check final balance](/final-balance.md) guide to follow the next steps.
+Refer to the [check final balance](final-balance.md) guide to follow the next steps.
 

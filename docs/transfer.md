@@ -267,6 +267,6 @@ casper-client query-global-state -n http://3.143.158.19:7777 \
 <img src="/images/invoke-allowance.png" alt="invoke-allowance" title="Invoking Allowance for Verification">
 <br><br/>
 
-Refer to the [token approval](/approve.md)guide to follow the next steps.
+Refer to the [token approval](approve.md)guide to follow the next steps.
 
 

@@ -30,6 +30,6 @@ The named keys field, which will contain an entry called `result` with some URef
 
 We will use this URef value to check the balances and allowances of users within the fungible token contract.
 
-Refer to the [token transfer](/transfer.md)  guide to follow the next steps.
+Refer to the [token transfer](transfer.md)  guide to follow the next steps.
 
 
