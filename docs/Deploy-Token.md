@@ -17,7 +17,7 @@ We'll be starting in the home (`~`) directory for this tutorial. Navigate here f
 
 `cd ~`
 
-Now clone the prewritten [JavaScript deployer project](https://github.com/casper-ecosystem/casper-erc20-js-interface), so you don't have to reinvent the wheel. This project includes a precompiled ERC-20 contract with only basic functionality. If you'd like to write your own ERC-20 contract with custom logic, please follow the instructions [here](https://docs.casperlabs.io/writing-contracts). Execute this command in your home directory:
+Now clone the prewritten [JavaScript deployer project](https://github.com/casper-ecosystem/casper-erc20-js-interface), so you don't have to reinvent the wheel. This project includes a precompiled Casper fungible token contract with only basic functionality. If you'd like to write your own fungible token contract with custom logic, please follow the instructions [here](https://docs.casperlabs.io/writing-contracts). Execute this command in your home directory:
 
 `git clone https://github.com/casper-ecosystem/casper-erc20-js-interface.git`
 
@@ -48,10 +48,10 @@ const NETWORK_NAME = "casper-test";
 
 Let's take a look at what these constants refer to.
 
-* `NAME`: The name of the ERC-20 contract.
-* `SYMBOL`: The symbol of the ERC-20 contract.
+* `NAME`: The name of the fungible token contract.
+* `SYMBOL`: The symbol of the Casper fungible token contract.
 * `PRECISION`: The number of decimal places the token can be fractionalized to.
-* `TOTAL_SUPPLY`: The total supply of your ERC-20 token.
+* `TOTAL_SUPPLY`: The total supply of your fungible token token.
 * `GAS_LIMIT`: The gas limit in motes that will be used to pay for the deployment.
 * `WASM_PATH`: The path to the compiled contract.
 * `NODE_ADDRESS`: The validator node used to submit the deploy. The address listed directs to a valid online node, but this may change in the future. If this node does not respond, you can select another online peer from the list [here](https://testnet.cspr.live/tools/peers). Note that you'll need to replace the port with `7777` for most nodes and add `/rpc` to the end of the address.
@@ -75,7 +75,7 @@ You'll know your deployment succeeded when the name of the contract is printed o
 
 `... Contract name: Test Token`
 
-Your ERC-20 token contract is now successfully installed. Next, we'll go about transferring tokens.
+Your Casper fungible token contract is now successfully installed. Next, we'll go about transferring tokens.
 
 **Note:**
 
@@ -95,5 +95,5 @@ To send tokens from the address you just funded, just change the `KEYS` constant
 
 ## Conclusion
 
-Thank you for reading Casper's ERC-20 deployment guide. Next, you can learn how to write your own [ERC-20 smart contracts](TUTORIAL.md), and use [Casper's JavaScript SDK](https://docs.casperlabs.io/dapp-dev-guide/sdk/script-sdk).
+Thank you for reading Casper's fungible token deployment guide. Next, you can learn how to write your own [Casper fungible token smart contracts](TUTORIAL.md), and use [Casper's JavaScript SDK](https://docs.casperlabs.io/dapp-dev-guide/sdk/script-sdk).
 
