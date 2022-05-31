@@ -1,12 +1,12 @@
-# Casper ERC-20
+# Casper Fungible Tokens (ERC-20 Standard)
 
-A library for developing ERC-20 tokens for the Casper Network.
+A library for developing fungible tokens (ERC-20 Tokens) tokens for the Casper Network.
 
 The main functionality is provided via the ERC-20 struct, and is intended to be consumed by a smart contract written to be deployed on the Casper Network.
 
 ## Usage
 
-To create an example ERC-20 contract which uses this library, use the `cargo-casper` tool:
+To create an example fungible token contract which uses this library, use the `cargo-casper` tool:
 
 ```
 cargo install cargo-casper
@@ -24,7 +24,7 @@ make prepare
 ```
 
 ## Build Smart Contracts
-To build the example ERC-20 contract and supporting test contracts:
+To build the example fungible token contract and supporting test contracts:
 
 ```
 make build-contracts
@@ -38,13 +38,14 @@ make test
 
 ## JavaScript Client SDK
 
-A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the ERC-20 contract. 
+A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the fungible token contract. 
 
 
 ## Documentation
 
 For more information, visit the below guides:
--  [ERC-20 Tutorial](TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an ERC-20 contract. 
--  [ERC-20 How-To Guide](https://casper.network/docs/workflow/erc-20-sample-guide) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an ERC-20 contract.
+- [Casper Fungible Token Tutorial](/docs/TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract. 
+- [Casper Fungible Token How-To Guide](/docs/Sample-Guide.md) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an fungible token contract.
+- [Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - A quick guide on how to deploy the Casper fungible token to the Casper Network.
 
 
