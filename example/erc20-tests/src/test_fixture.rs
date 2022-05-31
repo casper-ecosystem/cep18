@@ -10,10 +10,10 @@ use casper_erc20::constants as consts;
 use casper_types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},
-    runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256
+    runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256,
 };
 
-use crate::utils::{fund_account, DeploySource, deploy, query, query_dictionary_item};
+use crate::utils::{deploy, fund_account, query, query_dictionary_item, DeploySource};
 
 const CONTRACT_ERC20_TOKEN: &str = "erc20_token.wasm";
 const CONTRACT_KEY_NAME: &str = "erc20_token_contract";
@@ -43,20 +43,20 @@ impl TestFixture {
     }
 
     pub fn install_contract() -> TestFixture {
-        let ali = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap().to_account_hash();
-        let bob = PublicKey::ed25519_from_bytes([6u8; 32]).unwrap().to_account_hash();
-        let joe = PublicKey::ed25519_from_bytes([9u8; 32]).unwrap().to_account_hash();
+        let ali = PublicKey::ed25519_from_bytes([3u8; 32])
+            .unwrap()
+            .to_account_hash();
+        let bob = PublicKey::ed25519_from_bytes([6u8; 32])
+            .unwrap()
+            .to_account_hash();
+        let joe = PublicKey::ed25519_from_bytes([9u8; 32])
+            .unwrap()
+            .to_account_hash();
 
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&DEFAULT_RUN_GENESIS_REQUEST).commit();
-        builder
-            .exec(fund_account(&ali))
-            .expect_success()
-            .commit();
-        builder
-            .exec(fund_account(&bob))
-            .expect_success()
-            .commit();
+        builder.exec(fund_account(&ali)).expect_success().commit();
+        builder.exec(fund_account(&bob)).expect_success().commit();
 
         let session_code = PathBuf::from(CONTRACT_ERC20_TOKEN);
         let session_args = runtime_args! {
@@ -91,7 +91,7 @@ impl TestFixture {
             ali,
             bob,
             joe,
-            contract_hash
+            contract_hash,
         }
     }
 
@@ -107,7 +107,10 @@ impl TestFixture {
         deploy(
             &mut self.builder,
             &sender,
-            &DeploySource::ByContractHash { hash: self.contract_hash, entry_point: method.to_string() },
+            &DeploySource::ByContractHash {
+                hash: self.contract_hash,
+                entry_point: method.to_string(),
+            },
             args,
             true,
             None,
@@ -132,18 +135,21 @@ impl TestFixture {
 
         let key = Key::Hash(self.contract_hash.value());
         match query_dictionary_item(
-            &self.builder, key, Some(consts::BALANCES_KEY_NAME.to_string()), item_key)
-            {
-                Ok(value)=>Some(
-                    value
-                        .as_cl_value()
-                        .expect("should be cl value. (balance_of)")
-                        .clone()
-                        .into_t()
-                        .expect("cannot convert into type")
-                    ),
-                Err(_)=> None
-            }
+            &self.builder,
+            key,
+            Some(consts::BALANCES_KEY_NAME.to_string()),
+            item_key,
+        ) {
+            Ok(value) => Some(
+                value
+                    .as_cl_value()
+                    .expect("should be cl value. (balance_of)")
+                    .clone()
+                    .into_t()
+                    .expect("cannot convert into type"),
+            ),
+            Err(_) => None,
+        }
     }
 
     // pub fn balance_of(&self, account: Key) -> Option<U256> {
@@ -167,20 +173,21 @@ impl TestFixture {
 
         let key = Key::Hash(self.contract_hash.value());
 
-        match
-            query_dictionary_item(
-                &self.builder,
-                key,
-                Some(consts::ALLOWANCES_KEY_NAME.to_string()),
-                allowance_item_key,
-            ).expect("should be stored value. (allowance)")
-            .as_cl_value()
-            .expect("should be cl value. (allowance)")
-            .clone()
-            .into_t(){
-                Ok(value)=>Some(value),
-                Err(_)=> None
-            }
+        match query_dictionary_item(
+            &self.builder,
+            key,
+            Some(consts::ALLOWANCES_KEY_NAME.to_string()),
+            allowance_item_key,
+        )
+        .expect("should be stored value. (allowance)")
+        .as_cl_value()
+        .expect("should be cl value. (allowance)")
+        .clone()
+        .into_t()
+        {
+            Ok(value) => Some(value),
+            Err(_) => None,
+        }
     }
 
     pub fn transfer(&mut self, recipient: Key, amount: U256, sender: AccountHash) {

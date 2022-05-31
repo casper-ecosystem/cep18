@@ -1,4 +1,5 @@
-#[cfg(test)]pub mod utils;
+#[cfg(test)]
+pub mod utils;
 
 #[cfg(test)]
 mod test_fixture;
@@ -30,11 +31,7 @@ mod tests {
             Some(TestFixture::token_total_supply())
         );
         let transfer_amount_1 = U256::from(42);
-        fixture.transfer(
-            Key::from(fixture.bob),
-            transfer_amount_1,
-            fixture.ali,
-        );
+        fixture.transfer(Key::from(fixture.bob), transfer_amount_1, fixture.ali);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
             Some(transfer_amount_1)
@@ -45,11 +42,7 @@ mod tests {
         );
 
         let transfer_amount_2 = U256::from(20);
-        fixture.transfer(
-            Key::from(fixture.ali),
-            transfer_amount_2,
-            fixture.bob,
-        );
+        fixture.transfer(Key::from(fixture.ali), transfer_amount_2, fixture.bob);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.ali)),
             Some(TestFixture::token_total_supply() - transfer_amount_1 + transfer_amount_2),
@@ -67,11 +60,7 @@ mod tests {
         let initial_ali_balance = fixture.balance_of(Key::from(fixture.ali)).unwrap();
         assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
 
-        fixture.transfer(
-            Key::from(fixture.bob),
-            initial_ali_balance,
-            fixture.ali,
-        );
+        fixture.transfer(Key::from(fixture.bob), initial_ali_balance, fixture.ali);
 
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
@@ -82,11 +71,7 @@ mod tests {
             Some(U256::zero())
         );
 
-        fixture.transfer(
-            Key::from(fixture.ali),
-            initial_ali_balance,
-            fixture.bob,
-        );
+        fixture.transfer(Key::from(fixture.ali), initial_ali_balance, fixture.bob);
 
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
