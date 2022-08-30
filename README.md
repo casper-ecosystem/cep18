@@ -4,17 +4,6 @@ A library for developing fungible tokens (ERC-20 Tokens) tokens for the Casper N
 
 The main functionality is provided via the ERC-20 struct, and is intended to be consumed by a smart contract written to be deployed on the Casper Network.
 
-## Usage
-
-To create an example fungible token contract which uses this library, use the `cargo-casper` tool:
-
-```
-cargo install cargo-casper
-cargo casper --erc20 <PATH TO NEW PROJECT>
-```
-
-This command will generate a new project structure with an example token contract based on an [example project](example/erc20-token/src/main).
-
 ## Development
 
 Make sure the `wasm32-unknown-unknown` Rust target is installed.
@@ -28,6 +17,14 @@ To build the example fungible token contract and supporting test contracts:
 
 ```
 make build-contracts
+```
+
+## Locating Smart Contract Wasm
+
+The Wasm for your new project can be found in the following local directory:
+
+```
+casper/erc20/target/wasm32-unknown-unknown/release/erc20_token.wasm
 ```
 
 ## Test
