@@ -58,7 +58,7 @@ impl TestToken {
             CLType::Unit,
             // NOTE: `Public` access rights allows any user and context to call this entrypoint.
             // If security is required we suggest developers to implement additional security code
-            // inside public entrypoints.  
+            // inside public entrypoints.
             EntryPointAccess::Public,
             EntryPointType::Contract,
         );
