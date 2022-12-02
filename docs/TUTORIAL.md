@@ -1,14 +1,58 @@
 # Casper Fungible Token Tutorial
 
-This tutorial introduces an implementation of the ERC-20 standard for the Casper blockchain. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
+This tutorial introduces an implementation of the ERC-20 standard for the Casper blockchain, known as the Casper Fungible Token. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
 
 The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-20 tokens are blockchain-based assets that have value and can be transferred or recorded.
 
-The Casper fungible token standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
+The Casper Fungible Token standard is the Casper Platform's ERC-20 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
-The following functions implement the rules defined by Casper fungible tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. As part of this tutorial, we will review the [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-erc20/latest/casper_erc20/) library.
+The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library.
 
-If you haven't read [Writing Rust Contracts on Casper](https://casper.network/docs/dapp-dev-guide/writing-contracts/rust/), we recommend you start there.
+The [Writing Rust Contracts on Casper](https://docs.casperlabs.io/dapp-dev-guide/writing-contracts/getting-started/) document outlines many aspects of this tutorial and should be read first.
+
+# Table of Contents
+
+1. [Preparation](#preparation)
+
+2. [Contract Implementation](#contract-implementation)
+
+    a. [Installing the Required Crates](#installing-required-crates-installing-crates)
+    
+    b. [Initializing the Contract](#initializing-the-contract-initializing-the-contract)
+
+    c. [Contract Methods](#contract-methods-contract-methods)
+
+3. [Installing the Contract](#installing-the-contract)
+
+    a. [Deploy Prerequisites](#deploy-prerequisites-deploy-prerequisites)
+
+    b. [Basic Flow](#basic-flow-basic-flow)
+
+    c. [Cloning the Token Contract](#cloning-the-token-contract-cloning-the-token-contract)
+
+    d. [Getting an IP Address from a Testnet Peer](#getting-an-ip-address-from-a-testnet-peer)
+
+    e. [Viewing the Network Status](#viewing-the-network-status)
+
+    f. [Installing the Contract](#installing-the-contract-deploying-the-contract)
+
+    g. [Querying the Network Status](#querying-the-network-status-querying-the-network-status)
+
+    h. [Verifying the Deploy](#verifying-the-deploy-verifying-the-deploy)
+
+    i. [Querying with Arguments](#querying-with-arguments-querying-with-arguments)
+
+    j. [Sample Deploy on Testnet](#sample-deploy-on-testnet-sample-deploy-testnet)
+
+4. [Testing Framework](#testing-framework)
+
+    a. [Configuring the Test Package](#configuring-the-test-package-configuring-the-test-package)
+
+    b. [Testing Logic](#testing-logic-testing-logic)
+
+    c. [Creating Unit Tests](#creating-unit-tests-creating-unit-tests)
+
+    d. [Running the Tests](#running-the-tests-running-the-tests)
 
 # Preparation
 
@@ -31,7 +75,7 @@ rustup target add wasm32-unknown-unknown
 info: component 'rust-std' for target 'wasm32-unknown-unknown' is up to date
 ```
 
-If you do not see this message, check the [Getting Started Guide](https://casper.network/docs/dapp-dev-guide/getting-started/).
+If you do not see this message, check the [Getting Started Guide](https://docs.casperlabs.io/dapp-dev-guide/writing-contracts/getting-started/).
 
 Next, compile your contract and run the contract unit tests.
 
@@ -42,40 +86,69 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation]((https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs)) of the fungible token for the Casper Network. This section explains the example contract in more detail.
+In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation]((https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs)) of the Fungible Token for the Casper Network. This section explains the example contract in more detail.
 
-**Note**: To successfully execute the contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile it. To execute the contract you need to deploy the .wasm file on the network.
+There are four steps to follow when you intend to create your own implementation of the Fungible Token contract, as follows:
+
+1.  Fork the code from the example repository listed above.
+2.  Perform any customization changes necessary on your personal fork of the example contract.
+3.  Compile the customized code to Wasm.
+4.  Send the customized Wasm as a deploy to a Casper network.
 
 
 ## Installing Required Crates {#installing-crates}
 
-Since this is a Rust implementation of the fungible token for Casper, we will go over a few implementation details. Casper contracts require the following crates to be included:
+This tutorial applies to the Rust implementation of the Casper Fungible Token standard, and requires the following Casper crates:
 
--   [casper_contract](https://docs.rs/casper-contract/1.3.3/casper_contract/) - A Rust library for writing smart contracts on the Casper Network
+-   [casper_contract](hhttps://docs.rs/casper-contract/latest/casper_contract/index.html) - A Rust library for writing smart contracts on the Casper Network
 -   [casper_types](https://docs.rs/casper-types/latest/casper_types/) - Types used to allow creation of Wasm contracts and tests for use on the Casper Network
--   [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) - A library for developing fungible tokens for the Casper Network
+-   [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) - A library for developing Fungible Tokens for the Casper Network
 
 Here is the code snippet which imports those crates:
 
-<img src="/images/erc20-implementation-install-crates.png" alt="import-crates" title="import-crates">
-<br><br/>
+```rust
+
+use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+
+use casper_types::{CLValue, U256};
+
+use casper_erc20:{
+  constants::{
+    ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
+    NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
+    SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
+  },
+  Address, ERC20,
+};
+
+```
 
 **Note**: In Rust, the keyword `use` is like an include statement in C/C++.
 
-
-
 ## Initializing the Contract {#initializing-the-contract}
-Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`, which require to start the token supply.
+Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`.
 
 The code snippet for initializing the contract should look like this:
 
-<img src="/images/erc20-call.png" alt="call-function" title="call-function">
+```rust
+
+#[no_mangle]
+fn call() {
+  let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
+  let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
+  let decimals = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
+  let total_supply = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+
+  let _token = ERC20::install(name, symbol, decimals, total_supply).unwrap_or_revert();
+}
+
+```
 
 ## Contract Methods {#contract-methods}
 
-This section briefly explains the contract methods used in our fungible token contract.
+This section briefly explains the contract methods used in the Casper Fungible Token contract.
 
-To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
+To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
 
 Also, for further unresolved issues please contact the casper development team via the Discord channel.
 
@@ -92,51 +165,66 @@ Contract methods are:
 -   [**transfer_from**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L79-L87) - Transfers an amount of tokens from the owner to a recipient, if the direct caller has been previously approved to spend the specified amount on behalf of the owner
 
 
-# Contract Deployment
+# Installing the Contract
 
-Now that you have implemented the smart contract for Casper fungible tokens, it's time to deploy it to the blockchain. Deploying the fungible token contract is similar to deploying other smart contracts, while only the Wasm files and parameters will differ. Refer to the [Deploying Contracts](https://casper.network/docs/dapp-dev-guide/deploying-contracts/) section to learn more about overall contract deployment.
+Now that you have implemented the smart contract for Casper Fungible Tokens, it's time to install it in global state. Installing the Fungible Token contract is similar to installing other smart contracts, while only the Wasm files and parameters will differ. Refer to the [Installing Contracts](https://docs.casperlabs.io/dapp-dev-guide/writing-contracts/installing-contracts/) section to learn more about install contracts.
 
-Let's dive into the deployment process.
+Let's dive into the installation process.
 
-### Deploy Prerequisites {#deploy-prerequisites}
+## Deploy Prerequisites {#deploy-prerequisites}
 
-- Set up your machine as per the [prerequisites](https://casper.network/docs/workflow/setup/)
-- Ensure you have [set up an account](https://casper.network/docs/workflow/setup#setting-up-an-account) with a public and secret key pair to initiate the deploy
-- Since we are deploying to the Casper Testnet, ensure your [Testnet faucet account](https://testnet.cspr.live/tools/faucet) contains enough CSPR tokens to perform the contract execution. Follow the guide to [fund your account](https://casper.network/docs/workflow/setup#fund-your-account) or to [transfer tokens](https://casper.network/docs/workflow/token-transfer#2-the-faucet) as needed
-- Install the [Casper command-line client](https://casper.network/docs/dapp-dev-guide/tutorials/counter/setup/) to interact with the network
+- Set up your machine as per the [prerequisites](https://docs.casperlabs.io/workflow/setup/)
+- Ensure you have [set up an account](https://docs.casperlabs.io/workflow/setup/#setting-up-an-account) with a public and secret key pair to initiate the deploy
+- Since we are deploying to the Casper Testnet, ensure your [Testnet faucet account](https://testnet.cspr.live/tools/faucet) contains enough CSPR tokens to perform the contract execution. Follow the guide to [fund your account](https://docs.casperlabs.io/workflow/setup/#fund-your-account) or to [transfer tokens](https://docs.casperlabs.io/workflow/token-transfer/) as needed
+- Install the [Casper command-line client](https://docs.casperlabs.io/workflow/setup/#the-casper-command-line-client) to interact with the network
 
 ## Basic Flow {#basic-flow}
-Here are the basic steps to deploy the Casper fungible token contract on the Casper Network.
+Here are the basic steps to install the Casper Fungible Token contract on a Casper Network.
 
 <img src="/images/erc20-deploy-flow.png" alt="erc20-deploy-flow" title="erc20-deploy-flow">
 
 ## Cloning the Token Contract {#cloning-the-token-contract}
+
 This step includes cloning and preparing the token contract for the deployment.
-1. Clone the fungible token contract from the repository
+
+1. Clone the Fungible Token contract from the repository
+
 ```bash
+
 git clone https://github.com/casper-ecosystem/erc20.git
+
 ```
-2. Move to the newly created folder and compile the contract to create the target .wasm file and build the Wasm
+2. Make any necessary changes to the code for your customization requirements.
+
+3. Compile the contract to create the target .wasm file and build the Wasm
+
 ```bash
+
 cd erc20
 make prepare
 make build-contracts
+
 ```
 
 3. Build and verify the compiled contract
+
 ```bash
+
 make test
+
 ```
 
 ## Getting an IP Address from a Testnet Peer {#getting-an-ip-address}
-We will use a Testnet [peer](https://testnet.cspr.live/tools/peers) to send the deploy. Read the guide to [acquiring a node address](https://casper.network/docs/workflow/setup/#acquire-node-address-from-network-peers) if needed. 
+
+We will use a Testnet [peer](https://testnet.cspr.live/tools/peers) to send the deploy. Read the guide to [acquiring a node address](https://docs.casperlabs.io/workflow/setup/#acquire-node-address-from-network-peers) if needed. 
 
 ## Viewing the Network Status {#viewing-network-status}
+
 This query captures any information related to the state of the blockchain at the specific time denoted by the network's state root hash.  You need to have the state root hash and the account hash to run the query.
 
 **Getting the state root hash**
 
-Get the state root hash, which marks a snapshot of the network state at a moment in time. Use the [Node IP address](#getting-an-ip-address-from-a-testnet-peer) taken from a Testnet peer.
+Get the state root hash, which marks a snapshot of the network state at a moment in time. Use the [Node IP address](https://docs.casperlabs.io/workflow/setup/#acquire-node-address-from-network-peers) taken from a Testnet peer.
 
 ```bash
 casper-client get-state-root-hash --node-address http://<HOST:PORT>
@@ -149,7 +237,8 @@ Run the following command and supply the path to your public key in hexadecimal 
 ```bash
 casper-client account-address --public-key "[PATH_TO_YOUR_KEY]/public_key_hex"
 ```
-**Querying the network state**
+
+**Querying global state**
 
 Use the command template below to query the network status with regard to your account.
 
@@ -160,12 +249,13 @@ casper-client query-global-state \
 --key [ACCOUNT_HASH]
 ```
 
-## Deploying the Contract {#deploying-the-contract}
-Now you can deploy the contract to the network and check how it behaves. 
+## Installing the Contract {#deploying-the-contract}
 
-If you are performing the deploy on the Mainnet, we recommend trying several put deploys on the Testnet to understand the exact amount required for that deploy. Refer to the [note about gas price](https://casper.network/docs/dapp-dev-guide/deploying-contracts/#a-note-about-gas-prices) to understand more about payment amounts and gas price adjustments.
+Now you can install the contract to the network and check how it behaves.
 
-**We currently do not refund any tokens as part of a deploy.** For example, if you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the remaining 9 CSPR. Refer to the [computational cost and gas amounts](https://casper.network/docs/design/execution-semantics#execution-semantics-gas) for further details.
+If you are sending the deploy on Mainnet, try several put deploys on the Testnet to understand the exact gas amount required for that deploy. Refer to the [note about gas price](https://docs.casperlabs.io/dapp-dev-guide/building-dapps/sending-deploys/#a-note-about-gas-price) to understand more about payment amounts and gas price adjustments.
+
+**The Casper platform currently does not refund any tokens as part of sending a deploy.** For example, if you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the remaining 9 CSPR. Refer to the [computational cost and gas amounts](https://docs.casperlabs.io/design/casper-design/#execution-semantics-gas) for further details.
 
 Use the following command template to deploy the contract:
 
@@ -179,8 +269,8 @@ casper-client put-deploy \
 ```
 - `NETWORK_NAME`: Use the relevant network name. Here we use '*casper-test*'
 - `PATH_TO_YOUR_KEY`: Replace this with the actual path of your secret key 
-- `PAYMENT_AMOUNT`: Gas amount in tokens needed for contract execution. If there are no adequate tokens, the deploy will not execute and return an error
-- `WASM FILE PATH`: The session-path argument should point to the location of your compiled fungible token Wasm file
+- `PAYMENT_AMOUNT`: Gas amount in tokens needed for contract execution. If there are no adequate tokens, the deploy will not execute and will return an error
+- `WASM FILE PATH`: The session-path argument should point to the location of your compiled Fungible Token Wasm file
 
 Here is a sample *put-deploy* command:
 
@@ -194,18 +284,20 @@ casper-client put-deploy \
 ```
 
 ## Querying the Network Status {#querying-the-network-status}
-You need to get the newest state root hash to view the network status because it has changed with the deploy. The account hash remains the same since you are using the same account. Follow the [view the network state](#viewing-the-network-status) to execute this step with the new state root hash.
+
+You need to get the newest state root hash to view the network status, which has changed with your deploy. The account hash remains the same since you are using the same account. Follow the [view the network state](#viewing-the-network-status) to execute this step with the new state root hash.
 
 
 ## Verifying the Deploy {#verifying-the-deploy}
-Now you can verify the applied deploy using the `get deploy` command. This will output the details of the applied deploy.
+
+Now you can verify the sent deploy using the `get-deploy` command. This will output the details of the sent deploy.
 ```bash
 casper-client get-deploy \
 --node-address http://<HOST:PORT> [DEPLOY_HASH]
 ```
 
 ## Querying with Arguments {#querying-with-arguments}
-This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [fungible token contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
+This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [Fungible Token contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
 
 Use the command template below to query the network state with arguments:
 
@@ -217,7 +309,6 @@ casper-client query-global-state \
 -q "[CONTRACT_NAME/ARGUMENT]"
 ```
 
-
 ## Sample Deploy on Testnet {#sample-deploy-testnet}
 The following steps will guide you through the process with actual values and results.
 
@@ -228,7 +319,7 @@ git clone https://github.com/casper-ecosystem/erc20.git
 ```
 ### Getting an IP Address from a Testnet Peer
 
-Use [peers](https://testnet.cspr.live/tools/peers) to get the node IP address; for example, http://95.216.24.237:7777.
+Use [peers](https://testnet.cspr.live/tools/peers) to get the node IP address.
 
 ### Viewing the Network Status
 
@@ -278,9 +369,10 @@ This result contains the network state before the deploy. You can see the `named
 </details>
 <br></br>
 
-### Deploying the Contract
+### Sending the Deploy
 
-Deploy the contract with this command:
+Send the deploy containing your contract with this command:
+
 ```bash
 casper-client put-deploy \
 --node-address http://<HOST:PORT>  \
@@ -293,6 +385,7 @@ casper-client put-deploy \
 **Result**:
 
 This command execution will output the `deploy_hash` of the applied deploy. We can use the deploy_hash to get the details of the deploy.
+
 ```bash
 {
   "id": 931694842944790108,
@@ -306,7 +399,8 @@ This command execution will output the `deploy_hash` of the applied deploy. We c
 
 ### Viewing the Deploy Details
 
-You can view the details of the applied deploy using the command below:
+You can view the details of the sent deploy using the command below:
+
 ```bash
 casper-client get-deploy \
 --node-address http://<HOST:PORT> \
@@ -722,7 +816,7 @@ You can see that the name is `CasperTest` in this example.
 
 The testing framework in this tutorial uses the [Casper engine test support](https://crates.io/crates/casper-engine-test-support) crate for testing the contract implementation against the Casper execution environment.
 
-We will review the following three [GitHub testing folders](https://github.com/casper-ecosystem/erc20/tree/master/testing), which create a testing framework for the Casper [fungible token](https://github.com/casper-ecosystem/erc20) project:
+The following section reviews the three [GitHub testing folders](https://github.com/casper-ecosystem/erc20/tree/master/testing), which create a testing framework for the Casper [Fungible Token](https://github.com/casper-ecosystem/erc20) project:
 
 -   **erc20-test-call** - Links the test framework together and is required by the Rust toolchain
 -   **erc20-test** - Sets up the testing context and creates helper functions used by unit tests
@@ -782,7 +876,7 @@ In this project, we define a `tests` package using the [tests/Cargo.toml](https:
 
 ## Testing Logic {#testing-logic}
 
-In Github, you will find an [example](https://github.com/casper-ecosystem/erc20/tree/master/example) containing a Casper fungible token [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/erc20/tree/master/example/erc20-tests/src). The tests follow this sequence:
+In Github, you will find an [example](https://github.com/casper-ecosystem/erc20/tree/master/example) containing a Casper Fungible Token [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/erc20/tree/master/example/erc20-tests/src). The tests follow this sequence:
 
 -   [Step 1](#setting-up-the-testing-context) - Specify the starting state of the blockchain.
 -   [Step 2](#deploying-the-contract) - Deploy the compiled contract to the blockchain and query it.
@@ -792,7 +886,7 @@ The [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/
 
 ### Setting up the testing context {#setting-up-the-testing-context}
 
-The code in the [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) initializes the blockchain's [global state](https://casper.network/docs/glossary/G/#global-state) with all the data and methods a smart contract needs.
+The code in the [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) initializes the blockchain's [global state](https://docs.casperlabs.io/glossary/G/#global-state) with all the data and methods a smart contract needs.
 
 Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/erc20).
 
@@ -819,9 +913,9 @@ Below is a subset of the required constants for this project. For the most up-to
 
 ```
 
-### Deploying the contract {#deploying-the-contract}
+### Installing the contract {#deploying-the-contract}
 
-The next step is to define a struct that has its own virtual machine (VM) instance and implements the fungible token methods. This struct holds a `TestContext` of its own. The _contract_hash_ and the _session_code_ won’t change after the contract is deployed, so it is good to keep them handy.
+The next step is to define a struct that has its own virtual machine (VM) instance and implements the Fungible Token methods. This struct holds a `TestContext` of its own. The _contract_hash_ and the _session_code_ won’t change after the contract is deployed, so it is good to keep them handy.
 
 This code snippet builds the context and includes the compiled contract _.wasm_ binary being tested. The `TestFixture` struct creates a new instance of the `CONTRACT_ERC20_TOKEN` with the following accounts:
 
@@ -889,7 +983,7 @@ The full and most recent code implementation is available on [GitHub](https://gi
 
 ### Querying the network {#querying-the-network}
 
-The previous step has simulated a real deploy on the network. The next code snippet describes how to query the network to find the _contract hash_.
+The previous step has simulated sending a real deploy on the network. The next code snippet describes how to query the network to find the _contract hash_.
 
 Contracts are deployed under the context of an account. Since we created the deploy under the context of `self.ali`, this is what we will query next. The `query_contract` function uses `query` to lookup named keys. It will be used to implement the `balance_of`, `total_supply` and `allowance` checks.
 
@@ -993,7 +1087,7 @@ The next code sample shows how to invoke one of the methods in the contract. The
 
 ## Creating Unit Tests {#creating-unit-tests}
 
-Now that we have a testing context, we can use it to create unit tests in a file called [integration_tests.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) file.
+Within this testing context, you can create unit tests in a file called [integration_tests.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) file.
 
 The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs) to find all the available tests.
 
@@ -1020,7 +1114,7 @@ The example below shows one of the example tests. Visit [GitHub](https://github.
 
 ## Running the Tests {#running-the-tests}
 
-We have configured the [lib.rs](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/src/lib.rs) file to run the example integration tests via the `make test` command:
+The [lib.rs](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
 
 ```rust
 
