@@ -100,7 +100,7 @@ There are four steps to follow when you intend to create your own implementation
 
 This tutorial applies to the Rust implementation of the Casper Fungible Token standard, and requires the following Casper crates:
 
--   [casper_contract](hhttps://docs.rs/casper-contract/latest/casper_contract/index.html) - A Rust library for writing smart contracts on the Casper Network
+-   [casper_contract](https://docs.rs/casper-contract/latest/casper_contract/index.html) - A Rust library for writing smart contracts on the Casper Network
 -   [casper_types](https://docs.rs/casper-types/latest/casper_types/) - Types used to allow creation of Wasm contracts and tests for use on the Casper Network
 -   [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) - A library for developing Fungible Tokens for the Casper Network
 
@@ -187,7 +187,7 @@ Here are the basic steps to install the Casper Fungible Token contract on a Casp
 
 This step includes cloning and preparing the token contract for the deployment.
 
-1. Clone the Fungible Token contract from the repository
+1. Clone the Fungible Token contract from the repository.
 
 ```bash
 
@@ -196,7 +196,7 @@ git clone https://github.com/casper-ecosystem/erc20.git
 ```
 2. Make any necessary changes to the code for your customization requirements.
 
-3. Compile the contract to create the target .wasm file and build the Wasm
+3. Compile the contract to create the target .wasm file and build the Wasm.
 
 ```bash
 
@@ -206,7 +206,7 @@ make build-contracts
 
 ```
 
-3. Build and verify the compiled contract
+4. Build and verify the compiled contract.
 
 ```bash
 
@@ -309,8 +309,8 @@ casper-client query-global-state \
 -q "[CONTRACT_NAME/ARGUMENT]"
 ```
 
-## Sample Deploy on Testnet {#sample-deploy-testnet}
-The following steps will guide you through the process with actual values and results.
+## Example Deploy on Testnet {#sample-deploy-testnet}
+The following steps will guide you through the process with sample values and results.
 
 ### Cloning the Fungible Token Contract
 
