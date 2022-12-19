@@ -24,9 +24,6 @@ fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {
     hasher.finalize_boxed()
 }
 
-#[derive(Clone, Copy)]
-pub struct Sender(pub AccountHash);
-
 pub struct TestFixture {
     builder: InMemoryWasmTestBuilder,
     pub ali: AccountHash,
@@ -102,13 +99,12 @@ impl TestFixture {
         }
     }
 
-    fn call(&mut self, sender: Sender, method: &str, args: RuntimeArgs) {
-        let Sender(address) = sender;
+    fn call(&mut self, sender: AccountHash, method: &str, args: RuntimeArgs) {
         let deploy_item = DeployItemBuilder::new()
             .with_empty_payment_bytes(runtime_args! {ARG_AMOUNT => *DEFAULT_PAYMENT})
             .with_stored_session_hash(self.contract_hash(), method, args)
-            .with_address(address)
-            .with_authorization_keys(&[address])
+            .with_address(sender)
+            .with_authorization_keys(&[sender])
             .build();
         execute_request(&mut self.builder, deploy_item);
     }
@@ -158,7 +154,7 @@ impl TestFixture {
         value
     }
 
-    pub fn transfer(&mut self, recipient: Key, amount: U256, sender: Sender) {
+    pub fn transfer(&mut self, recipient: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::TRANSFER_ENTRY_POINT_NAME,
@@ -169,7 +165,7 @@ impl TestFixture {
         );
     }
 
-    pub fn approve(&mut self, spender: Key, amount: U256, sender: Sender) {
+    pub fn approve(&mut self, spender: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::APPROVE_ENTRY_POINT_NAME,
@@ -180,7 +176,7 @@ impl TestFixture {
         );
     }
 
-    pub fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256, sender: Sender) {
+    pub fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::TRANSFER_FROM_ENTRY_POINT_NAME,

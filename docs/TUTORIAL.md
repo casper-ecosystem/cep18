@@ -849,7 +849,7 @@ The following is an example of a complete test:
         fixture.transfer(
             Key::from(fixture.bob),
             initial_ali_balance + U256::one(),
-            Sender(fixture.ali),
+            fixture.ali,
         );
     }
 ```
@@ -921,9 +921,6 @@ Below is a subset of the required constants for this project. For the most up-to
     const CONTRACT_KEY_NAME: &str = "erc20_token_contract";
 
     fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {...}
-
-    #[derive(Clone, Copy)]
-    pub struct Sender(pub AccountHash);
     ...
 
 ```
@@ -1071,13 +1068,12 @@ The following code snippet describes a generic way to call a specific entry poin
 
 ```rust
 
-    fn call(&mut self, sender: Sender, method: &str, args: RuntimeArgs) {
-        let Sender(address) = sender;
+    fn call(&mut self, sender: AccountHash, method: &str, args: RuntimeArgs) {
         let deploy_item = DeployItemBuilder::new()
             .with_empty_payment_bytes(runtime_args! {ARG_AMOUNT => *DEFAULT_PAYMENT})
             .with_stored_session_hash(self.contract_hash(), method, args)
-            .with_address(address)
-            .with_authorization_keys(&[address])
+            .with_address(sender)
+            .with_authorization_keys(&[sender])
             .build();
         super::utils::execute_request(&mut self.builder, deploy_item);
     }
@@ -1113,7 +1109,7 @@ The example below shows one of the example tests. Visit [GitHub](https://github.
 
     use casper_types::{Key, U256};
 
-    use crate::test_fixture::{Sender, TestFixture};
+    use crate::test_fixture::TestFixture;
 
     #[test]
     fn should_install() {
