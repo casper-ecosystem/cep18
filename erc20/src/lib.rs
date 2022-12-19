@@ -3,12 +3,6 @@
 //! The main functionality is provided via the [`ERC20`] struct, and is intended to be consumed by a
 //! smart contract written to be deployed on the Casper network.
 //!
-//! To create an example ERC20 contract which uses this library, use the cargo-casper tool:
-//!
-//! ```bash
-//! cargo install cargo-casper
-//! cargo casper --erc20 <PATH TO NEW PROJECT>
-//! ```
 
 #![warn(missing_docs)]
 #![no_std]

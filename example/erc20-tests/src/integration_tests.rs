@@ -5,7 +5,7 @@ mod test_fixture;
 mod tests {
     use casper_types::{Key, U256};
 
-    use crate::test_fixture::{Sender, TestFixture};
+    use crate::test_fixture::test_fixture::{Sender, TestFixture};
 
     #[test]
     fn should_install() {
@@ -22,11 +22,11 @@ mod tests {
     #[test]
     fn should_transfer() {
         let mut fixture = TestFixture::install_contract();
-        assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.ali)),
             Some(TestFixture::token_total_supply())
         );
+        assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
         let transfer_amount_1 = U256::from(42);
         fixture.transfer(
             Key::from(fixture.bob),
