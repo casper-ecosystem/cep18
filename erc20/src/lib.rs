@@ -2,7 +2,6 @@
 //!
 //! The main functionality is provided via the [`ERC20`] struct, and is intended to be consumed by a
 //! smart contract written to be deployed on the Casper network.
-//!
 
 #![warn(missing_docs)]
 #![no_std]
