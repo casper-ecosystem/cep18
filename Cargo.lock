@@ -164,7 +164,7 @@ dependencies = [
 
 [[package]]
 name = "casper-erc20"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "base64 0.20.0",
  "casper-contract",
@@ -535,7 +535,7 @@ dependencies = [
 
 [[package]]
 name = "erc20-test"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "casper-contract",
  "casper-erc20",
@@ -544,7 +544,7 @@ dependencies = [
 
 [[package]]
 name = "erc20-test-call"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "base64 0.20.0",
  "blake2 0.10.6",
@@ -556,7 +556,7 @@ dependencies = [
 
 [[package]]
 name = "erc20-tests"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "base64 0.13.1",
  "blake2 0.9.2",
@@ -569,7 +569,7 @@ dependencies = [
 
 [[package]]
 name = "erc20-token"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "casper-contract",
  "casper-erc20",
@@ -1383,7 +1383,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.1.1"
+version = "0.2.1"
 dependencies = [
  "casper-engine-test-support",
  "casper-execution-engine",

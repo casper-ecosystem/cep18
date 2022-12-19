@@ -872,7 +872,7 @@ In this project, we define a `tests` package using the [tests/Cargo.toml](https:
 
     [package]
     name = "tests"
-    version = "0.1.1"
+    version = "0.2.1"
     ...
 
     [dependencies]

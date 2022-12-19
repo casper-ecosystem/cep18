@@ -1,7 +1,7 @@
 [package]
 name = "erc20-token"
 authors = ["Michał Papierski <michal@casperlabs.io>"]
-version = "0.1.1"
+version = "0.2.1"
 edition = "2018"
 
 [dependencies]
