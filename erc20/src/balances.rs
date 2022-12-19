@@ -16,7 +16,7 @@ fn make_dictionary_item_key(owner: Address) -> String {
     // characters.
     // Even if the preimage increased in size we still have extra space but even in case of much
     // larger preimage we can switch to base85 which has ratio of 4:5.
-    base64::encode(&preimage)
+    base64::encode(preimage)
 }
 
 pub(crate) fn get_balances_uref() -> URef {
