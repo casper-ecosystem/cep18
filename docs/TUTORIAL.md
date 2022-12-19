@@ -876,7 +876,7 @@ In this project, we define a `tests` package using the [tests/Cargo.toml](https:
     ...
 
     [dependencies]
-    casper-types = "1.5"
+    casper-types = "1.5.0"
     casper-engine-test-support = "2.2.0"
     casper-execution-engine = "2.0.1"
     once_cell = "1.16.0"

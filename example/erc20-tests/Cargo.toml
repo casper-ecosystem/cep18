@@ -7,10 +7,13 @@ edition = "2018"
 [dev-dependencies]
 base64 = "0.13.0"
 blake2 = "0.9.2"
+casper-contract = { version = "1.4.4", default-features = false, features = [
+  "test-support",
+] }
 casper-engine-test-support = { version = "2.2.0", features = ["test-support"] }
 casper-execution-engine = "2.0.0"
-casper-erc20 = { version = "0.2.1", features = ["std"], path = "../../erc20" }
-casper-types = { version = "1.5", features = ["std"] }
+casper-erc20 = { version = "0.2.1", path = "../../erc20" }
+casper-types = { version = "1.5" }
 hex = "0.4.3"
 
 [[bin]]
@@ -18,3 +21,7 @@ name = "erc20-tests"
 path = "src/integration_tests.rs"
 bench = false
 doctest = false
+
+[features]
+default = ["std"]
+std = ["casper-contract/std", "casper-types/std"]
