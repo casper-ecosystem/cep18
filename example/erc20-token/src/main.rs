@@ -1,8 +1,6 @@
 #![no_std]
 #![no_main]
-
-#[cfg(not(target_arch = "wasm32"))]
-compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
+#![feature(default_alloc_error_handler)]
 
 extern crate alloc;
 

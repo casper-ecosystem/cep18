@@ -109,7 +109,7 @@ struct TestContext {
 
 fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     let mut builder = InMemoryWasmTestBuilder::default();
-    builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST);
+    builder.run_genesis(&DEFAULT_RUN_GENESIS_REQUEST);
 
     let id: Option<u64> = None;
     let transfer_1_args = runtime_args! {
