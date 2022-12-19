@@ -1,2 +1,2 @@
-pub mod test_fixture;
+pub mod fixture;
 pub mod utils;

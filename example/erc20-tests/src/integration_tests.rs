@@ -5,7 +5,7 @@ mod test_fixture;
 mod tests {
     use casper_types::{Key, U256};
 
-    use crate::test_fixture::test_fixture::{Sender, TestFixture};
+    use crate::test_fixture::fixture::{Sender, TestFixture};
 
     #[test]
     fn should_install() {
