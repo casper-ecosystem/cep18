@@ -86,7 +86,7 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation](<(https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs)>) of the Fungible Token for the Casper Network. This section explains the example contract in more detail.
+In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) of the Fungible Token for the Casper Network. This section explains the example contract in more detail.
 
 There are four steps to follow when you intend to create your own implementation of the Fungible Token contract, as follows:
 
