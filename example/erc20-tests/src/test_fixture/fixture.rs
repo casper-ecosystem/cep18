@@ -1,14 +1,19 @@
+use super::utils::{execute_request, get_accounts, get_dictionary_value_from_key};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
 };
-use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextBuilder};
+use casper_engine_test_support::{
+    DeployItemBuilder, InMemoryWasmTestBuilder, ARG_AMOUNT, DEFAULT_PAYMENT,
+    DEFAULT_RUN_GENESIS_REQUEST,
+};
 use casper_erc20::constants as consts;
 use casper_types::{
     account::AccountHash,
     bytesrepr::{FromBytes, ToBytes},
-    runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256, U512,
+    runtime_args, CLTyped, ContractHash, Key, RuntimeArgs, U256,
 };
+use std::path::PathBuf;
 
 const CONTRACT_ERC20_TOKEN: &str = "erc20_token.wasm";
 const CONTRACT_KEY_NAME: &str = "erc20_token_contract";
@@ -19,11 +24,8 @@ fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {
     hasher.finalize_boxed()
 }
 
-#[derive(Clone, Copy)]
-pub struct Sender(pub AccountHash);
-
 pub struct TestFixture {
-    context: TestContext,
+    builder: InMemoryWasmTestBuilder,
     pub ali: AccountHash,
     pub bob: AccountHash,
     pub joe: AccountHash,
@@ -40,39 +42,34 @@ impl TestFixture {
     }
 
     pub fn install_contract() -> TestFixture {
-        let ali = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
-        let bob = PublicKey::ed25519_from_bytes([6u8; 32]).unwrap();
-        let joe = PublicKey::ed25519_from_bytes([9u8; 32]).unwrap();
-
-        let mut context = TestContextBuilder::new()
-            .with_public_key(ali.clone(), U512::from(500_000_000_000_000_000u64))
-            .with_public_key(bob.clone(), U512::from(500_000_000_000_000_000u64))
-            .build();
-
-        let session_code = Code::from(CONTRACT_ERC20_TOKEN);
+        let mut builder = InMemoryWasmTestBuilder::default();
+        builder.run_genesis(&DEFAULT_RUN_GENESIS_REQUEST).commit();
+        let (ali, bob, joe) = get_accounts(&mut builder);
+        let session_code = PathBuf::from(CONTRACT_ERC20_TOKEN);
         let session_args = runtime_args! {
             consts::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
             consts::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
             consts::DECIMALS_RUNTIME_ARG_NAME => TestFixture::TOKEN_DECIMALS,
             consts::TOTAL_SUPPLY_RUNTIME_ARG_NAME => TestFixture::token_total_supply()
         };
-
-        let session = SessionBuilder::new(session_code, session_args)
-            .with_address(ali.to_account_hash())
-            .with_authorization_keys(&[ali.to_account_hash()])
+        let deploy_item = DeployItemBuilder::new()
+            .with_empty_payment_bytes(runtime_args! {ARG_AMOUNT => *DEFAULT_PAYMENT})
+            .with_session_code(session_code, session_args)
+            .with_address(ali)
+            .with_authorization_keys(&[ali])
             .build();
+        execute_request(&mut builder, deploy_item);
 
-        context.run(session);
         TestFixture {
-            context,
-            ali: ali.to_account_hash(),
-            bob: bob.to_account_hash(),
-            joe: joe.to_account_hash(),
+            builder,
+            ali,
+            bob,
+            joe,
         }
     }
 
     fn contract_hash(&self) -> ContractHash {
-        self.context
+        self.builder
             .get_account(self.ali)
             .unwrap()
             .named_keys()
@@ -85,28 +82,31 @@ impl TestFixture {
     }
 
     fn query_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
-        match self
-            .context
-            .query(self.ali, &[CONTRACT_KEY_NAME.to_string(), name.to_string()])
-        {
-            Err(_) => None,
-            Ok(maybe_value) => {
-                let value = maybe_value
-                    .into_t()
-                    .unwrap_or_else(|_| panic!("{} is not expected type.", name));
-                Some(value)
-            }
+        if let Ok(maybe_value) = self.builder.query(
+            None,
+            Key::from(self.ali),
+            &[CONTRACT_KEY_NAME.to_string(), name.to_string()],
+        ) {
+            let value = maybe_value
+                .as_cl_value()
+                .expect("should be cl value.")
+                .clone()
+                .into_t()
+                .unwrap_or_else(|_| panic!("{} is not expected type.", name));
+            Some(value)
+        } else {
+            None
         }
     }
 
-    fn call(&mut self, sender: Sender, method: &str, args: RuntimeArgs) {
-        let Sender(address) = sender;
-        let code = Code::Hash(self.contract_hash().value(), method.to_string());
-        let session = SessionBuilder::new(code, args)
-            .with_address(address)
-            .with_authorization_keys(&[address])
+    fn call(&mut self, sender: AccountHash, method: &str, args: RuntimeArgs) {
+        let deploy_item = DeployItemBuilder::new()
+            .with_empty_payment_bytes(runtime_args! {ARG_AMOUNT => *DEFAULT_PAYMENT})
+            .with_stored_session_hash(self.contract_hash(), method, args)
+            .with_address(sender)
+            .with_authorization_keys(&[sender])
             .build();
-        self.context.run(session);
+        execute_request(&mut self.builder, deploy_item);
     }
 
     pub fn token_name(&self) -> String {
@@ -124,15 +124,16 @@ impl TestFixture {
     }
 
     pub fn balance_of(&self, account: Key) -> Option<U256> {
-        let item_key = base64::encode(&account.to_bytes().unwrap());
+        let item_key = base64::encode(account.to_bytes().unwrap());
 
         let key = Key::Hash(self.contract_hash().value());
-        let value = self
-            .context
-            .query_dictionary_item(key, Some(consts::BALANCES_KEY_NAME.to_string()), item_key)
-            .ok()?;
-
-        Some(value.into_t::<U256>().unwrap())
+        let value: Option<U256> = get_dictionary_value_from_key(
+            &self.builder,
+            &key,
+            consts::BALANCES_KEY_NAME,
+            &item_key,
+        );
+        value
     }
 
     pub fn allowance(&self, owner: Key, spender: Key) -> Option<U256> {
@@ -144,19 +145,16 @@ impl TestFixture {
 
         let key = Key::Hash(self.contract_hash().value());
 
-        let value = self
-            .context
-            .query_dictionary_item(
-                key,
-                Some(consts::ALLOWANCES_KEY_NAME.to_string()),
-                allowance_item_key,
-            )
-            .ok()?;
-
-        Some(value.into_t::<U256>().unwrap())
+        let value: Option<U256> = get_dictionary_value_from_key(
+            &self.builder,
+            &key,
+            consts::ALLOWANCES_KEY_NAME,
+            &allowance_item_key,
+        );
+        value
     }
 
-    pub fn transfer(&mut self, recipient: Key, amount: U256, sender: Sender) {
+    pub fn transfer(&mut self, recipient: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::TRANSFER_ENTRY_POINT_NAME,
@@ -167,7 +165,7 @@ impl TestFixture {
         );
     }
 
-    pub fn approve(&mut self, spender: Key, amount: U256, sender: Sender) {
+    pub fn approve(&mut self, spender: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::APPROVE_ENTRY_POINT_NAME,
@@ -178,7 +176,7 @@ impl TestFixture {
         );
     }
 
-    pub fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256, sender: Sender) {
+    pub fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256, sender: AccountHash) {
         self.call(
             sender,
             consts::TRANSFER_FROM_ENTRY_POINT_NAME,

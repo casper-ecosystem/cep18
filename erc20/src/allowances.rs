@@ -21,7 +21,7 @@ fn make_dictionary_item_key(owner: Address, spender: Address) -> String {
     preimage.append(&mut spender.to_bytes().unwrap_or_revert());
 
     let key_bytes = runtime::blake2b(&preimage);
-    hex::encode(&key_bytes)
+    hex::encode(key_bytes)
 }
 
 /// Writes an allowance for owner and spender for a specific amount.

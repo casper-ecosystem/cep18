@@ -11,12 +11,8 @@ repository = "https://github.com/casper-ecosystem/erc20"
 license-file = "../LICENSE"
 
 [dependencies]
-base64 = { version = "0.13.0", default-features = false, features = ["alloc"] }
-casper-contract = "1.3.2"
-casper-types = "1.3.2"
+base64 = { version = "0.20.0", default-features = false, features = ["alloc"] }
+casper-contract = "1.4.4"
+casper-types = "1.5.0"
 hex = { version = "0.4.3", default-features = false }
-once_cell = { version = "1.8.0", default-features = false }
-
-[features]
-default = ["std"]
-std = ["casper-contract/std", "casper-types/std"]
+once_cell = { version = "1.16.0", default-features = false }

@@ -5,7 +5,7 @@ mod test_fixture;
 mod tests {
     use casper_types::{Key, U256};
 
-    use crate::test_fixture::{Sender, TestFixture};
+    use crate::test_fixture::fixture::TestFixture;
 
     #[test]
     fn should_install() {
@@ -22,17 +22,13 @@ mod tests {
     #[test]
     fn should_transfer() {
         let mut fixture = TestFixture::install_contract();
-        assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.ali)),
             Some(TestFixture::token_total_supply())
         );
+        assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
         let transfer_amount_1 = U256::from(42);
-        fixture.transfer(
-            Key::from(fixture.bob),
-            transfer_amount_1,
-            Sender(fixture.ali),
-        );
+        fixture.transfer(Key::from(fixture.bob), transfer_amount_1, fixture.ali);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
             Some(transfer_amount_1)
@@ -43,11 +39,7 @@ mod tests {
         );
 
         let transfer_amount_2 = U256::from(20);
-        fixture.transfer(
-            Key::from(fixture.ali),
-            transfer_amount_2,
-            Sender(fixture.bob),
-        );
+        fixture.transfer(Key::from(fixture.ali), transfer_amount_2, fixture.bob);
         assert_eq!(
             fixture.balance_of(Key::from(fixture.ali)),
             Some(TestFixture::token_total_supply() - transfer_amount_1 + transfer_amount_2),
@@ -65,11 +57,7 @@ mod tests {
         let initial_ali_balance = fixture.balance_of(Key::from(fixture.ali)).unwrap();
         assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
 
-        fixture.transfer(
-            Key::from(fixture.bob),
-            initial_ali_balance,
-            Sender(fixture.ali),
-        );
+        fixture.transfer(Key::from(fixture.bob), initial_ali_balance, fixture.ali);
 
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
@@ -80,11 +68,7 @@ mod tests {
             Some(U256::zero())
         );
 
-        fixture.transfer(
-            Key::from(fixture.ali),
-            initial_ali_balance,
-            Sender(fixture.bob),
-        );
+        fixture.transfer(Key::from(fixture.ali), initial_ali_balance, fixture.bob);
 
         assert_eq!(
             fixture.balance_of(Key::from(fixture.bob)),
@@ -107,7 +91,7 @@ mod tests {
         fixture.transfer(
             Key::from(fixture.bob),
             initial_ali_balance + U256::one(),
-            Sender(fixture.ali),
+            fixture.ali,
         );
     }
 
@@ -126,7 +110,7 @@ mod tests {
         let owner_balance_before = fixture
             .balance_of(Key::from(owner))
             .expect("owner should have balance");
-        fixture.approve(Key::from(spender), approve_amount, Sender(owner));
+        fixture.approve(Key::from(spender), approve_amount, owner);
         assert_eq!(
             fixture.allowance(Key::from(owner), Key::from(spender)),
             Some(approve_amount)
@@ -136,7 +120,7 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             transfer_amount,
-            Sender(spender),
+            spender,
         );
 
         assert_eq!(
@@ -169,7 +153,7 @@ mod tests {
         let spender = fixture.bob;
         let recipient = fixture.joe;
 
-        fixture.approve(Key::from(spender), approve_amount, Sender(owner));
+        fixture.approve(Key::from(spender), approve_amount, owner);
         assert_eq!(
             fixture.allowance(Key::from(owner), Key::from(spender)),
             Some(approve_amount)
@@ -179,7 +163,7 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             approve_amount + U256::one(),
-            Sender(spender),
+            spender,
         );
     }
 }

@@ -56,8 +56,9 @@ impl TestToken {
                 Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
             ],
             CLType::Unit,
-            // NOTE: For security reasons never use this entrypoint definition in a production
-            // contract. This is marks the entry point as public.
+            // NOTE: `Public` access rights allows any user and context to call this entrypoint.
+            // If security is required we suggest developers to implement additional security code
+            // inside public entrypoints.
             EntryPointAccess::Public,
             EntryPointType::Contract,
         );
@@ -68,8 +69,9 @@ impl TestToken {
                 Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
             ],
             CLType::Unit,
-            // NOTE: For security reasons never use this entrypoint definition in a production
-            // contract. This is marks the entry point as public.
+            // NOTE: `Public` access rights allows any user and context to call this entrypoint.
+            // If security is required we suggest developers to implement additional security code
+            // inside public entrypoints.
             EntryPointAccess::Public,
             EntryPointType::Contract,
         );
@@ -82,7 +84,7 @@ impl TestToken {
         // Caution: This test uses `install_custom` without providing default entrypoints as
         // described by ERC20 token standard.
         //
-        // This is unsafe and this test contract is not a ERC20 token standard-compliant token.
+        // This test contract is not a ERC20 token standard-compliant token.
         // Contract developers should use example/erc20 contract instead as a template for writing
         // their own tokens.
         let erc20 = ERC20::install_custom(
