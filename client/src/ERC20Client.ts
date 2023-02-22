@@ -34,6 +34,16 @@ export class ERC20Client extends Contract {
     return this;
   }
 
+  /**
+   * Intalls ERC20
+   * @param wasm contract representation of Uint8Array
+   * @param args contract install arguments @see {@link InstallArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
   public installERC20(
     wasm: Uint8Array,
     args: InstallArgs,
@@ -60,6 +70,15 @@ export class ERC20Client extends Contract {
     );
   }
 
+  /**
+   * Transfers tokens to another user
+   * @param args @see {@link TransferArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
   public transfer(
     args: TransferArgs,
     paymentAmount: BigNumberish,
@@ -82,6 +101,15 @@ export class ERC20Client extends Contract {
     );
   }
 
+  /**
+   * Transfer tokens from the approved user to another user
+   * @param args @see {@link TransferFromArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
   public transferFrom(
     args: TransferFromArgs,
     paymentAmount: BigNumberish,
@@ -105,6 +133,15 @@ export class ERC20Client extends Contract {
     );
   }
 
+  /**
+   * Approve tokens to other user
+   * @param args @see {@link ApproveArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
   public approve(
     args: ApproveArgs,
     paymentAmount: BigNumberish,
@@ -127,6 +164,11 @@ export class ERC20Client extends Contract {
     );
   }
 
+  /**
+   * Returns the given account's balance
+   * @param account account info to get balance
+   * @returns account's balance
+   */
   public async balanceOf(account: CLKeyParameters): Promise<BigNumber> {
     const keyBytes = CLValueParsers.toBytes(
       CLValueBuilder.key(account)
@@ -147,6 +189,12 @@ export class ERC20Client extends Contract {
     return balance;
   }
 
+  /**
+   * Returns approved amount from the owner
+   * @param owner owner info
+   * @param spender spender info
+   * @returns approved amount
+   */
   public async allowances(
     owner: CLKeyParameters,
     spender: CLKeyParameters
@@ -207,7 +255,14 @@ export class ERC20Client extends Contract {
   }
 }
 
+/**
+ * Arguments required for install ERC20
+ * @param name token name
+ * @param symbol token symbol
+ *
+ */
 export interface InstallArgs {
+  /** token name */
   name: string;
   symbol: string;
   decimals: BigNumberish;
