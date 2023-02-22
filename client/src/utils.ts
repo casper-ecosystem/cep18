@@ -6,6 +6,7 @@ import {
 import {
   CasperServiceByJsonRPC,
   type CLPublicKey,
+  type GetDeployResult,
   type StoredValue
 } from 'casper-js-sdk';
 
@@ -42,3 +43,8 @@ export const sleep = async (ms: number): Promise<void> => {
 
 export const toCSPR = (motes: BigNumberish): number =>
   parseFloat(formatFixed(BigNumber.from(motes), 9));
+
+export const expectDeployResultToSuccess = (result: GetDeployResult): void => {
+  expect(result.execution_results[0].result.Failure).toBeUndefined();
+  expect(result.execution_results[0].result.Success).toBeDefined();
+};

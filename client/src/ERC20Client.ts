@@ -138,7 +138,11 @@ export class ERC20Client extends Contract {
         (await this.queryContractDictionary('balances', dictKey)) as CLU256
       ).value();
     } catch (error) {
-      console.warn(`Not found balance for ${encodeBase16(account.data)}`);
+      if (
+        error.toString().startsWith('Error: state query failed: ValueNotFound')
+      ) {
+        console.warn(`Not found balance for ${encodeBase16(account.data)}`);
+      } else throw error;
     }
     return balance;
   }
@@ -158,11 +162,20 @@ export class ERC20Client extends Contract {
     const blaked = blake.blake2b(finalBytes, undefined, 32);
     const dictKey = Buffer.from(blaked).toString('hex');
 
-    const balance = (await this.queryContractDictionary(
-      'balances',
-      dictKey
-    )) as CLU256;
-    return balance.value();
+    let allowances = BigNumber.from(0);
+
+    try {
+      allowances = (
+        (await this.queryContractDictionary('allowances', dictKey)) as CLU256
+      ).value();
+    } catch (error) {
+      if (
+        error.toString().startsWith('Error: state query failed: ValueNotFound')
+      ) {
+        console.warn(`Not found allowances for ${encodeBase16(owner.data)}`);
+      } else throw error;
+    }
+    return allowances;
   }
 
   /**
