@@ -2,11 +2,15 @@
   "name": "casper-erc20-js-client",
   "version": "0.0.1",
   "description": "Casper ERC20(CEP18) JavaScript Client",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint src/ --max-warnings=0",
     "lint:write": "eslint src/ --fix",
-    "test": "jest -i"
+    "test": "jest -i",
+    "clean": "rm -rf ./dist",
+    "prebuild": "npm run clean",
+    "build": "tsc --project tsconfig.build.json"
   },
   "repository": {
     "type": "git",
