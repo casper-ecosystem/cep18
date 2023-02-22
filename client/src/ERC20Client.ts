@@ -1,18 +1,18 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
+import * as blake from 'blakejs';
 import {
-  Contracts,
-  RuntimeArgs,
-  CLValueBuilder,
-  CLValueParsers,
   type CasperClient,
+  type CLKeyParameters,
   type CLPublicKey,
   type CLU256,
+  CLValueBuilder,
+  CLValueParsers,
+  Contracts,
   type DeployUtil,
-  type CLKeyParameters,
+  encodeBase16,
   type Keys,
-  encodeBase16
+  RuntimeArgs
 } from 'casper-js-sdk';
-import * as blake from 'blakejs';
 
 const { Contract } = Contracts;
 

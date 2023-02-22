@@ -1,10 +1,10 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import { CasperClient, encodeBase16 } from 'casper-js-sdk';
 
-import { ERC20Client, type InstallArgs } from './ERC20Client';
 import { CHAIN_NAME, NODE_URL, users } from './config';
+import { ERC20Client, type InstallArgs } from './ERC20Client';
 import { findKeyFromAccountNamedKeys, getAccountInfo } from './utils';
 
 describe('ERC20Client', () => {
