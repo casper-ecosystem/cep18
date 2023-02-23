@@ -1,6 +1,6 @@
 {
   "name": "casper-erc20-js-client",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Casper ERC20(CEP18) JavaScript Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,6 +27,9 @@
     "url": "https://github.com/casper-ecosystem/erc20/issues"
   },
   "homepage": "https://github.com/casper-ecosystem/erc20#readme",
+  "files": [
+    "/dist"
+  ],
   "dependencies": {
     "@casperlabs/ts-results": "^3.3.5",
     "@ethersproject/bignumber": "^5.7.0",
