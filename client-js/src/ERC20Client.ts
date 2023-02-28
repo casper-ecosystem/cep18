@@ -1,5 +1,5 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
-import * as blake from 'blakejs';
+import { blake2b } from '@noble/hashes/blake2b';
 import {
   type CasperClient,
   type CLKeyParameters,
@@ -209,7 +209,9 @@ export class ERC20Client extends Contract {
     finalBytes.set(keyOwner);
     finalBytes.set(keySpender, keyOwner.length);
 
-    const blaked = blake.blake2b(finalBytes, undefined, 32);
+    const blaked = blake2b(finalBytes, {
+      dkLen: 32
+    });
     const dictKey = Buffer.from(blaked).toString('hex');
 
     let allowances = BigNumber.from(0);
@@ -262,7 +264,8 @@ export class ERC20Client extends Contract {
  * Arguments required for install ERC20
  * @param name token name
  * @param symbol token symbol
- *
+ * @param decimals token decimals
+ * @param totalSupply token total supply
  */
 export interface InstallArgs {
   /** token name */
