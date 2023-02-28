@@ -29,7 +29,7 @@ export class ERC20Client extends Contract {
     }
   }
 
-  public attatch(client: CasperClient): ERC20Client {
+  public attach(client: CasperClient): ERC20Client {
     this.casperClient = client;
     return this;
   }
@@ -181,6 +181,7 @@ export class ERC20Client extends Contract {
       ).value();
     } catch (error) {
       if (
+        error instanceof Error &&
         error.toString().startsWith('Error: state query failed: ValueNotFound')
       ) {
         console.warn(`Not found balance for ${encodeBase16(account.data)}`);
@@ -207,6 +208,7 @@ export class ERC20Client extends Contract {
     const finalBytes = new Uint8Array(keyOwner.length + keySpender.length);
     finalBytes.set(keyOwner);
     finalBytes.set(keySpender, keyOwner.length);
+
     const blaked = blake.blake2b(finalBytes, undefined, 32);
     const dictKey = Buffer.from(blaked).toString('hex');
 
@@ -218,6 +220,7 @@ export class ERC20Client extends Contract {
       ).value();
     } catch (error) {
       if (
+        error instanceof Error &&
         error.toString().startsWith('Error: state query failed: ValueNotFound')
       ) {
         console.warn(`Not found allowances for ${encodeBase16(owner.data)}`);
@@ -230,28 +233,28 @@ export class ERC20Client extends Contract {
    * Returns the name of the ERC20 token.
    */
   public async name(): Promise<string> {
-    return await this.queryContractData(['name']);
+    return this.queryContractData(['name']) as Promise<string>;
   }
 
   /**
    * Returns the symbol of the ERC20 token.
    */
   public async symbol(): Promise<string> {
-    return await this.queryContractData(['symbol']);
+    return this.queryContractData(['symbol']) as Promise<string>;
   }
 
   /**
    * Returns the decimals of the ERC20 token.
    */
   public async decimals(): Promise<BigNumber> {
-    return await this.queryContractData(['decimals']);
+    return this.queryContractData(['decimals']) as Promise<BigNumber>;
   }
 
   /**
    * Returns the total supply of the ERC20 token.
    */
   public async totalSupply(): Promise<BigNumber> {
-    return await this.queryContractData(['total_supply']);
+    return this.queryContractData(['total_supply']) as Promise<BigNumber>;
   }
 }
 

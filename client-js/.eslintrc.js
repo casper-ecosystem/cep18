@@ -1,37 +1,61 @@
 module.exports = {
   env: { browser: true, es2021: true, node: true },
   extends: [
-    'standard-with-typescript',
+    'airbnb-base',
+    'airbnb-typescript/base',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:eslint-comments/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
     'prettier'
   ],
-  plugins: ['simple-import-sort', 'unused-imports'],
-  overrides: [],
-  parserOptions: {
-    sourceType: 'module',
-    project: ['./client/tsconfig.json']
-  },
-  rules: {
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
-    'unused-imports/no-unused-imports': 'error',
-    'unused-imports/no-unused-vars': [
-      'warn',
-      {
-        vars: 'all',
-        varsIgnorePattern: '^_',
-        args: 'after-used',
-        argsIgnorePattern: '^_'
+  plugins: [
+    '@typescript-eslint',
+    'eslint-comments',
+    'jest',
+    'promise',
+    'unicorn',
+    'simple-import-sort',
+    'unused-imports'
+  ],
+  overrides: [
+    {
+      files: ['*.ts'], // Your TypeScript files extension
+      // As mentioned in the comments, you should extend TypeScript plugins here,
+      // instead of extending them outside the `overrides`.
+      // If you don't want to extend any rules, you don't need an `extends` attribute.
+      extends: ['plugin:@typescript-eslint/recommended'],
+      parserOptions: {
+        sourceType: 'module',
+        tsconfigRootDir: __dirname,
+        project: ['./tsconfig.eslint.json']
+      },
+      rules: {
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
+        'unused-imports/no-unused-imports': 'error',
+        'unused-imports/no-unused-vars': [
+          'warn',
+          {
+            vars: 'all',
+            varsIgnorePattern: '^_',
+            args: 'after-used',
+            argsIgnorePattern: '^_'
+          }
+        ],
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        'import/no-duplicates': 'error',
+        '@typescript-eslint/prefer-nullish-coalescing': 'off',
+        '@typescript-eslint/strict-boolean-expressions': 'off',
+        '@typescript-eslint/no-base-to-string': 'off',
+        'no-return-await': 'off',
+        '@typescript-eslint/return-await': 'warn',
+        'no-console': ['error', { allow: ['warn'] }]
       }
-    ],
-    'simple-import-sort/imports': 'error',
-    'simple-import-sort/exports': 'error',
-    'import/first': 'error',
-    'import/newline-after-import': 'error',
-    'import/no-duplicates': 'error',
-    '@typescript-eslint/prefer-nullish-coalescing': 'off',
-    '@typescript-eslint/strict-boolean-expressions': 'off',
-    '@typescript-eslint/no-base-to-string': 'off'
-  }
+    }
+  ]
 };
