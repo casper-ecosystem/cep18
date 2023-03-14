@@ -1,9 +1,4 @@
 import {
-  BigNumber,
-  type BigNumberish,
-  formatFixed
-} from '@ethersproject/bignumber';
-import {
   CasperServiceByJsonRPC,
   type CLPublicKey,
   type GetDeployResult,
@@ -38,11 +33,9 @@ export const findKeyFromAccountNamedKeys = (
 };
 
 export const sleep = async (ms: number): Promise<void> => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise(resolve => setTimeout(resolve, ms));
 };
-
-export const toCSPR = (motes: BigNumberish): number =>
-  parseFloat(formatFixed(BigNumber.from(motes), 9));
 
 export const expectDeployResultToSuccess = (result: GetDeployResult): void => {
   expect(result.execution_results[0].result.Failure).toBeUndefined();

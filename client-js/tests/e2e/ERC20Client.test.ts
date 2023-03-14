@@ -4,17 +4,18 @@ import * as path from 'node:path';
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { CasperClient, type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
 
-import { CHAIN_NAME, NODE_URL, users } from './config';
-import { ERC20Client, type InstallArgs } from './ERC20Client';
+import ERC20Client from '../../src/ERC20Client';
+import { InstallArgs } from '../../src/types';
+import { NETWORK_NAME, NODE_URL, users } from '../config';
 import {
   expectDeployResultToSuccess,
   findKeyFromAccountNamedKeys,
   getAccountInfo
-} from './utils';
+} from '../utils';
 
 describe('ERC20Client', () => {
   const client = new CasperClient(NODE_URL);
-  const erc20 = new ERC20Client(client);
+  const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
 
   const owner = users[0];
   const ali = users[1];
@@ -38,7 +39,7 @@ describe('ERC20Client', () => {
       },
       5_000_000_000,
       owner.publicKey,
-      CHAIN_NAME,
+      NETWORK_NAME,
       [owner]
     );
 
@@ -58,18 +59,18 @@ describe('ERC20Client', () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          '../../target/wasm32-unknown-unknown/release/erc20_token.wasm'
+          '../../../target/wasm32-unknown-unknown/release/erc20_token.wasm'
         ),
         null
       ).buffer
     );
 
-    const deploy = erc20.installERC20(
+    const deploy = erc20.install(
       wasm,
       tokenInfo,
       60_000_000_000,
       owner.publicKey,
-      CHAIN_NAME,
+      NETWORK_NAME,
       [owner]
     );
 
@@ -159,7 +160,7 @@ describe('ERC20Client', () => {
       },
       5_000_000_000,
       ali.publicKey,
-      CHAIN_NAME,
+      NETWORK_NAME,
       [ali]
     );
 
@@ -185,7 +186,7 @@ describe('ERC20Client', () => {
       { recipient: ali.publicKey, amount },
       5_000_000_000,
       owner.publicKey,
-      CHAIN_NAME,
+      NETWORK_NAME,
       [owner]
     );
 

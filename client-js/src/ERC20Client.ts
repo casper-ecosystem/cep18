@@ -1,7 +1,7 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { blake2b } from '@noble/hashes/blake2b';
 import {
-  type CasperClient,
+  CasperClient,
   type CLKeyParameters,
   type CLPublicKey,
   type CLU256,
@@ -14,24 +14,30 @@ import {
   RuntimeArgs
 } from 'casper-js-sdk';
 
+import {
+  ApproveArgs,
+  InstallArgs,
+  TransferArgs,
+  TransferFromArgs
+} from './types';
+
 const { Contract } = Contracts;
 
-export class ERC20Client extends Contract {
-  constructor(
-    client: CasperClient,
-    contractHash?: string,
-    contractPackageHash?: string
-  ) {
-    super(client);
+export default class ERC20Client {
+  public contractClient: Contracts.Contract;
 
-    if (contractHash) {
-      this.setContractHash(contractHash, contractPackageHash);
-    }
+  public contractHash?: string;
+
+  public contractPackageHash?: string;
+
+  constructor(public nodeAddress: string, public networkName: string) {
+    this.contractClient = new Contract(new CasperClient(nodeAddress));
   }
 
-  public attach(client: CasperClient): ERC20Client {
-    this.casperClient = client;
-    return this;
+  public setContractHash(contractHash: string, contractPackageHash?: string) {
+    this.contractHash = contractHash;
+    this.contractPackageHash = contractPackageHash;
+    this.contractClient.setContractHash(contractHash, contractPackageHash);
   }
 
   /**
@@ -44,7 +50,7 @@ export class ERC20Client extends Contract {
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
-  public installERC20(
+  public install(
     wasm: Uint8Array,
     args: InstallArgs,
     paymentAmount: BigNumberish,
@@ -60,7 +66,7 @@ export class ERC20Client extends Contract {
       total_supply: CLValueBuilder.u256(totalSupply)
     });
 
-    return this.install(
+    return this.contractClient.install(
       wasm,
       runtimeArgs,
       BigNumber.from(paymentAmount).toString(),
@@ -91,7 +97,7 @@ export class ERC20Client extends Contract {
       amount: CLValueBuilder.u256(args.amount)
     });
 
-    return this.callEntrypoint(
+    return this.contractClient.callEntrypoint(
       'transfer',
       runtimeArgs,
       sender,
@@ -123,7 +129,7 @@ export class ERC20Client extends Contract {
       amount: CLValueBuilder.u256(args.amount)
     });
 
-    return this.callEntrypoint(
+    return this.contractClient.callEntrypoint(
       'transfer_from',
       runtimeArgs,
       sender,
@@ -154,7 +160,7 @@ export class ERC20Client extends Contract {
       amount: CLValueBuilder.u256(args.amount)
     });
 
-    return this.callEntrypoint(
+    return this.contractClient.callEntrypoint(
       'approve',
       runtimeArgs,
       sender,
@@ -177,7 +183,10 @@ export class ERC20Client extends Contract {
     let balance = BigNumber.from(0);
     try {
       balance = (
-        (await this.queryContractDictionary('balances', dictKey)) as CLU256
+        (await this.contractClient.queryContractDictionary(
+          'balances',
+          dictKey
+        )) as CLU256
       ).value();
     } catch (error) {
       if (
@@ -218,7 +227,10 @@ export class ERC20Client extends Contract {
 
     try {
       allowances = (
-        (await this.queryContractDictionary('allowances', dictKey)) as CLU256
+        (await this.contractClient.queryContractDictionary(
+          'allowances',
+          dictKey
+        )) as CLU256
       ).value();
     } catch (error) {
       if (
@@ -235,58 +247,31 @@ export class ERC20Client extends Contract {
    * Returns the name of the ERC20 token.
    */
   public async name(): Promise<string> {
-    return this.queryContractData(['name']) as Promise<string>;
+    return this.contractClient.queryContractData(['name']) as Promise<string>;
   }
 
   /**
    * Returns the symbol of the ERC20 token.
    */
   public async symbol(): Promise<string> {
-    return this.queryContractData(['symbol']) as Promise<string>;
+    return this.contractClient.queryContractData(['symbol']) as Promise<string>;
   }
 
   /**
    * Returns the decimals of the ERC20 token.
    */
   public async decimals(): Promise<BigNumber> {
-    return this.queryContractData(['decimals']) as Promise<BigNumber>;
+    return this.contractClient.queryContractData([
+      'decimals'
+    ]) as Promise<BigNumber>;
   }
 
   /**
    * Returns the total supply of the ERC20 token.
    */
   public async totalSupply(): Promise<BigNumber> {
-    return this.queryContractData(['total_supply']) as Promise<BigNumber>;
+    return this.contractClient.queryContractData([
+      'total_supply'
+    ]) as Promise<BigNumber>;
   }
-}
-
-/**
- * Arguments required for install ERC20
- * @param name token name
- * @param symbol token symbol
- * @param decimals token decimals
- * @param totalSupply token total supply
- */
-export interface InstallArgs {
-  /** token name */
-  name: string;
-  symbol: string;
-  decimals: BigNumberish;
-  totalSupply: BigNumberish;
-}
-
-export interface TransferableArgs {
-  amount: BigNumberish;
-}
-
-export interface TransferArgs extends TransferableArgs {
-  recipient: CLKeyParameters;
-}
-
-export interface TransferFromArgs extends TransferArgs {
-  owner: CLKeyParameters;
-}
-
-export interface ApproveArgs extends TransferableArgs {
-  spender: CLKeyParameters;
 }

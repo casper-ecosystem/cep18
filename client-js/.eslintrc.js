@@ -29,7 +29,7 @@ module.exports = {
       parserOptions: {
         sourceType: 'module',
         tsconfigRootDir: __dirname,
-        project: ['./tsconfig.eslint.json']
+        project: ['./tsconfig.json']
       },
       rules: {
         'no-unused-vars': 'off',
@@ -54,8 +54,26 @@ module.exports = {
         '@typescript-eslint/no-base-to-string': 'off',
         'no-return-await': 'off',
         '@typescript-eslint/return-await': 'warn',
-        'no-console': ['error', { allow: ['warn'] }]
-      }
+        'no-console': ['error', { allow: ['warn'] }],
+        '@typescript-eslint/naming-convention': [
+          'error',
+          {
+            selector: 'enum',
+            format: ['UPPER_CASE'],
+            leadingUnderscore: 'allow',
+            trailingUnderscore: 'allow'
+          }
+        ]
+      },
+      overrides: [
+        {
+          files: ['*.test.ts'],
+          rules: {
+            '@typescript-eslint/no-unsafe-member-access': 'off',
+            '@typescript-eslint/no-explicit-any': 'off'
+          }
+        }
+      ]
     }
   ]
 };
