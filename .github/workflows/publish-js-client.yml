@@ -33,6 +33,10 @@ jobs:
         working-directory: ./client
         run: npm run build
 
+      - name: test
+        working-directory: ./client
+        run: npm run test:unit
+
       - name: Publish to NPM
         working-directory: ./client
         run: npm publish --access public
