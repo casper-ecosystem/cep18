@@ -16,16 +16,15 @@ npm i casper-erc20-js-client
 
   ```ts
   const erc20 = new ERC20Client(
-    client, // CasperClient
-    'hash-8e7b7820566b1aa9349f168245bedf003a305282baa8c53a5fa1e0efdfa04b8e', // Contract Hash optional
-    'hash-eb13cd75118f1eae57ad7be0d707b069b70e5362fe68b045fa4924195735e51b' // Contract Package Hash optional
+    'http://localhost:11101/rpc', // Node address
+    'casper-net-1' // Network name
   );
   ```
 
 - Install the contract:
 
   ```ts
-  const deploy = await erc20.installERC20(
+  const deploy = await erc20.install(
     wasm, // Contract wasm
     {
       name: tokenName,
@@ -132,7 +131,7 @@ npm i casper-erc20-js-client
 
 ## More examples
 
-You can find all the available examples in the [E2E test script](https://github.com/casper-ecosystem/erc20/client).
+You can find all the available examples in the [E2E test script](https://github.com/casper-ecosystem/erc20/client-js/tests/e3e).
 
 ## Test
 
@@ -142,10 +141,10 @@ You can find all the available examples in the [E2E test script](https://github.
 git clone https://github.com/casper-ecosystem/erc20.git
 ```
 
-- Go to `client` directory
+- Go to `client-js` directory
 
 ```bash
-cd client
+cd client-js
 ```
 
 - Intall modules using
