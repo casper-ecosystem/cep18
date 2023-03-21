@@ -1,12 +1,8 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { CasperClient, type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
 
-import ERC20Client from '../../src/ERC20Client';
-import { InstallArgs } from '../../src/types';
-import { NETWORK_NAME, NODE_URL, users } from '../config';
+import { ERC20Client, InstallArgs, wasm } from '../../src';
+import { DEPLOY_TIMEOUT, NETWORK_NAME, NODE_URL, users } from '../config';
 import {
   expectDeployResultToSuccess,
   findKeyFromAccountNamedKeys,
@@ -25,7 +21,7 @@ describe('ERC20Client', () => {
     name: 'TEST ERC20',
     symbol: 'TFT',
     decimals: 9,
-    totalSupply: 50_000_000_000
+    totalSupply: 200_000_000_000
   };
 
   const doApprove = async (
@@ -45,7 +41,10 @@ describe('ERC20Client', () => {
 
     await client.putDeploy(deploy);
 
-    const result = await client.nodeClient.waitForDeploy(deploy);
+    const result = await client.nodeClient.waitForDeploy(
+      deploy,
+      DEPLOY_TIMEOUT
+    );
 
     expectDeployResultToSuccess(result);
 
@@ -55,16 +54,6 @@ describe('ERC20Client', () => {
   };
 
   beforeAll(async () => {
-    const wasm = new Uint8Array(
-      fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../target/wasm32-unknown-unknown/release/erc20_token.wasm'
-        ),
-        null
-      ).buffer
-    );
-
     const deploy = erc20.install(
       wasm,
       tokenInfo,
@@ -76,7 +65,10 @@ describe('ERC20Client', () => {
 
     await client.putDeploy(deploy);
 
-    const result = await client.nodeClient.waitForDeploy(deploy);
+    const result = await client.nodeClient.waitForDeploy(
+      deploy,
+      DEPLOY_TIMEOUT
+    );
 
     const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
 
@@ -166,7 +158,10 @@ describe('ERC20Client', () => {
 
     await client.putDeploy(deploy);
 
-    const result = await client.nodeClient.waitForDeploy(deploy);
+    const result = await client.nodeClient.waitForDeploy(
+      deploy,
+      DEPLOY_TIMEOUT
+    );
 
     expectDeployResultToSuccess(result);
 
@@ -192,7 +187,10 @@ describe('ERC20Client', () => {
 
     await client.putDeploy(deploy);
 
-    const result = await client.nodeClient.waitForDeploy(deploy);
+    const result = await client.nodeClient.waitForDeploy(
+      deploy,
+      DEPLOY_TIMEOUT
+    );
 
     expectDeployResultToSuccess(result);
 

@@ -133,6 +133,22 @@ npm i casper-erc20-js-client
 
 You can find all the available examples in the [E2E test script](https://github.com/casper-ecosystem/erc20/client-js/tests/e3e).
 
+## Development
+
+Before working on the JS Client, make sure the bundled contract content in the [`wasm.ts`]('./src.wasm.ts') is up to date with the current wasm file.
+
+- You can generate wasm file by running
+
+  ```bash
+  make build-contracts
+  ```
+
+- After generate wasm file, you can bundle it by running
+
+  ```bash
+  npm run generate:wasm
+  ```
+
 ## Test
 
 - Clone this repo
