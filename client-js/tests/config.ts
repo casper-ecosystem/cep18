@@ -8,6 +8,11 @@ export const NODE_URL = process.env.NODE_URL || 'http://localhost:11101/rpc';
 export const EVENT_STREAM_ADDRESS =
   process.env.EVENT_STREAM_ADDRESS || 'http://localhost:18101/events/main';
 
+export const DEPLOY_TIMEOUT = parseInt(
+  process.env.DEPLOY_TIMEOUT || '1200000',
+  10
+);
+
 export enum AVAILABLE_NETWORKS {
   NCTL = 'casper-net-1',
   TESTNET = 'casper-net',
