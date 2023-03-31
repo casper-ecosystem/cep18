@@ -2,18 +2,21 @@ import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { blake2b } from '@noble/hashes/blake2b';
 import {
   CasperClient,
+  CasperServiceByJsonRPC,
   type CLKeyParameters,
   type CLPublicKey,
   type CLU256,
   CLValueBuilder,
   CLValueParsers,
   Contracts,
-  type DeployUtil,
+  DeployUtil,
   encodeBase16,
+  GetDeployResult,
   type Keys,
   RuntimeArgs
 } from 'casper-js-sdk';
 
+import { ContractError } from './error';
 import {
   ApproveArgs,
   InstallArgs,
@@ -273,5 +276,79 @@ export default class ERC20Client {
     return this.contractClient.queryContractData([
       'total_supply'
     ]) as Promise<BigNumber>;
+  }
+
+  /**
+   * Waits for the deploy to be confirmed on chain.
+   * Throws `ContractError` if there was operational error, otherwise `Error` if the deploy wasn't successful
+   * @param deploy signed deploy instance or deploy hash
+   * @param timeout
+   * @returns
+   */
+  public async waitForDeploy(
+    deploy: DeployUtil.Deploy | string,
+    timeout?: number
+  ): Promise<GetDeployResult> {
+    const casperClient = new CasperServiceByJsonRPC(this.nodeAddress);
+
+    let result: GetDeployResult;
+
+    // this should be handled in the SDK
+    if (deploy instanceof DeployUtil.Deploy) {
+      result = await casperClient.waitForDeploy(deploy, timeout);
+    } else {
+      const waitForDeploy = async (deployHash: string, t = 60000) => {
+        const sleep = (ms: number) =>
+          // eslint-disable-next-line no-promise-executor-return
+          new Promise(resolve => setTimeout(resolve, ms));
+        const timer = setTimeout(() => {
+          throw new Error('Timeout');
+        }, t);
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          // eslint-disable-next-line no-await-in-loop
+          const d = await casperClient.getDeployInfo(deployHash);
+          if (d.execution_results.length > 0) {
+            clearTimeout(timer);
+            return d;
+          }
+          // eslint-disable-next-line no-await-in-loop
+          await sleep(400);
+        }
+      };
+
+      result = await waitForDeploy(deploy);
+    }
+
+    if (
+      result.execution_results.length > 0 &&
+      result.execution_results[0].result.Failure
+    ) {
+      // Parse execution result
+      const { error_message } = result.execution_results[0].result.Failure;
+      const contractErrorMessagePrefix = 'User error: ';
+      if (error_message.startsWith(contractErrorMessagePrefix)) {
+        const errorCode = parseInt(
+          error_message.substring(
+            contractErrorMessagePrefix.length,
+            error_message.length
+          ),
+          10
+        );
+        throw new ContractError(errorCode);
+      } else throw new Error(error_message);
+    }
+    return result;
+  }
+
+  /**
+   * Deploys a provided signed deploy
+   * @param signedDeploy A signed `Deploy` object to be sent to a node
+   * @remarks A deploy must not exceed 1 megabyte
+   */
+  public async putDeploy(signedDeploy: DeployUtil.Deploy): Promise<string> {
+    const casperClient = new CasperServiceByJsonRPC(this.nodeAddress);
+
+    return casperClient.deploy(signedDeploy).then(re => re.deploy_hash);
   }
 }
