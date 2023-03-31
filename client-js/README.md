@@ -24,6 +24,8 @@ npm i casper-erc20-js-client
 - Install the contract:
 
   ```ts
+  import { wasm } from 'casper-erc20-js-client';
+
   const deploy = await erc20.install(
     wasm, // Contract wasm
     {
@@ -38,9 +40,9 @@ npm i casper-erc20-js-client
     [owner]
   );
 
-  await client.putDeploy(deploy);
+  const deployHash = await erc20.putDeploy(deploy);
 
-  const result = await client.nodeClient.waitForDeploy(deploy);
+  const result = await erc20.waitForDeploy(deployHash);
   ```
 
 - Set the contract hash (a unique identifier for the network):
