@@ -111,15 +111,6 @@ use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 
 use casper_types::{CLValue, U256};
 
-use casper_erc20:{
-  constants::{
-    ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
-    NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
-    SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
-  },
-  Address, ERC20,
-};
-
 ```
 
 **Note**: In Rust, the keyword `use` is like an include statement in C/C++.

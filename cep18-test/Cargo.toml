@@ -1,0 +1,16 @@
+[package]
+name = "cep18-test"
+version = "0.1.0"
+edition = "2018"
+
+[[bin]]
+name = "cep18_test"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
+[dependencies]
+casper-contract = "1.4.4"
+casper-types = "1.5"
+base64 = { version = "0.20.0", default-features = false, features = ["alloc"] }
