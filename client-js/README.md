@@ -24,10 +24,11 @@ npm i casper-erc20-js-client
 - Install the contract:
 
   ```ts
-  import { wasm } from 'casper-erc20-js-client';
+  import { ContractWASM, ERC20Client } from 'casper-erc20-js-client';
 
+  const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
   const deploy = await erc20.install(
-    wasm, // Contract wasm
+    ContractWASM, // Contract wasm
     {
       name: tokenName,
       symbol: tokenSymbol,

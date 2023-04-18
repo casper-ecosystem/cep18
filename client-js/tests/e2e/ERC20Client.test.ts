@@ -1,7 +1,7 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
 
-import { ERC20Client, InstallArgs, wasm } from '../../src';
+import { ContractWASM, ERC20Client, InstallArgs } from '../../src';
 import { DEPLOY_TIMEOUT, NETWORK_NAME, NODE_URL, users } from '../config';
 import {
   expectDeployResultToSuccess,
@@ -38,7 +38,7 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    const deployHash = await erc20.putDeploy(deploy);
+    const deployHash = await deploy.send(NODE_URL);
 
     const result = await erc20.waitForDeploy(deployHash, DEPLOY_TIMEOUT);
 
@@ -51,7 +51,7 @@ describe('ERC20Client', () => {
 
   beforeAll(async () => {
     const deploy = erc20.install(
-      wasm,
+      ContractWASM,
       tokenInfo,
       60_000_000_000,
       owner.publicKey,
@@ -59,7 +59,7 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await erc20.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
     const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
@@ -149,7 +149,7 @@ describe('ERC20Client', () => {
       [ali]
     );
 
-    await erc20.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
     const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
@@ -175,7 +175,7 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await erc20.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
     const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
@@ -197,7 +197,7 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await erc20.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
     await expect(
       erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT)

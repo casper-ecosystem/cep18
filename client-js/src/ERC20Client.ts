@@ -283,7 +283,7 @@ export default class ERC20Client {
    * Throws `ContractError` if there was operational error, otherwise `Error` if the deploy wasn't successful
    * @param deploy signed deploy instance or deploy hash
    * @param timeout
-   * @returns
+   * @returns `GetDeployResult`
    */
   public async waitForDeploy(
     deploy: DeployUtil.Deploy | string,
@@ -339,16 +339,5 @@ export default class ERC20Client {
       } else throw new Error(error_message);
     }
     return result;
-  }
-
-  /**
-   * Deploys a provided signed deploy
-   * @param signedDeploy A signed `Deploy` object to be sent to a node
-   * @remarks A deploy must not exceed 1 megabyte
-   */
-  public async putDeploy(signedDeploy: DeployUtil.Deploy): Promise<string> {
-    const casperClient = new CasperServiceByJsonRPC(this.nodeAddress);
-
-    return casperClient.deploy(signedDeploy).then(re => re.deploy_hash);
   }
 }
