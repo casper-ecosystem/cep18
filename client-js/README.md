@@ -40,10 +40,6 @@ npm i casper-erc20-js-client
     CHAIN_NAME,
     [owner]
   );
-
-  const deployHash = await erc20.putDeploy(deploy);
-
-  const result = await erc20.waitForDeploy(deployHash);
   ```
 
 - Set the contract hash (a unique identifier for the network):
