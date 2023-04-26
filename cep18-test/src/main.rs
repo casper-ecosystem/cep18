@@ -16,7 +16,7 @@ use balances::{get_balances_uref, read_balance_from, write_balance_to};
 use error::Error;
 use core::{ops::{Deref, DerefMut}, convert::TryInto};
 
-use casper_contract::{contract_api::{runtime::{self, call_versioned_contract, call_contract}, storage}, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::{contract_api::{runtime::{self, call_versioned_contract, call_contract, get_caller}, storage}, unwrap_or_revert::UnwrapOrRevert};
 
 use casper_types::{
     account::AccountHash, CLType, CLTyped, CLValue, ContractPackageHash, EntryPoint,
@@ -29,6 +29,7 @@ pub const NAME: &str = "name";
 pub const SYMBOL: &str = "symbol";
 pub const DECIMALS: &str = "decimals";
 pub const BALANCES: &str = "balances";
+pub const ALLOWANCES: &str = "allowances";
 pub const TOTAL_SUPPLY: &str = "total_supply";
 pub const BALANCE_OF: &str = "balance_of";
 pub const INIT: &str = "init";
@@ -127,7 +128,11 @@ pub extern "C" fn burn() {
 
 #[no_mangle]
 pub extern "C" fn init() {
-    storage::new_dictionary(BALANCES).unwrap_or_revert();
+    let balances_uref = storage::new_dictionary(BALANCES).unwrap_or_revert();
+    let allowances_uref = storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
+    let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY);
+    let caller = get_caller();
+    write_balance_to(balances_uref, caller.into(), initial_supply);
 }
 
 //TEST_CONTRACT_KEY_NAME
@@ -190,7 +195,7 @@ fn call() {
         EntryPointType::Contract,
     );
 
-    let burn_entrypoint = EntryPoint::new(
+    let init_entrypoint = EntryPoint::new(
         INIT,
         vec![],
         CLType::Unit,
@@ -202,7 +207,7 @@ fn call() {
     entry_points.add_entry_point(total_supply_entrypoint);
     entry_points.add_entry_point(mint_entrypoint);
     entry_points.add_entry_point(burn_entrypoint);
-
+    entry_points.add_entry_point(init_entrypoint);
 
     let (contract_hash, contract_version) = storage::new_contract(
         entry_points,
@@ -225,7 +230,7 @@ fn call() {
     runtime::call_contract::<()>(
         contract_hash,
         INIT,
-        runtime_args! {},
+        runtime_args! {TOTAL_SUPPLY => total_supply},
     );
 
     call_contract::<()>(contract_hash, MINT, runtime_args!{OWNER => TOKEN_OWNER_ADDRESS_1, AMOUNT => U256::from(TOKEN_OWNER_AMOUNT_1)});

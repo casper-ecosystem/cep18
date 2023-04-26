@@ -16,7 +16,7 @@ use casper_types::{
 
 use crate::utility::constants::{TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_1, ALLOWANCE_AMOUNT_2, ALLOWANCE_AMOUNT_1, TOTAL_SUPPLY_KEY};
 
-use super::constants::{self, ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_NAME, ARG_DECIMALS, ARG_SYMBOL, ARG_TOTAL_SUPPLY, TOKEN_TOTAL_SUPPLY, TOKEN_DECIMALS, TOKEN_SYMBOL, TOKEN_NAME, CEP18_TOKEN_CONTRACT_KEY, TEST_CONTRACT_KEY, CEP18_TEST_CONTRACT_KEY, ARG_TOKEN_CONTRACT, CHECK_TOTAL_SUPPLY_ENTRYPOINT, RESULT_KEY, ARG_ADDRESS, CHECK_BALANCE_OF_ENTRYPOINT, ARG_OWNER, ARG_SPENDER, CHECK_ALLOWANCE_OF_ENTRYPOINT, METHOD_TRANSFER, ARG_RECIPIENT, ARG_AMOUNT, METHOD_TRANSFER_AS_STORED_CONTRACT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT, CEP_18_CONTRACT_WASM};
+use super::constants::{self, ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_NAME, ARG_DECIMALS, ARG_SYMBOL, ARG_TOTAL_SUPPLY, TOKEN_TOTAL_SUPPLY, TOKEN_DECIMALS, TOKEN_SYMBOL, TOKEN_NAME, CEP18_TOKEN_CONTRACT_KEY, TEST_CONTRACT_KEY, CEP18_TEST_CONTRACT_KEY, ARG_TOKEN_CONTRACT, CHECK_TOTAL_SUPPLY_ENTRYPOINT, RESULT_KEY, ARG_ADDRESS, CHECK_BALANCE_OF_ENTRYPOINT, ARG_OWNER, ARG_SPENDER, CHECK_ALLOWANCE_OF_ENTRYPOINT, METHOD_TRANSFER, ARG_RECIPIENT, ARG_AMOUNT, METHOD_TRANSFER_AS_STORED_CONTRACT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT, CEP18_CONTRACT_WASM, CEP18_TEST_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_HASH};
 
 /// Converts hash addr of Account into Hash, and Hash into Account
 ///
@@ -35,6 +35,7 @@ pub (crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
     pub(crate) cep18_test_contract: ContractPackageHash,
     pub(crate) cep18_test: ContractPackageHash,
+    pub(crate) test_contract: ContractHash,
 }
 
 pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
@@ -60,7 +61,7 @@ pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let install_request_1 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        CEP_18_CONTRACT_WASM,
+        CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
             ARG_SYMBOL => TOKEN_SYMBOL,
@@ -72,14 +73,14 @@ pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let install_request_2 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        "cep18_test_contract.wasm",
+        CEP18_TEST_CONTARCT_WASM,
         RuntimeArgs::default(),
     )
     .build();
 
     let install_request_3 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        "cep18_test.wasm",
+        CEP18_TEST_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
             ARG_SYMBOL => TOKEN_SYMBOL,
@@ -112,18 +113,26 @@ pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .and_then(|key| key.into_hash())
         .map(ContractPackageHash::new)
         .expect("should have contract hash");
-
+    
     let cep18_test = account
+        .named_keys()
+        .get(CEP18_TEST_HASH)
+        .and_then(|key| key.into_hash())
+        .map(ContractPackageHash::new)
+        .expect("should have contract hash");
+
+    let test_contract = account
         .named_keys()
         .get(TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
+        .map(ContractHash::new)
         .expect("should have contract hash");
 
     let test_context = TestContext {
         cep18_token,
         cep18_test_contract,
-        cep18_test
+        cep18_test,
+        test_contract
     };
 
     (builder, test_context)

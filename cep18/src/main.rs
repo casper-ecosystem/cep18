@@ -17,7 +17,7 @@ use balances::{get_balances_uref, transfer_balance, read_balance_from, write_bal
 use entry_points::generate_entry_points;
 
 use casper_contract::{
-    contract_api::{runtime, storage},
+    contract_api::{runtime::{self, get_caller}, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{contracts::NamedKeys, U256, runtime_args, RuntimeArgs, CLValue, Key};
@@ -147,8 +147,11 @@ pub extern "C" fn burn() {
 
 #[no_mangle]
 pub extern "C" fn init() {
-    storage::new_dictionary(BALANCES).unwrap_or_revert();
-    storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
+    let balances_uref = storage::new_dictionary(BALANCES).unwrap_or_revert();
+    let allowances_uref = storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
+    let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY);
+    let caller = get_caller();
+    write_balance_to(balances_uref, caller.into(), initial_supply);
 }
 
 #[no_mangle]
@@ -191,7 +194,7 @@ pub fn install_contract(){
     runtime::call_contract::<()>(
         contract_hash,
         ENTRY_POINT_INIT,
-        runtime_args! {},
+        runtime_args! {TOTAL_SUPPLY => total_supply},
     );
 }
 
