@@ -279,47 +279,15 @@ export default class ERC20Client {
   }
 
   /**
-   * Waits for the deploy to be confirmed on chain.
-   * Throws `ContractError` if there was operational error, otherwise `Error` if the deploy wasn't successful
-   * @param deploy signed deploy instance or deploy hash
-   * @param timeout
+   * Parse deploy result by given hash.
+   * It the deploy wasn't successful, throws `ContractError` if there was operational error, otherwise `Error` with original error message.
+   * @param deployHash deploy hash
    * @returns `GetDeployResult`
    */
-  public async waitForDeploy(
-    deploy: DeployUtil.Deploy | string,
-    timeout?: number
-  ): Promise<GetDeployResult> {
+  public async parseDeployResult(deployHash: string): Promise<GetDeployResult> {
     const casperClient = new CasperServiceByJsonRPC(this.nodeAddress);
 
-    let result: GetDeployResult;
-
-    // this should be handled in the SDK
-    if (deploy instanceof DeployUtil.Deploy) {
-      result = await casperClient.waitForDeploy(deploy, timeout);
-    } else {
-      const waitForDeploy = async (deployHash: string, t = 60000) => {
-        const sleep = (ms: number) =>
-          // eslint-disable-next-line no-promise-executor-return
-          new Promise(resolve => setTimeout(resolve, ms));
-        const timer = setTimeout(() => {
-          throw new Error('Timeout');
-        }, t);
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          // eslint-disable-next-line no-await-in-loop
-          const d = await casperClient.getDeployInfo(deployHash);
-          if (d.execution_results.length > 0) {
-            clearTimeout(timer);
-            return d;
-          }
-          // eslint-disable-next-line no-await-in-loop
-          await sleep(400);
-        }
-      };
-
-      result = await waitForDeploy(deploy);
-    }
-
+    const result = await casperClient.getDeployInfo(deployHash);
     if (
       result.execution_results.length > 0 &&
       result.execution_results[0].result.Failure
