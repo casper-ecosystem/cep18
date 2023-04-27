@@ -38,6 +38,10 @@ pub const ALLOWANCE_ENTRY_POINT_NAME: &str = "allowance";
 pub const TRANSFER_FROM_ENTRY_POINT_NAME: &str = "transfer_from";
 /// Name of `total_supply` entry point.
 pub const TOTAL_SUPPLY_ENTRY_POINT_NAME: &str = "total_supply";
+/// Name of `transfer_from` entry point.
+pub const MINT_ENTRY_POINT_NAME: &str = "mint";
+/// Name of `burn` entry point.
+pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 /// Name of `init` entry point.
 pub const ENTRY_POINT_INIT: &str = "init";
 

@@ -2,17 +2,17 @@
 use alloc::{string::String, vec, vec::Vec};
 
 use casper_types::{
-    CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256, Key,
+    CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Key, Parameter,
+    U256,
 };
 
-use crate::{
-    constants::{
-        ADDRESS_RUNTIME_ARG_NAME, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT_RUNTIME_ARG_NAME,
-        APPROVE_ENTRY_POINT_NAME, BALANCE_OF_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
-        NAME_ENTRY_POINT_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
-        SPENDER_RUNTIME_ARG_NAME, SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME,
-        TRANSFER_ENTRY_POINT_NAME, TRANSFER_FROM_ENTRY_POINT_NAME, ENTRY_POINT_INIT,
-    },
+use crate::constants::{
+    ADDRESS_RUNTIME_ARG_NAME, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT_RUNTIME_ARG_NAME,
+    APPROVE_ENTRY_POINT_NAME, BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME,
+    DECIMALS_ENTRY_POINT_NAME, ENTRY_POINT_INIT, MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME,
+    OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME, SPENDER_RUNTIME_ARG_NAME,
+    SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME,
+    TRANSFER_FROM_ENTRY_POINT_NAME,
 };
 
 /// Returns the `name` entry point.
@@ -126,6 +126,26 @@ pub fn decimals() -> EntryPoint {
     )
 }
 
+pub fn burn() -> EntryPoint {
+    EntryPoint::new(
+        String::from(BURN_ENTRY_POINT_NAME),
+        Vec::new(),
+        u8::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+pub fn mint() -> EntryPoint {
+    EntryPoint::new(
+        String::from(MINT_ENTRY_POINT_NAME),
+        Vec::new(),
+        u8::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 pub fn init() -> EntryPoint {
     EntryPoint::new(
         String::from(ENTRY_POINT_INIT),
@@ -149,5 +169,7 @@ pub fn generate_entry_points() -> EntryPoints {
     entry_points.add_entry_point(approve());
     entry_points.add_entry_point(allowance());
     entry_points.add_entry_point(transfer_from());
+    entry_points.add_entry_point(burn());
+    entry_points.add_entry_point(mint());
     entry_points
 }

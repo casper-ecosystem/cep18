@@ -70,11 +70,8 @@ extern "C" fn check_balance_of() {
     let balance_args = runtime_args! {
         ADDRESS_RUNTIME_ARG_NAME => address,
     };
-    let result: U256 = runtime::call_contract(
-        token_contract,
-        BALANCE_OF_ENTRY_POINT_NAME,
-        balance_args,
-    );
+    let result: U256 =
+        runtime::call_contract(token_contract, BALANCE_OF_ENTRY_POINT_NAME, balance_args);
 
     store_result(result);
 }
@@ -89,11 +86,8 @@ extern "C" fn check_allowance_of() {
         OWNER_RUNTIME_ARG_NAME => owner,
         SPENDER_RUNTIME_ARG_NAME => spender,
     };
-    let result: U256 = runtime::call_contract(
-        token_contract,
-        ALLOWANCE_ENTRY_POINT_NAME,
-        allowance_args,
-    );
+    let result: U256 =
+        runtime::call_contract(token_contract, ALLOWANCE_ENTRY_POINT_NAME, allowance_args);
 
     store_result(result);
 }

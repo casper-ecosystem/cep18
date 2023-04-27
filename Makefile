@@ -1,4 +1,4 @@
-ALL_CONTRACTS = casper-cep18 cep18-test-contract cep18-test
+ALL_CONTRACTS = casper-cep18 cep18-test-contract
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 PINNED_TOOLCHAIN := $(shell cat rust-toolchain)
 
@@ -15,7 +15,6 @@ build-contract:
 setup-test: build-contract
 	mkdir -p tests/wasm
 	cp ./target/wasm32-unknown-unknown/release/cep18.wasm tests/wasm
-	cp ./target/wasm32-unknown-unknown/release/cep18_test.wasm tests/wasm
 	cp ./target/wasm32-unknown-unknown/release/cep18_test_contract.wasm tests/wasm
 
 test: setup-test
@@ -24,24 +23,20 @@ test: setup-test
 clippy:
 	cd cep18 && cargo clippy --all-targets -- -D warnings
 	cd cep18-test-contract && cargo clippy --all-targets -- -D warnings
-	cd cep18-test && cargo clippy --all-targets -- -D warnings
 	cd tests && cargo clippy --all-targets -- -D warnings
 
 check-lint: clippy
 	cd cep18 && cargo fmt -- --check
 	cd cep18-test-contract && cargo fmt -- --check
-	cd cep18-test && cargo fmt -- --check
 	cd tests && cargo fmt -- --check
 
 lint: clippy
 	cd cep18 && cargo fmt
 	cd cep18-test-contract && cargo fmt
-	cd cep18-test && cargo fmt
 	cd tests && cargo fmt
 
 clean:
 	cd cep18 && cargo clean
 	cd cep18-test-contract && cargo clean
-	cd cep18-test && cargo clean
 	cd tests && cargo clean
 	rm -rf tests/wasm

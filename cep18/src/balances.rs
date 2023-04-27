@@ -2,9 +2,9 @@
 use alloc::string::String;
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
-use casper_types::{bytesrepr::ToBytes, URef, U256, Key};
+use casper_types::{bytesrepr::ToBytes, Key, URef, U256};
 
-use crate::{constants::BALANCES, utils, error::Error};
+use crate::{constants::BALANCES, error::Error, utils};
 
 /// Creates a dictionary item key for a dictionary item.
 #[inline]
@@ -33,7 +33,6 @@ pub(crate) fn write_balance_to(balances_uref: URef, address: Key, amount: U256) 
 ///
 /// If a given account does not have balances in the system, then a 0 is returned.
 pub(crate) fn read_balance_from(balances_uref: URef, address: Key) -> U256 {
-    let balances_uref = get_balances_uref();
     let dictionary_item_key = make_dictionary_item_key(address);
 
     storage::dictionary_get(balances_uref, &dictionary_item_key)
@@ -45,16 +44,12 @@ pub(crate) fn read_balance_from(balances_uref: URef, address: Key) -> U256 {
 ///
 /// This function should not be used directly by contract's entrypoint as it does not validate the
 /// sender.
-pub(crate) fn transfer_balance(
-    sender: Key,
-    recipient: Key,
-    amount: U256,
-) -> Result<(), Error> {
+pub(crate) fn transfer_balance(sender: Key, recipient: Key, amount: U256) -> Result<(), Error> {
     if sender == recipient || amount.is_zero() {
         return Ok(());
     }
 
-    let balances_uref = get_balances_uref(); 
+    let balances_uref = get_balances_uref();
     let new_sender_balance = {
         let sender_balance = read_balance_from(balances_uref, sender);
         sender_balance

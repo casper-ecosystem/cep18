@@ -2,13 +2,11 @@
 members = [
     "cep18",
     "cep18-test-contract",
-    "cep18-test",
     "tests",
 ]
 default-members = [
     "cep18",
     "cep18-test-contract",
-    "cep18-test",
     "tests",
 ]
 

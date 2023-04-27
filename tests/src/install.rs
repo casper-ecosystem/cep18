@@ -1,8 +1,15 @@
 use casper_engine_test_support::DEFAULT_ACCOUNT_ADDR;
-use casper_types::{U256, Key};
+use casper_types::{Key, U256};
 
-use crate::utility::{constants::{BALANCES_KEY, ALLOWANCES_KEY, TOKEN_NAME, TOKEN_SYMBOL, SYMBOL_KEY, NAME_KEY, DECIMALS_KEY, TOTAL_SUPPLY_KEY, TOKEN_TOTAL_SUPPLY, TOKEN_DECIMALS}, installer_request_builders::{TestContext, setup, cep18_check_balance_of, invert_cep18_address}};
-
+use crate::utility::{
+    constants::{
+        ALLOWANCES_KEY, BALANCES_KEY, DECIMALS_KEY, NAME_KEY, SYMBOL_KEY, TOKEN_DECIMALS,
+        TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY, TOTAL_SUPPLY_KEY,
+    },
+    installer_request_builders::{
+        cep18_check_balance_of, invert_cep18_address, setup, TestContext,
+    },
+};
 
 #[test]
 fn should_have_queryable_properties() {

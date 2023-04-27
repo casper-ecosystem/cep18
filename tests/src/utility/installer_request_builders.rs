@@ -1,28 +1,32 @@
-
-use once_cell::sync::Lazy;
-
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
     DEFAULT_RUN_GENESIS_REQUEST, MINIMUM_ACCOUNT_CREATION_BALANCE,
 };
-use casper_execution_engine::core::{
-    engine_state::{Error as CoreError, ExecuteRequest},
-    execution::Error as ExecError,
-};
+use casper_execution_engine::core::engine_state::ExecuteRequest;
 use casper_types::{
-    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, ApiError, CLTyped,
-    ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped, ContractHash,
+    ContractPackageHash, Key, RuntimeArgs, U256,
 };
 
-use crate::utility::constants::{TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_1, ALLOWANCE_AMOUNT_2, ALLOWANCE_AMOUNT_1, TOTAL_SUPPLY_KEY};
+use crate::utility::constants::{
+    ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, TOTAL_SUPPLY_KEY, TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2,
+};
 
-use super::constants::{self, ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_NAME, ARG_DECIMALS, ARG_SYMBOL, ARG_TOTAL_SUPPLY, TOKEN_TOTAL_SUPPLY, TOKEN_DECIMALS, TOKEN_SYMBOL, TOKEN_NAME, CEP18_TOKEN_CONTRACT_KEY, TEST_CONTRACT_KEY, CEP18_TEST_CONTRACT_KEY, ARG_TOKEN_CONTRACT, CHECK_TOTAL_SUPPLY_ENTRYPOINT, RESULT_KEY, ARG_ADDRESS, CHECK_BALANCE_OF_ENTRYPOINT, ARG_OWNER, ARG_SPENDER, CHECK_ALLOWANCE_OF_ENTRYPOINT, METHOD_TRANSFER, ARG_RECIPIENT, ARG_AMOUNT, METHOD_TRANSFER_AS_STORED_CONTRACT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT, CEP18_CONTRACT_WASM, CEP18_TEST_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_HASH};
+use super::constants::{
+    ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
+    ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY,
+    CEP18_CONTRACT_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_CONTRACT_KEY,
+    CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT, CHECK_BALANCE_OF_ENTRYPOINT,
+    CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT,
+    METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME,
+    TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
+};
 
 /// Converts hash addr of Account into Hash, and Hash into Account
 ///
 /// This is useful for making sure CEP18 library respects different variants of Key when storing
 /// balances.
-pub (crate) fn invert_cep18_address(address: Key) -> Key {
+pub(crate) fn invert_cep18_address(address: Key) -> Key {
     match address {
         Key::Account(account_hash) => Key::Hash(account_hash.value()),
         Key::Hash(contract_hash) => Key::Account(AccountHash::new(contract_hash)),
@@ -31,14 +35,12 @@ pub (crate) fn invert_cep18_address(address: Key) -> Key {
 }
 
 #[derive(Copy, Clone)]
-pub (crate) struct TestContext {
+pub(crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
     pub(crate) cep18_test_contract: ContractPackageHash,
-    pub(crate) cep18_test: ContractPackageHash,
-    pub(crate) test_contract: ContractHash,
 }
 
-pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
+pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     let mut builder = InMemoryWasmTestBuilder::default();
     builder.run_genesis(&DEFAULT_RUN_GENESIS_REQUEST);
 
@@ -78,23 +80,10 @@ pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     )
     .build();
 
-    let install_request_3 = ExecuteRequestBuilder::standard(
-        *DEFAULT_ACCOUNT_ADDR,
-        CEP18_TEST_WASM,
-        runtime_args! {
-            ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        },
-    )
-    .build();
-
     builder.exec(transfer_request_1).expect_success().commit();
     builder.exec(transfer_request_2).expect_success().commit();
     builder.exec(install_request_1).expect_success().commit();
     builder.exec(install_request_2).expect_success().commit();
-    builder.exec(install_request_3).expect_success().commit();
 
     let account = builder
         .get_account(*DEFAULT_ACCOUNT_ADDR)
@@ -113,32 +102,16 @@ pub (crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .and_then(|key| key.into_hash())
         .map(ContractPackageHash::new)
         .expect("should have contract hash");
-    
-    let cep18_test = account
-        .named_keys()
-        .get(CEP18_TEST_HASH)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have contract hash");
-
-    let test_contract = account
-        .named_keys()
-        .get(TEST_CONTRACT_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
-        .expect("should have contract hash");
 
     let test_context = TestContext {
         cep18_token,
         cep18_test_contract,
-        cep18_test,
-        test_contract
     };
 
     (builder, test_context)
 }
 
-pub (crate) fn cep18_check_total_supply(
+pub(crate) fn cep18_check_total_supply(
     builder: &mut InMemoryWasmTestBuilder,
     cep18_contract_hash: &ContractHash,
 ) -> U256 {
@@ -170,7 +143,7 @@ pub (crate) fn cep18_check_total_supply(
     get_test_result(builder, cep18_test_contract_hash)
 }
 
-pub (crate) fn get_test_result<T: FromBytes + CLTyped>(
+pub(crate) fn get_test_result<T: FromBytes + CLTyped>(
     builder: &mut InMemoryWasmTestBuilder,
     cep18_test_contract_hash: ContractPackageHash,
 ) -> T {
@@ -187,7 +160,7 @@ pub (crate) fn get_test_result<T: FromBytes + CLTyped>(
     builder.get_value(*contract_hash, RESULT_KEY)
 }
 
-pub (crate) fn cep18_check_balance_of(
+pub(crate) fn cep18_check_balance_of(
     builder: &mut InMemoryWasmTestBuilder,
     cep18_contract_hash: &ContractHash,
     address: Key,
@@ -220,7 +193,7 @@ pub (crate) fn cep18_check_balance_of(
     get_test_result(builder, cep18_test_contract_hash)
 }
 
-pub (crate) fn cep18_check_allowance_of(
+pub(crate) fn cep18_check_allowance_of(
     builder: &mut InMemoryWasmTestBuilder,
     owner: Key,
     spender: Key,
@@ -259,7 +232,7 @@ pub (crate) fn cep18_check_allowance_of(
     get_test_result(builder, cep18_test_contract_hash)
 }
 
-pub (crate) fn test_cep18_transfer(
+pub(crate) fn test_cep18_transfer(
     builder: &mut InMemoryWasmTestBuilder,
     test_context: &TestContext,
     sender1: Key,
@@ -322,7 +295,7 @@ pub (crate) fn test_cep18_transfer(
     assert_eq!(account_2_balance_after, transfer_amount_2);
 }
 
-pub (crate) fn make_cep18_transfer_request(
+pub(crate) fn make_cep18_transfer_request(
     sender: Key,
     cep18_token: &ContractHash,
     recipient: Key,
@@ -355,7 +328,7 @@ pub (crate) fn make_cep18_transfer_request(
     }
 }
 
-pub (crate) fn make_cep18_approve_request(
+pub(crate) fn make_cep18_approve_request(
     sender: Key,
     cep18_token: &ContractHash,
     spender: Key,
@@ -388,7 +361,7 @@ pub (crate) fn make_cep18_approve_request(
     }
 }
 
-pub (crate) fn test_approve_for(
+pub(crate) fn test_approve_for(
     builder: &mut InMemoryWasmTestBuilder,
     test_context: &TestContext,
     sender: Key,
@@ -434,5 +407,3 @@ pub (crate) fn test_approve_for(
     let total_supply: U256 = builder.get_value(*cep18_token, TOTAL_SUPPLY_KEY);
     assert_eq!(total_supply, initial_supply);
 }
-
-

@@ -1,17 +1,23 @@
-use casper_engine_test_support::{DEFAULT_ACCOUNT_ADDR, ExecuteRequestBuilder};
-use casper_types::{Key, U256, runtime_args, RuntimeArgs, ApiError};
+use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
+use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 
-use crate::utility::{installer_request_builders::{setup, TestContext, test_approve_for, cep18_check_allowance_of}, constants::{ACCOUNT_1_ADDR, ALLOWANCE_AMOUNT_1, ARG_OWNER, ARG_RECIPIENT, METHOD_APPROVE, ARG_AMOUNT, ARG_SPENDER, ERROR_INSUFFICIENT_ALLOWANCE, METHOD_TRANSFER_FROM}};
+use crate::utility::{
+    constants::{
+        ACCOUNT_1_ADDR, ALLOWANCE_AMOUNT_1, ARG_AMOUNT, ARG_OWNER, ARG_RECIPIENT, ARG_SPENDER,
+        ERROR_INSUFFICIENT_ALLOWANCE, METHOD_APPROVE, METHOD_TRANSFER_FROM,
+    },
+    installer_request_builders::{cep18_check_allowance_of, setup, test_approve_for, TestContext},
+};
 use casper_execution_engine::core::{
-    engine_state::{Error as CoreError, ExecuteRequest},
-    execution::Error as ExecError,
+    engine_state::Error as CoreError, execution::Error as ExecError,
 };
 
 #[test]
 fn should_approve_funds_contract_to_account() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract, ..
+        cep18_test_contract,
+        ..
     } = test_context;
 
     test_approve_for(
@@ -27,7 +33,8 @@ fn should_approve_funds_contract_to_account() {
 fn should_approve_funds_contract_to_contract() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract, ..
+        cep18_test_contract,
+        ..
     } = test_context;
 
     test_approve_for(
@@ -121,5 +128,3 @@ fn should_not_transfer_from_without_enough_allowance() {
         error
     );
 }
-
-

@@ -1,11 +1,21 @@
-use casper_engine_test_support::{DEFAULT_ACCOUNT_ADDR, ExecuteRequestBuilder};
-use casper_types::{runtime_args, RuntimeArgs, Key, U256, ApiError};
+use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
+use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 
-use crate::utility::{constants::{TOKEN_TOTAL_SUPPLY, ARG_AMOUNT, ARG_RECIPIENT, ACCOUNT_1_ADDR, METHOD_TRANSFER, TOTAL_SUPPLY_KEY, ERROR_INSUFFICIENT_BALANCE, ALLOWANCE_AMOUNT_1, ARG_SPENDER, ARG_OWNER, METHOD_APPROVE, METHOD_TRANSFER_FROM, ARG_TOKEN_CONTRACT, METHOD_FROM_AS_STORED_CONTRACT, TRANSFER_AMOUNT_1, ACCOUNT_2_ADDR}, installer_request_builders::{TestContext, setup, cep18_check_balance_of, cep18_check_allowance_of, make_cep18_transfer_request, make_cep18_approve_request, test_cep18_transfer}};
+use crate::utility::{
+    constants::{
+        ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ALLOWANCE_AMOUNT_1, ARG_AMOUNT, ARG_OWNER, ARG_RECIPIENT,
+        ARG_SPENDER, ARG_TOKEN_CONTRACT, ERROR_INSUFFICIENT_BALANCE, METHOD_APPROVE,
+        METHOD_FROM_AS_STORED_CONTRACT, METHOD_TRANSFER, METHOD_TRANSFER_FROM, TOKEN_TOTAL_SUPPLY,
+        TOTAL_SUPPLY_KEY, TRANSFER_AMOUNT_1,
+    },
+    installer_request_builders::{
+        cep18_check_allowance_of, cep18_check_balance_of, make_cep18_approve_request,
+        make_cep18_transfer_request, setup, test_cep18_transfer, TestContext,
+    },
+};
 
 use casper_execution_engine::core::{
-    engine_state::{Error as CoreError, ExecuteRequest},
-    execution::Error as ExecError,
+    engine_state::Error as CoreError, execution::Error as ExecError,
 };
 
 #[test]
@@ -274,7 +284,6 @@ fn should_transfer_from_account_by_contract() {
     );
 }
 
-
 #[test]
 fn should_have_correct_balance_after_own_transfer() {
     let (mut builder, TestContext { cep18_token, .. }) = setup();
@@ -448,7 +457,8 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
 fn should_transfer_contract_to_contract() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract, ..
+        cep18_test_contract,
+        ..
     } = test_context;
 
     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
@@ -470,7 +480,8 @@ fn should_transfer_contract_to_contract() {
 fn should_transfer_contract_to_account() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract, ..
+        cep18_test_contract,
+        ..
     } = test_context;
 
     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
@@ -488,7 +499,6 @@ fn should_transfer_contract_to_account() {
         recipient2,
     );
 }
-
 
 // #[test]
 // fn should_transfer_account_to_contract() {

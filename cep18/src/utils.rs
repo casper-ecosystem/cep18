@@ -5,9 +5,11 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef, Key, U256};
+use casper_types::{
+    bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, Key, URef, U256,
+};
 
-use crate::{error::Error, constants::TOTAL_SUPPLY};
+use crate::{constants::TOTAL_SUPPLY, error::Error};
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -52,7 +54,10 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Key {
 /// session/stored contracts.
 pub(crate) fn get_immediate_caller_address() -> Result<Key, Error> {
     let call_stack = runtime::get_call_stack();
-    call_stack.into_iter().rev().nth(1)
+    call_stack
+        .into_iter()
+        .rev()
+        .nth(1)
         .map(call_stack_element_to_address)
         .ok_or(Error::InvalidContext)
 }
