@@ -11,33 +11,23 @@ use casper_types::ApiError;
 ///
 /// Such a user error should be in the range `[0..(u16::MAX - 4)]` (i.e. [0, 65532]) to avoid
 /// conflicting with the other `Error` variants.
-pub enum Error {
+#[repr(u16)]
+#[derive(Clone, Copy)]
+pub enum Cep18Error {
     /// ERC20 contract called from within an invalid context.
-    InvalidContext,
+    InvalidContext = 60000,
     /// Spender does not have enough balance.
-    InsufficientBalance,
+    InsufficientBalance = 60001,
     /// Spender does not have enough allowance approved.
-    InsufficientAllowance,
+    InsufficientAllowance = 60002,
     /// Operation would cause an integer overflow.
-    Overflow,
-    /// User error.
-    User(u16),
+    Overflow = 60003,
+    PackageHashMissing = 60004,
+    PackageHashNotPackage = 60005,
 }
 
-const ERROR_INVALID_CONTEXT: u16 = u16::MAX;
-const ERROR_INSUFFICIENT_BALANCE: u16 = u16::MAX - 1;
-const ERROR_INSUFFICIENT_ALLOWANCE: u16 = u16::MAX - 2;
-const ERROR_OVERFLOW: u16 = u16::MAX - 3;
-
-impl From<Error> for ApiError {
-    fn from(error: Error) -> Self {
-        let user_error = match error {
-            Error::InvalidContext => ERROR_INVALID_CONTEXT,
-            Error::InsufficientBalance => ERROR_INSUFFICIENT_BALANCE,
-            Error::InsufficientAllowance => ERROR_INSUFFICIENT_ALLOWANCE,
-            Error::Overflow => ERROR_OVERFLOW,
-            Error::User(user_error) => user_error,
-        };
-        ApiError::User(user_error)
+impl From<Cep18Error> for ApiError {
+    fn from(error: Cep18Error) -> Self {
+        ApiError::User(error as u16)
     }
 }

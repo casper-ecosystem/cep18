@@ -18,10 +18,10 @@ pub(crate) const ARG_SYMBOL: &str = "symbol";
 pub(crate) const ARG_DECIMALS: &str = "decimals";
 pub(crate) const ARG_TOTAL_SUPPLY: &str = "total_supply";
 
-pub(crate) const _ERROR_INVALID_CONTEXT: u16 = u16::MAX;
-pub(crate) const ERROR_INSUFFICIENT_BALANCE: u16 = u16::MAX - 1;
-pub(crate) const ERROR_INSUFFICIENT_ALLOWANCE: u16 = u16::MAX - 2;
-pub(crate) const ERROR_OVERFLOW: u16 = u16::MAX - 3;
+pub(crate) const _ERROR_INVALID_CONTEXT: u16 = 60000;
+pub(crate) const ERROR_INSUFFICIENT_BALANCE: u16 = 60001;
+pub(crate) const ERROR_INSUFFICIENT_ALLOWANCE: u16 = 60002;
+pub(crate) const ERROR_OVERFLOW: u16 = 60003;
 
 pub(crate) const TOKEN_NAME: &str = "CasperTest";
 pub(crate) const TOKEN_SYMBOL: &str = "CSPRT";

@@ -1,4 +1,4 @@
-//! Constants used by the ERC20 contract.
+//! Constants used by the CEP18 contract.
 
 /// Name of named-key for `name`.
 pub const NAME: &str = "name";
@@ -7,7 +7,7 @@ pub const SYMBOL: &str = "symbol";
 /// Name of named-key for `decimals`
 pub const DECIMALS: &str = "decimals";
 /// Name of named-key for `contract`
-pub const ERC20_TOKEN_CONTRACT_KEY_NAME: &str = "erc20_token_contract";
+pub const CEP18_TOKEN_CONTRACT_KEY_NAME: &str = "cep18_token_contract";
 /// Name of dictionary-key for `balances`
 pub const BALANCES: &str = "balances";
 /// Name of dictionary-key for `allowances`
@@ -46,20 +46,13 @@ pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 pub const ENTRY_POINT_INIT: &str = "init";
 
 /// Name of `address` runtime argument.
-pub const ADDRESS_RUNTIME_ARG_NAME: &str = "address";
+pub const ADDRESS: &str = "address";
 /// Name of `owner` runtime argument.
-pub const OWNER_RUNTIME_ARG_NAME: &str = "owner";
+pub const OWNER: &str = "owner";
 /// Name of `spender` runtime argument.
-pub const SPENDER_RUNTIME_ARG_NAME: &str = "spender";
+pub const SPENDER: &str = "spender";
 /// Name of `amount` runtime argument.
-pub const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
+pub const AMOUNT: &str = "amount";
 /// Name of `recipient` runtime argument.
-pub const RECIPIENT_RUNTIME_ARG_NAME: &str = "recipient";
-/// Name of `name` runtime argument.
-pub const NAME_RUNTIME_ARG_NAME: &str = "name";
-/// Name of `symbol` runtime argument.
-pub const SYMBOL_RUNTIME_ARG_NAME: &str = "symbol";
-/// Name of `decimals` runtime argument.
-pub const DECIMALS_RUNTIME_ARG_NAME: &str = "decimals";
-/// Name of `total_supply` runtime argument.
-pub const TOTAL_SUPPLY_RUNTIME_ARG_NAME: &str = "total_supply";
+pub const RECIPIENT: &str = "recipient";
+pub const PACKAGE_HASH: &str = "package_hash";

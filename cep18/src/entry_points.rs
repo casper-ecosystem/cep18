@@ -7,10 +7,9 @@ use casper_types::{
 };
 
 use crate::constants::{
-    ADDRESS_RUNTIME_ARG_NAME, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT_RUNTIME_ARG_NAME,
-    APPROVE_ENTRY_POINT_NAME, BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME,
-    DECIMALS_ENTRY_POINT_NAME, ENTRY_POINT_INIT, MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME,
-    OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME, SPENDER_RUNTIME_ARG_NAME,
+    ADDRESS, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT, APPROVE_ENTRY_POINT_NAME,
+    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
+    ENTRY_POINT_INIT, MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
     SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME,
     TRANSFER_FROM_ENTRY_POINT_NAME,
 };
@@ -41,9 +40,9 @@ pub fn transfer_from() -> EntryPoint {
     EntryPoint::new(
         String::from(TRANSFER_FROM_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(RECIPIENT, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -56,8 +55,8 @@ pub fn allowance() -> EntryPoint {
     EntryPoint::new(
         String::from(ALLOWANCE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(SPENDER_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(SPENDER, Key::cl_type()),
         ],
         U256::cl_type(),
         EntryPointAccess::Public,
@@ -70,8 +69,8 @@ pub fn approve() -> EntryPoint {
     EntryPoint::new(
         String::from(APPROVE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(SPENDER_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(SPENDER, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -84,8 +83,8 @@ pub fn transfer() -> EntryPoint {
     EntryPoint::new(
         String::from(TRANSFER_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(RECIPIENT, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -97,7 +96,7 @@ pub fn transfer() -> EntryPoint {
 pub fn balance_of() -> EntryPoint {
     EntryPoint::new(
         String::from(BALANCE_OF_ENTRY_POINT_NAME),
-        vec![Parameter::new(ADDRESS_RUNTIME_ARG_NAME, Key::cl_type())],
+        vec![Parameter::new(ADDRESS, Key::cl_type())],
         U256::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,

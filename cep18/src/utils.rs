@@ -6,10 +6,14 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, Key, URef, U256,
+    bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, ContractPackageHash, Key,
+    URef, U256,
 };
 
-use crate::{constants::TOTAL_SUPPLY, error::Error};
+use crate::{
+    constants::{PACKAGE_HASH, TOTAL_SUPPLY},
+    error::Cep18Error,
+};
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -52,14 +56,14 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Key {
 ///
 /// This function ensures that only session code can execute this function, and disallows stored
 /// session/stored contracts.
-pub(crate) fn get_immediate_caller_address() -> Result<Key, Error> {
+pub(crate) fn get_immediate_caller_address() -> Result<Key, Cep18Error> {
     let call_stack = runtime::get_call_stack();
     call_stack
         .into_iter()
         .rev()
         .nth(1)
         .map(call_stack_element_to_address)
-        .ok_or(Error::InvalidContext)
+        .ok_or(Cep18Error::InvalidContext)
 }
 
 pub fn get_total_supply_uref() -> URef {
@@ -73,4 +77,12 @@ pub(crate) fn read_total_supply_from(uref: URef) -> U256 {
 /// Writes a total supply to a specific [`URef`].
 pub(crate) fn write_total_supply_to(uref: URef, value: U256) {
     storage::write(uref, value);
+}
+
+pub fn get_package_hash() -> ContractPackageHash {
+    runtime::get_key(PACKAGE_HASH)
+        .unwrap_or_revert_with(Cep18Error::PackageHashMissing)
+        .into_hash()
+        .map(ContractPackageHash::new)
+        .unwrap_or_revert_with(Cep18Error::PackageHashNotPackage)
 }

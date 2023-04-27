@@ -4,7 +4,7 @@ use alloc::string::String;
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::ToBytes, Key, URef, U256};
 
-use crate::{constants::BALANCES, error::Error, utils};
+use crate::{constants::BALANCES, error::Cep18Error, utils};
 
 /// Creates a dictionary item key for a dictionary item.
 #[inline]
@@ -44,7 +44,11 @@ pub(crate) fn read_balance_from(balances_uref: URef, address: Key) -> U256 {
 ///
 /// This function should not be used directly by contract's entrypoint as it does not validate the
 /// sender.
-pub(crate) fn transfer_balance(sender: Key, recipient: Key, amount: U256) -> Result<(), Error> {
+pub(crate) fn transfer_balance(
+    sender: Key,
+    recipient: Key,
+    amount: U256,
+) -> Result<(), Cep18Error> {
     if sender == recipient || amount.is_zero() {
         return Ok(());
     }
@@ -54,14 +58,14 @@ pub(crate) fn transfer_balance(sender: Key, recipient: Key, amount: U256) -> Res
         let sender_balance = read_balance_from(balances_uref, sender);
         sender_balance
             .checked_sub(amount)
-            .ok_or(Error::InsufficientBalance)?
+            .ok_or(Cep18Error::InsufficientBalance)?
     };
 
     let new_recipient_balance = {
         let recipient_balance = read_balance_from(balances_uref, recipient);
         recipient_balance
             .checked_add(amount)
-            .ok_or(Error::Overflow)?
+            .ok_or(Cep18Error::Overflow)?
     };
 
     write_balance_to(balances_uref, sender, new_sender_balance);
