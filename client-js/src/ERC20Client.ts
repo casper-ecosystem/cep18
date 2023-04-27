@@ -29,18 +29,20 @@ const { Contract } = Contracts;
 export default class ERC20Client {
   public contractClient: Contracts.Contract;
 
-  public contractHash?: string;
-
-  public contractPackageHash?: string;
-
   constructor(public nodeAddress: string, public networkName: string) {
     this.contractClient = new Contract(new CasperClient(nodeAddress));
   }
 
   public setContractHash(contractHash: string, contractPackageHash?: string) {
-    this.contractHash = contractHash;
-    this.contractPackageHash = contractPackageHash;
     this.contractClient.setContractHash(contractHash, contractPackageHash);
+  }
+
+  public get contractHash() {
+    return this.contractClient.contractHash;
+  }
+
+  public get contractPackageHash() {
+    return this.contractClient.contractPackageHash;
   }
 
   /**
