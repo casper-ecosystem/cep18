@@ -4,7 +4,6 @@
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitUseStrict": true,
     "removeComments": true,
     "declaration": true,
     "target": "es5",

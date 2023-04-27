@@ -1,7 +1,7 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
-import { CasperClient, type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
+import { type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
 
-import { ERC20Client, InstallArgs, wasm } from '../../src';
+import { ContractWASM, ERC20Client, InstallArgs } from '../../src';
 import { DEPLOY_TIMEOUT, NETWORK_NAME, NODE_URL, users } from '../config';
 import {
   expectDeployResultToSuccess,
@@ -10,7 +10,6 @@ import {
 } from '../utils';
 
 describe('ERC20Client', () => {
-  const client = new CasperClient(NODE_URL);
   const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
 
   const owner = users[0];
@@ -39,12 +38,9 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
+    const deployHash = await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await erc20.waitForDeploy(deployHash, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
 
@@ -55,7 +51,7 @@ describe('ERC20Client', () => {
 
   beforeAll(async () => {
     const deploy = erc20.install(
-      wasm,
+      ContractWASM,
       tokenInfo,
       60_000_000_000,
       owner.publicKey,
@@ -63,12 +59,9 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
 
@@ -156,12 +149,9 @@ describe('ERC20Client', () => {
       [ali]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
 
@@ -185,17 +175,32 @@ describe('ERC20Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
 
     const balance = await erc20.balanceOf(ali.publicKey);
 
     expect(balance.eq(amount));
+  });
+
+  it('should throw error when try to transfer more than owned balance', async () => {
+    const amount = 5_000_000_000_000;
+
+    const deploy = erc20.transfer(
+      { recipient: ali.publicKey, amount },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    await deploy.send(NODE_URL);
+
+    await expect(
+      erc20.waitForDeploy(deploy, DEPLOY_TIMEOUT)
+    ).rejects.toThrowError('ERROR_INSUFFICIENT_BALANCE');
   });
 });
