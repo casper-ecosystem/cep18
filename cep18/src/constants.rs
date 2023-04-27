@@ -6,8 +6,6 @@ pub const NAME: &str = "name";
 pub const SYMBOL: &str = "symbol";
 /// Name of named-key for `decimals`
 pub const DECIMALS: &str = "decimals";
-/// Name of named-key for `contract`
-pub const CEP18_TOKEN_CONTRACT_KEY_NAME: &str = "cep18_token_contract";
 /// Name of dictionary-key for `balances`
 pub const BALANCES: &str = "balances";
 /// Name of dictionary-key for `allowances`
@@ -44,6 +42,8 @@ pub const MINT_ENTRY_POINT_NAME: &str = "mint";
 pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 /// Name of `init` entry point.
 pub const ENTRY_POINT_INIT: &str = "init";
+pub const INCREASE_ALLOWANCE_ENTRY_POINT_NAME: &str = "increase_allowance";
+pub const DECREASE_ALLOWANCE_ENTRY_POINT_NAME: &str = "decrease_allowance";
 
 /// Name of `address` runtime argument.
 pub const ADDRESS: &str = "address";

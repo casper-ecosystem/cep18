@@ -1,8 +1,10 @@
 use casper_engine_test_support::{
-    ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
+    ExecuteRequestBuilder, InMemoryWasmTestBuilder, WasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
     MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
 };
-use casper_execution_engine::core::engine_state::ExecuteRequest;
+use casper_execution_engine::{
+    core::engine_state::ExecuteRequest, storage::global_state::in_memory::InMemoryGlobalState,
+};
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped, ContractHash,
     ContractPackageHash, Key, RuntimeArgs, U256,
@@ -16,10 +18,10 @@ use super::constants::{
     ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
     ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY,
     CEP18_CONTRACT_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_CONTRACT_KEY,
-    CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT, CHECK_BALANCE_OF_ENTRYPOINT,
-    CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT,
-    METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME,
-    TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
+    CEP18_TOKEN_CONTRACT_KEY, CEP18_TOKEN_CONTRACT_PACKAGE_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT,
+    CHECK_BALANCE_OF_ENTRYPOINT, CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE,
+    METHOD_APPROVE_AS_STORED_CONTRACT, METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT,
+    RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
 };
 
 /// Converts hash addr of Account into Hash, and Hash into Account
@@ -37,6 +39,7 @@ pub(crate) fn invert_cep18_address(address: Key) -> Key {
 #[derive(Copy, Clone)]
 pub(crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
+    pub(crate) cep18_token_package: ContractPackageHash,
     pub(crate) cep18_test_contract: ContractPackageHash,
 }
 
@@ -101,10 +104,18 @@ pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .get(CEP18_TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
         .map(ContractPackageHash::new)
-        .expect("should have contract hash");
+        .expect("should have contract package hash");
+
+    let cep18_token_package = account
+        .named_keys()
+        .get(CEP18_TOKEN_CONTRACT_PACKAGE_KEY)
+        .and_then(|key| key.into_hash())
+        .map(ContractPackageHash::new)
+        .expect("should have contract package hash");
 
     let test_context = TestContext {
         cep18_token,
+        cep18_token_package,
         cep18_test_contract,
     };
 
@@ -406,4 +417,31 @@ pub(crate) fn test_approve_for(
 
     let total_supply: U256 = builder.get_value(*cep18_token, TOTAL_SUPPLY_KEY);
     assert_eq!(total_supply, initial_supply);
+}
+
+pub(crate) fn get_dictionary_value_from_key<T: CLTyped + FromBytes>(
+    builder: &WasmTestBuilder<InMemoryGlobalState>,
+    contract_key: &Key,
+    dictionary_name: &str,
+    dictionary_key: &str,
+) -> T {
+    let seed_uref = *builder
+        .query(None, *contract_key, &[])
+        .expect("must have nft contract")
+        .as_contract()
+        .expect("must convert contract")
+        .named_keys()
+        .get(dictionary_name)
+        .expect("must have key")
+        .as_uref()
+        .expect("must convert to seed uref");
+
+    builder
+        .query_dictionary_item(None, seed_uref, dictionary_key)
+        .expect("should have dictionary value")
+        .as_cl_value()
+        .expect("T should be CLValue")
+        .to_owned()
+        .into_t()
+        .unwrap()
 }

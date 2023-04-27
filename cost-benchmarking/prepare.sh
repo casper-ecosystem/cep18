@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm erc20-cost-benchmarking-output
+rm cep18-cost-benchmarking-output
 
 # NCTL config
 NETWORK_NAME=casper-net-1
@@ -11,14 +11,14 @@ USER_2_SECRET_KEY=$NCTL/assets/net-1/users/user-2/secret_key.pem
 GAS_LIMIT=1000000000000
 
 # Token installation args
-TOKEN_WASM=target/wasm32-unknown-unknown/release/erc20_token.wasm
+TOKEN_WASM=target/wasm32-unknown-unknown/release/cep18_token.wasm
 TOKEN_NAME="TestToken"
 TOKEN_SYMBOL="TST"
 TOKEN_DECIMALS=0
 TOKEN_SUPPLY=10000000000
 
 # Make sure our token wasm exists
-cargo build --release --target wasm32-unknown-unknown -p erc20-token
+cargo build --release --target wasm32-unknown-unknown -p cep18-token
 
 # Install the token
 TOKEN_INSTALL_DEPLOY=$(casper-client put-deploy\
@@ -40,7 +40,7 @@ sleep 90
 TOKEN_CONTRACT_HASH=$(nctl-view-user-account user=1\
   | tr -d "\n"\
   | grep -o  "{.*"\
-  | jq '.stored_value.Account.named_keys[] | select(.name == "erc20_token_contract") | .key'\
+  | jq '.stored_value.Account.named_keys[] | select(.name == "cep18_token_contract") | .key'\
   | tr -d '"')
 
 # Recover install cost
@@ -48,5 +48,5 @@ INSTALL_COST=$(nctl-view-chain-deploy deploy=$TOKEN_INSTALL_DEPLOY\
                 | jq .execution_results[0].result.Success.cost\
                 | tr -d '"')
 
-echo INSTALLATION, $INSTALL_COST >> erc20-cost-benchmarking-output
+echo INSTALLATION, $INSTALL_COST >> cep18-cost-benchmarking-output
 

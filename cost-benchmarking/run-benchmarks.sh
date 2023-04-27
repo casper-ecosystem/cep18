@@ -105,5 +105,5 @@ for deploy_type in ${DEPLOY_TYPES[@]}; do
           | jq .execution_results[0].result.Success.cost\
           | tr -d '"')
 
-  echo $deploy_type, $cost >> erc20-cost-benchmarking-output
+  echo $deploy_type, $cost >> cep18-cost-benchmarking-output
 done

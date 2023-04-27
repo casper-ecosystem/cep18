@@ -14,7 +14,7 @@ use casper_types::ApiError;
 #[repr(u16)]
 #[derive(Clone, Copy)]
 pub enum Cep18Error {
-    /// ERC20 contract called from within an invalid context.
+    /// CEP18 contract called from within an invalid context.
     InvalidContext = 60000,
     /// Spender does not have enough balance.
     InsufficientBalance = 60001,

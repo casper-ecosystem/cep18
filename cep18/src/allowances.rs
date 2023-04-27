@@ -25,9 +25,9 @@ pub(crate) fn make_dictionary_item_key(owner: Key, spender: Key) -> String {
 }
 
 /// Writes an allowance for owner and spender for a specific amount.
-pub(crate) fn write_allowance_to(owner: Key, spender: Key, amount: U256) {
+pub(crate) fn write_allowance_to(allowance_uref: URef, owner: Key, spender: Key, amount: U256) {
     let dictionary_item_key = make_dictionary_item_key(owner, spender);
-    storage::dictionary_put(get_allowances_uref(), &dictionary_item_key, amount)
+    storage::dictionary_put(allowance_uref, &dictionary_item_key, amount)
 }
 
 /// Reads an allowance for a owner and spender

@@ -6,6 +6,7 @@ pub(crate) const CEP18_TEST_CONTARCT_WASM: &str = "cep18_test_contract.wasm";
 pub(crate) const NAME_KEY: &str = "name";
 pub(crate) const SYMBOL_KEY: &str = "symbol";
 pub(crate) const CEP18_TOKEN_CONTRACT_KEY: &str = "cep18_contract_hash_CasperTest";
+pub(crate) const CEP18_TOKEN_CONTRACT_PACKAGE_KEY: &str = "cep18_contract_package_CasperTest";
 pub(crate) const DECIMALS_KEY: &str = "decimals";
 pub(crate) const TOTAL_SUPPLY_KEY: &str = "total_supply";
 pub(crate) const BALANCES_KEY: &str = "balances";
@@ -76,3 +77,5 @@ pub(crate) const TOKEN_OWNER_AMOUNT_2: u64 = 2_000_000;
 
 pub(crate) const METHOD_MINT: &str = "mint";
 pub(crate) const METHOD_BURN: &str = "burn";
+pub(crate) const DECREASE_ALLOWANCE: &str = "decrease_allowance";
+pub(crate) const INCREASE_ALLOWANCE: &str = "increase_allowance";

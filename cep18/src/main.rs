@@ -16,9 +16,7 @@ use alloc::{
     string::{String, ToString},
 };
 
-use allowances::{
-    get_allowances_uref, make_dictionary_item_key, read_allowance_from, write_allowance_to,
-};
+use allowances::{get_allowances_uref, read_allowance_from, write_allowance_to};
 use balances::{get_balances_uref, read_balance_from, transfer_balance, write_balance_to};
 use entry_points::generate_entry_points;
 
@@ -37,6 +35,7 @@ use constants::{
     PACKAGE_HASH, RECIPIENT, SPENDER, SYMBOL, TOTAL_SUPPLY,
 };
 pub use error::Cep18Error;
+use events::EVENTS;
 use utils::{get_total_supply_uref, read_total_supply_from, write_total_supply_to};
 
 #[no_mangle]
@@ -68,6 +67,63 @@ pub extern "C" fn balance_of() {
 }
 
 #[no_mangle]
+pub extern "C" fn allowance() {
+    let owner: Key = runtime::get_named_arg(OWNER);
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    let allowances_uref = get_allowances_uref();
+    let val: U256 = read_allowance_from(allowances_uref, owner, spender);
+    runtime::ret(CLValue::from_t(val).unwrap_or_revert());
+}
+
+#[no_mangle]
+pub extern "C" fn approve() {
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
+    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let allowances_uref = get_allowances_uref();
+    write_allowance_to(allowances_uref, owner, spender, amount);
+    events::record_event_dictionary(events::Event::SetAllowance {
+        owner,
+        spender,
+        allowance: amount,
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn decrease_allowance() {
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
+    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let allowances_uref = get_allowances_uref();
+    let current_allowance = read_allowance_from(allowances_uref, owner, spender);
+    let new_allowance = current_allowance.saturating_sub(amount);
+    write_allowance_to(allowances_uref, owner, spender, new_allowance);
+    events::record_event_dictionary(events::Event::DecreaseAllowance {
+        owner,
+        spender,
+        decr_by: amount,
+        allowance: new_allowance,
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn increase_allowance() {
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
+    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let allowances_uref = get_allowances_uref();
+    let current_allowance = read_allowance_from(allowances_uref, owner, spender);
+    let new_allowance = current_allowance.saturating_add(amount);
+    write_allowance_to(allowances_uref, owner, spender, new_allowance);
+    events::record_event_dictionary(events::Event::IncreaseAllowance {
+        owner,
+        spender,
+        allowance: new_allowance,
+        inc_by: amount,
+    })
+}
+
+#[no_mangle]
 pub extern "C" fn transfer() {
     let recipient: Key = runtime::get_named_arg(RECIPIENT);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
@@ -80,60 +136,6 @@ pub extern "C" fn transfer() {
         recipient,
         amount,
     })
-}
-
-#[no_mangle]
-pub extern "C" fn approve() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
-    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
-    let allowances_uref = get_allowances_uref();
-    let dictionary_item_key = make_dictionary_item_key(owner, spender);
-    storage::dictionary_put(allowances_uref, &dictionary_item_key, amount);
-    events::record_event_dictionary(events::Event::SetAllowance {
-        owner,
-        spender,
-        amount,
-    })
-}
-
-#[no_mangle]
-pub extern "C" fn decrease_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
-    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
-    let allowances_uref = get_allowances_uref();
-    let dictionary_item_key = make_dictionary_item_key(owner, spender);
-    storage::dictionary_put(allowances_uref, &dictionary_item_key, amount);
-    events::record_event_dictionary(events::Event::DecreaseAllowance {
-        owner,
-        spender,
-        amount,
-    })
-}
-
-#[no_mangle]
-pub extern "C" fn increase_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
-    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
-    let allowances_uref = get_allowances_uref();
-    let dictionary_item_key = make_dictionary_item_key(owner, spender);
-    storage::dictionary_put(allowances_uref, &dictionary_item_key, amount);
-    events::record_event_dictionary(events::Event::IncreaseAllowance {
-        owner,
-        spender,
-        amount,
-    })
-}
-
-#[no_mangle]
-pub extern "C" fn allowance() {
-    let owner: Key = runtime::get_named_arg(OWNER);
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let allowances_uref = get_allowances_uref();
-    let val: U256 = read_allowance_from(allowances_uref, owner, spender);
-    runtime::ret(CLValue::from_t(val).unwrap_or_revert());
 }
 
 #[no_mangle]
@@ -154,7 +156,13 @@ pub extern "C" fn transfer_from() {
         .unwrap_or_revert();
 
     transfer_balance(owner, recipient, amount).unwrap_or_revert();
-    write_allowance_to(owner, spender, new_spender_allowance);
+    write_allowance_to(allowances_uref, owner, spender, new_spender_allowance);
+    events::record_event_dictionary(events::Event::TransferFrom {
+        spender,
+        owner,
+        recipient,
+        amount,
+    })
 }
 
 #[no_mangle]
@@ -216,6 +224,7 @@ pub extern "C" fn init() {
     let package_hash = get_named_arg::<Key>(PACKAGE_HASH);
     put_key(PACKAGE_HASH, package_hash);
     storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
+    storage::new_dictionary(EVENTS).unwrap_or_revert();
     let balances_uref = storage::new_dictionary(BALANCES).unwrap_or_revert();
     let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY);
     let caller = get_caller();
@@ -242,7 +251,7 @@ pub fn install_contract() {
 
     let entry_points = generate_entry_points();
 
-    let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}_{name}");
+    let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}{name}");
 
     let (contract_hash, contract_version) = storage::new_contract(
         entry_points,

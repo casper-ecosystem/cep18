@@ -9,7 +9,8 @@ use casper_types::{
 use crate::constants::{
     ADDRESS, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT, APPROVE_ENTRY_POINT_NAME,
     BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
-    ENTRY_POINT_INIT, MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
+    DECREASE_ALLOWANCE_ENTRY_POINT_NAME, ENTRY_POINT_INIT, INCREASE_ALLOWANCE_ENTRY_POINT_NAME,
+    MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
     SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME,
     TRANSFER_FROM_ENTRY_POINT_NAME,
 };
@@ -73,6 +74,32 @@ pub fn approve() -> EntryPoint {
             Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+pub fn increase_allowance() -> EntryPoint {
+    EntryPoint::new(
+        String::from(INCREASE_ALLOWANCE_ENTRY_POINT_NAME),
+        vec![
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(SPENDER, Key::cl_type()),
+        ],
+        U256::cl_type(),
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+pub fn decrease_allowance() -> EntryPoint {
+    EntryPoint::new(
+        String::from(DECREASE_ALLOWANCE_ENTRY_POINT_NAME),
+        vec![
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(SPENDER, Key::cl_type()),
+        ],
+        U256::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -155,7 +182,7 @@ pub fn init() -> EntryPoint {
     )
 }
 
-/// Returns the default set of ERC20 token entry points.
+/// Returns the default set of CEP18 token entry points.
 pub fn generate_entry_points() -> EntryPoints {
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(init());
@@ -167,6 +194,8 @@ pub fn generate_entry_points() -> EntryPoints {
     entry_points.add_entry_point(transfer());
     entry_points.add_entry_point(approve());
     entry_points.add_entry_point(allowance());
+    entry_points.add_entry_point(decrease_allowance());
+    entry_points.add_entry_point(increase_allowance());
     entry_points.add_entry_point(transfer_from());
     entry_points.add_entry_point(burn());
     entry_points.add_entry_point(mint());

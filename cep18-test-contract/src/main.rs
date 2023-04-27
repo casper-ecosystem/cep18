@@ -29,7 +29,7 @@ const ADDRESS_RUNTIME_ARG_NAME: &str = "address";
 const OWNER_RUNTIME_ARG_NAME: &str = "owner";
 const SPENDER_RUNTIME_ARG_NAME: &str = "spender";
 const RESULT_KEY: &str = "result";
-const ERC20_TEST_CALL_KEY: &str = "cep18_test_contract";
+const CEP18_TEST_CALL_KEY: &str = "cep18_test_contract";
 
 const ALLOWANCE_ENTRY_POINT_NAME: &str = "allowance";
 const RECIPIENT_RUNTIME_ARG_NAME: &str = "recipient";
@@ -222,7 +222,7 @@ pub extern "C" fn call() {
     let (_contract_hash, _version) = storage::new_contract(
         entry_points,
         None,
-        Some(ERC20_TEST_CALL_KEY.to_string()),
+        Some(CEP18_TEST_CALL_KEY.to_string()),
         None,
     );
 }

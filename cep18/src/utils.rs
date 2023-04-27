@@ -42,7 +42,7 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Key {
         CallStackElement::Session { account_hash } => Key::from(account_hash),
         CallStackElement::StoredSession { account_hash, .. } => {
             // Stored session code acts in account's context, so if stored session wants to interact
-            // with an ERC20 token caller's address will be used.
+            // with an CEP18 token caller's address will be used.
             Key::from(account_hash)
         }
         CallStackElement::StoredContract {

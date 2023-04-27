@@ -24,7 +24,7 @@ make build-contracts
 The Wasm for your new project can be found in the following local directory:
 
 ```
-casper/erc20/target/wasm32-unknown-unknown/release/erc20_token.wasm
+casper/cep18/target/wasm32-unknown-unknown/release/cep18_token.wasm
 ```
 
 ## Test
@@ -35,7 +35,7 @@ make test
 
 ## JavaScript Client SDK
 
-A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the fungible token contract. 
+A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/cep18-client) can be used to interact with the fungible token contract. 
 
 
 ## Documentation

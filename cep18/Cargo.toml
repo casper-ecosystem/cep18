@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2018"
 description = "A library for developing CEP18 tokens for the Casper network."
 readme = "README.md"
-documentation = "https://docs.rs/casper-erc20"
+documentation = "https://docs.rs/casper-cep18"
 homepage = "https://casperlabs.io"
-repository = "https://github.com/casper-ecosystem/erc20"
+repository = "https://github.com/casper-ecosystem/cep18"
 license-file = "../LICENSE"
 
 [[bin]]

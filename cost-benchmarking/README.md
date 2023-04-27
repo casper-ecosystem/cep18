@@ -1,7 +1,7 @@
 NCTL cost benchmarking scripts
 ======================
 
-These scripts deploy and operate the basic ERC20 contract to record gas costs of basic operations. Output is written to `erc20-cost-benchmarking-output` in the repo root directory.
+These scripts deploy and operate the basic CEP18 contract to record gas costs of basic operations. Output is written to `cep18-cost-benchmarking-output` in the repo root directory.
 
 Assumptions
 -----------

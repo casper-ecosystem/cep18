@@ -17,13 +17,13 @@ We'll be starting in the home (`~`) directory for this tutorial. Navigate here f
 
 `cd ~`
 
-Now clone the prewritten [JavaScript deployer project](https://github.com/casper-ecosystem/casper-erc20-js-interface), so you don't have to reinvent the wheel. This project includes a precompiled Casper fungible token contract with only basic functionality. If you'd like to write your own fungible token contract with custom logic, please follow the instructions [here](https://docs.casperlabs.io/writing-contracts). Execute this command in your home directory:
+Now clone the prewritten [JavaScript deployer project](https://github.com/casper-ecosystem/casper-cep18-js-interface), so you don't have to reinvent the wheel. This project includes a precompiled Casper fungible token contract with only basic functionality. If you'd like to write your own fungible token contract with custom logic, please follow the instructions [here](https://docs.casperlabs.io/writing-contracts). Execute this command in your home directory:
 
-`git clone https://github.com/casper-ecosystem/casper-erc20-js-interface.git`
+`git clone https://github.com/casper-ecosystem/casper-cep18-js-interface.git`
 
 Change your working directory to the project directory:
 
-`cd casper-erc20-js-interface`
+`cd casper-cep18-js-interface`
 
 Install the required dependencies:
 
@@ -41,7 +41,7 @@ const SYMBOL = "TST";
 const PRECISION = 8;
 const TOTAL_SUPPLY = 1_000_000_000;
 const GAS_LIMIT = 60_000_000_000; //motes
-const WASM_PATH = "./erc20_token.wasm";
+const WASM_PATH = "./cep18_token.wasm";
 const NODE_ADDRESS = "http://162.55.132.188:7777/rpc";
 const NETWORK_NAME = "casper-test";
 ```
@@ -69,7 +69,7 @@ const KEYS = Keys.Ed25519.loadKeyPairFromPrivateFile(
 
 To install the contract, execute the following command:
 
-`npm run erc20iface deploy`
+`npm run cep18iface deploy`
 
 You'll know your deployment succeeded when the name of the contract is printed out in the console.
 
@@ -81,15 +81,15 @@ Your Casper fungible token contract is now successfully installed. Next, we'll g
 
 An error message will be provided if a deploy fails. Deployments may fail for a number of reasons, including out-of-gas errors, and internet connectivity issues.
 
-*For help, run `npm run erc20iface help`*
+*For help, run `npm run cep18iface help`*
 
 ## Transfer Tokens
 
-You can send ERC-20 compliant tokens on the Casper Network as per the ERC specification. We'll use the same  `erc20iface` script to execute the transfer deployments.
+You can send ERC-20 compliant tokens on the Casper Network as per the ERC specification. We'll use the same  `cep18iface` script to execute the transfer deployments.
 
 You will need an amount and a destination to execute a transfer. The amount corresponds to the number of tokens you want to transfer, and the destination is the hexadecimal public key of the receiving account. Your command should look like this:
 
-`npm run erc20iface transfer 200 0166795bb8895dcec5631690fa3d5dd3daacde7efeefb1e79176e9d879fd669b47`
+`npm run cep18iface transfer 200 0166795bb8895dcec5631690fa3d5dd3daacde7efeefb1e79176e9d879fd669b47`
 
 To send tokens from the address you just funded, just change the `KEYS` constant to use the path of that account's public and secret keys (in this case account `0166795bb8895dcec5631690fa3d5dd3daacde7efeefb1e79176e9d879fd669b47`).
 

@@ -1,3 +1,3 @@
-# casper-erc20
+# casper-cep18
 
-A library for developing ERC20 tokens for the Casper network.
+A library for developing CEP18 tokens for the Casper network.

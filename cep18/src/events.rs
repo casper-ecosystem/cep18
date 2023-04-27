@@ -32,20 +32,28 @@ pub enum Event {
     SetAllowance {
         owner: Key,
         spender: Key,
-        amount: U256,
+        allowance: U256,
     },
     IncreaseAllowance {
         owner: Key,
         spender: Key,
-        amount: U256,
+        allowance: U256,
+        inc_by: U256,
     },
     DecreaseAllowance {
         owner: Key,
         spender: Key,
-        amount: U256,
+        allowance: U256,
+        decr_by: U256,
     },
     Transfer {
         sender: Key,
+        recipient: Key,
+        amount: U256,
+    },
+    TransferFrom {
+        spender: Key,
+        owner: Key,
         recipient: Key,
         amount: U256,
     },
@@ -54,78 +62,91 @@ pub enum Event {
 pub fn record_event_dictionary(event: Event) {
     let package = get_package_hash().to_string();
     let event: BTreeMap<&str, String> = match event {
-        Event::Mint {
-            recipient,
-            amount: token_amount,
-        } => {
+        Event::Mint { recipient, amount } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, MINT_ENTRY_POINT_NAME.to_string());
             event.insert(RECIPIENT, recipient.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert(TOKEN_AMOUNT, amount.to_string());
             event
         }
-        Event::Burn {
-            owner,
-            amount: token_amount,
-        } => {
+        Event::Burn { owner, amount } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, BURN_ENTRY_POINT_NAME.to_string());
             event.insert(OWNER, owner.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert(TOKEN_AMOUNT, amount.to_string());
             event
         }
         Event::SetAllowance {
             owner,
             spender,
-            amount: token_amount,
+            allowance,
         } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, "SetAllowance".to_string());
             event.insert(OWNER, owner.to_string());
             event.insert(SPENDER, spender.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert(TOKEN_AMOUNT, allowance.to_string());
             event
         }
         Event::IncreaseAllowance {
             owner,
             spender,
-            amount: token_amount,
+            inc_by,
+            allowance,
         } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, "IncreaseAllowance".to_string());
             event.insert(OWNER, owner.to_string());
             event.insert(SPENDER, spender.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert("inc_by", inc_by.to_string());
+            event.insert(TOKEN_AMOUNT, allowance.to_string());
             event
         }
         Event::DecreaseAllowance {
             owner,
             spender,
-            amount: token_amount,
+            allowance,
+            decr_by,
         } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, "DecreaseAllowance".to_string());
             event.insert(OWNER, owner.to_string());
             event.insert(SPENDER, spender.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert("decr_by", decr_by.to_string());
+            event.insert(TOKEN_AMOUNT, allowance.to_string());
             event
         }
         Event::Transfer {
             sender,
             recipient,
-            amount: token_amount,
+            amount,
         } => {
             let mut event = BTreeMap::new();
             event.insert(PREFIX_HASH_KEY_NAME, package);
             event.insert(EVENT_TYPE, "Transfer".to_string());
             event.insert(OWNER, sender.to_string());
             event.insert(RECIPIENT, recipient.to_string());
-            event.insert(TOKEN_AMOUNT, token_amount.to_string());
+            event.insert(TOKEN_AMOUNT, amount.to_string());
+            event
+        }
+        Event::TransferFrom {
+            spender,
+            owner,
+            recipient,
+            amount,
+        } => {
+            let mut event = BTreeMap::new();
+            event.insert(PREFIX_HASH_KEY_NAME, package);
+            event.insert(EVENT_TYPE, "TransferFrom".to_string());
+            event.insert(OWNER, owner.to_string());
+            event.insert(SPENDER, spender.to_string());
+            event.insert(RECIPIENT, recipient.to_string());
+            event.insert(TOKEN_AMOUNT, amount.to_string());
             event
         }
     };
