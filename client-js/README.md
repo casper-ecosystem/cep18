@@ -21,7 +21,7 @@ npm i casper-erc20-js-client
   );
   ```
 
-- Install the contract:
+- Create a deploy to install the contract:
 
   ```ts
   import { ContractWASM, ERC20Client } from 'casper-erc20-js-client';
@@ -64,7 +64,7 @@ npm i casper-erc20-js-client
 
 - **Transfers**
 
-  - Transfer some tokens from the direct caller to a recipient:
+  - Create a deploy to transfer some tokens from the direct caller to a recipient:
 
     ```ts
     const deploy = erc20.transfer(
@@ -76,7 +76,7 @@ npm i casper-erc20-js-client
     );
     ```
 
-  - Transfer from an account owner to a recipient given that the direct caller has been previously approved to spend the specified amount on behalf of the owner:
+  - Create a deploy to transfer from an account owner to a recipient given that the direct caller has been previously approved to spend the specified amount on behalf of the owner:
 
     ```ts
     const deploy = erc20.transferFrom(
@@ -102,7 +102,7 @@ npm i casper-erc20-js-client
 
 - **Approvals**
 
-  Allow a spender to transfer up to a number of the direct caller’s tokens:
+  Create a deploy to allow a spender to transfer up to a number of the direct caller’s tokens:
 
   ```ts
   const deploy = erc20.approve(
