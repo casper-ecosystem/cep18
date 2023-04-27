@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { type CLPublicKey, DeployUtil } from 'casper-js-sdk';
 
-import ERC20Client from '../../src/ERC20Client';
+import CEP18Client from '../../src/CEP18Client';
 import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
 import APPROVE_ARGS_JSON from './json/approve-args.json';
@@ -14,15 +14,15 @@ import INSTALL_ARGS_JSON from './json/install-args.json';
 import TRANSFER_ARGS_JSON from './json/transfer-args.json';
 import TRANSFER_FROM_ARGS_JSON from './json/transfer-from-args.json';
 
-describe('ERC20Client', () => {
-  const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
+describe('CEP18Client', () => {
+  const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
 
   const owner = users[0];
   const ali = users[1];
   const bob = users[2];
 
   const tokenInfo: InstallArgs = {
-    name: 'TEST ERC20',
+    name: 'TEST CEP18',
     symbol: 'TFT',
     decimals: 9,
     totalSupply: 50_000_000_000
@@ -31,7 +31,7 @@ describe('ERC20Client', () => {
   let spies: jest.SpyInstance[] = [];
 
   const doApprove = (spender: CLPublicKey, amount: BigNumberish) => {
-    const deploy = erc20.approve(
+    const deploy = cep18.approve(
       {
         spender,
         amount
@@ -57,13 +57,13 @@ describe('ERC20Client', () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          '../../../target/wasm32-unknown-unknown/release/erc20_token.wasm'
+          '../../../target/wasm32-unknown-unknown/release/cep18_token.wasm'
         ),
         null
       ).buffer
     );
 
-    const deploy = erc20.install(
+    const deploy = cep18.install(
       wasm,
       tokenInfo,
       60_000_000_000,
@@ -72,7 +72,7 @@ describe('ERC20Client', () => {
       [owner]
     );
     const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
-    erc20.setContractHash(
+    cep18.setContractHash(
       'hash-6797fc45c106bd1f4c9f00cb416d63fd71fecfb90ba8f9c24e597b678569d095'
     );
 
@@ -88,7 +88,7 @@ describe('ERC20Client', () => {
 
     spies = Object.keys(mockedFns).map(m => {
       const method = m as keyof typeof mockedFns;
-      return jest.spyOn(erc20, method).mockImplementation(mockedFns[method]);
+      return jest.spyOn(cep18, method).mockImplementation(mockedFns[method]);
     });
 
     expect(deploy).toBeInstanceOf(DeployUtil.Deploy);
@@ -102,10 +102,10 @@ describe('ERC20Client', () => {
   });
 
   it('should match on-chain info with install info', async () => {
-    const name = await erc20.name();
-    const symbol = await erc20.symbol();
-    const decimals = await erc20.decimals();
-    const totalSupply = await erc20.totalSupply();
+    const name = await cep18.name();
+    const symbol = await cep18.symbol();
+    const decimals = await cep18.decimals();
+    const totalSupply = await cep18.totalSupply();
 
     expect(name).toBe(tokenInfo.name);
     expect(symbol).toBe(tokenInfo.symbol);
@@ -121,7 +121,7 @@ describe('ERC20Client', () => {
   it('should construct transfer_from args properly', () => {
     const transferAmount = 20_000_000_000;
 
-    const deploy = erc20.transferFrom(
+    const deploy = cep18.transferFrom(
       {
         owner: owner.publicKey,
         recipient: bob.publicKey,
@@ -146,7 +146,7 @@ describe('ERC20Client', () => {
   it('should construct transfer args properly', () => {
     const amount = 50_000_000_000;
 
-    const deploy = erc20.transfer(
+    const deploy = cep18.transfer(
       { recipient: ali.publicKey, amount },
       5_000_000_000,
       owner.publicKey,

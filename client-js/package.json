@@ -1,7 +1,7 @@
 {
-  "name": "casper-erc20-js-client",
+  "name": "casper-cep18-js-client",
   "version": "1.0.0",
-  "description": "Casper ERC20(CEP18) JavaScript Client",
+  "description": "Casper CEP18(CEP18) JavaScript Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,19 +17,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/casper-ecosystem/erc20.git"
+    "url": "git+https://github.com/casper-ecosystem/cep18.git"
   },
   "keywords": [
     "casper",
-    "erc20",
+    "cep18",
     "fungible token"
   ],
   "author": "Ryo Kanazawa <ryo@casperlabs.io>",
   "license": "Apache License 2.0",
   "bugs": {
-    "url": "https://github.com/casper-ecosystem/erc20/issues"
+    "url": "https://github.com/casper-ecosystem/cep18/issues"
   },
-  "homepage": "https://github.com/casper-ecosystem/erc20#readme",
+  "homepage": "https://github.com/casper-ecosystem/cep18#readme",
   "files": [
     "/dist"
   ],

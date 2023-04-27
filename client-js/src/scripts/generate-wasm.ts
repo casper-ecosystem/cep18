@@ -5,7 +5,7 @@ import * as path from 'node:path';
 const wasm = fs.readFileSync(
   path.resolve(
     __dirname,
-    '../../../target/wasm32-unknown-unknown/release/erc20_token.wasm'
+    '../../../target/wasm32-unknown-unknown/release/cep18_token.wasm'
   ),
   null
 );
