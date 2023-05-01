@@ -6,7 +6,6 @@ pub const CEP18_TEST_CONTARCT_WASM: &str = "cep18_test_contract.wasm";
 pub const NAME_KEY: &str = "name";
 pub const SYMBOL_KEY: &str = "symbol";
 pub const CEP18_TOKEN_CONTRACT_KEY: &str = "cep18_contract_hash_CasperTest";
-pub const CEP18_TOKEN_CONTRACT_PACKAGE_KEY: &str = "cep18_contract_package_CasperTest";
 pub const DECIMALS_KEY: &str = "decimals";
 pub const TOTAL_SUPPLY_KEY: &str = "total_supply";
 pub const BALANCES_KEY: &str = "balances";
@@ -77,5 +76,3 @@ pub const METHOD_MINT: &str = "mint";
 pub const METHOD_BURN: &str = "burn";
 pub const DECREASE_ALLOWANCE: &str = "decrease_allowance";
 pub const INCREASE_ALLOWANCE: &str = "increase_allowance";
-
-pub const EVENTS_MODE: &str = "events_mode";

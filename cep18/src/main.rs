@@ -38,7 +38,6 @@ use constants::{
 pub use error::Cep18Error;
 use events::{
     Burn, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance, Transfer, TransferFrom,
-    EVENTS,
 };
 use utils::{get_total_supply_uref, read_total_supply_from, write_total_supply_to};
 
@@ -228,7 +227,6 @@ pub extern "C" fn init() {
     let package_hash = get_named_arg::<Key>(PACKAGE_HASH);
     put_key(PACKAGE_HASH, package_hash);
     storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
-    storage::new_dictionary(EVENTS).unwrap_or_revert();
     let balances_uref = storage::new_dictionary(BALANCES).unwrap_or_revert();
     let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY);
     let caller = get_caller();

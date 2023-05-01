@@ -11,13 +11,10 @@ use casper_types::{
     api_error,
     bytesrepr::{self, FromBytes},
     system::CallStackElement,
-    ApiError, CLTyped, ContractPackageHash, Key, URef, U256,
+    ApiError, CLTyped, Key, URef, U256,
 };
 
-use crate::{
-    constants::{PACKAGE_HASH, TOTAL_SUPPLY},
-    error::Cep18Error,
-};
+use crate::{constants::TOTAL_SUPPLY, error::Cep18Error};
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -81,14 +78,6 @@ pub(crate) fn read_total_supply_from(uref: URef) -> U256 {
 /// Writes a total supply to a specific [`URef`].
 pub(crate) fn write_total_supply_to(uref: URef, value: U256) {
     storage::write(uref, value);
-}
-
-pub fn get_package_hash() -> ContractPackageHash {
-    runtime::get_key(PACKAGE_HASH)
-        .unwrap_or_revert_with(Cep18Error::PackageHashMissing)
-        .into_hash()
-        .map(ContractPackageHash::new)
-        .unwrap_or_revert_with(Cep18Error::PackageHashNotPackage)
 }
 
 pub fn get_named_arg_size(name: &str) -> Option<usize> {

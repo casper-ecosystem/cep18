@@ -1,6 +1,6 @@
 # `casper-cep18-js-client`
 
-This JavaScript client gives you an easy way to install and interact with the Casper ERC-20 contract.
+This JavaScript client gives you an easy way to install and interact with the Casper CEP-18 contract.
 
 ## Installation
 
@@ -12,7 +12,7 @@ npm i casper-cep18-js-client
 
 ## Usage example
 
-- Create an instance of the ERC-20 client:
+- Create an instance of the CEP-18 client:
 
   ```ts
   const cep18 = new CEP18Client(

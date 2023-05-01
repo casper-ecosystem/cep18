@@ -1,10 +1,8 @@
 use casper_engine_test_support::{
-    ExecuteRequestBuilder, InMemoryWasmTestBuilder, WasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
+    ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
     MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
 };
-use casper_execution_engine::{
-    core::engine_state::ExecuteRequest, storage::global_state::in_memory::InMemoryGlobalState,
-};
+use casper_execution_engine::core::engine_state::ExecuteRequest;
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped, ContractHash,
     ContractPackageHash, Key, RuntimeArgs, U256,
@@ -408,31 +406,4 @@ pub(crate) fn test_approve_for(
 
     let total_supply: U256 = builder.get_value(*cep18_token, TOTAL_SUPPLY_KEY);
     assert_eq!(total_supply, initial_supply);
-}
-
-pub(crate) fn get_dictionary_value_from_key<T: CLTyped + FromBytes>(
-    builder: &WasmTestBuilder<InMemoryGlobalState>,
-    contract_key: &Key,
-    dictionary_name: &str,
-    dictionary_key: &str,
-) -> T {
-    let seed_uref = *builder
-        .query(None, *contract_key, &[])
-        .expect("must have nft contract")
-        .as_contract()
-        .expect("must convert contract")
-        .named_keys()
-        .get(dictionary_name)
-        .expect("must have key")
-        .as_uref()
-        .expect("must convert to seed uref");
-
-    builder
-        .query_dictionary_item(None, seed_uref, dictionary_key)
-        .expect("should have dictionary value")
-        .as_cl_value()
-        .expect("T should be CLValue")
-        .to_owned()
-        .into_t()
-        .unwrap()
 }

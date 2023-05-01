@@ -1,10 +1,10 @@
 # Casper Fungible Token Tutorial
 
-This tutorial introduces an implementation of the ERC-20 standard for the Casper blockchain, known as the Casper Fungible Token. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/cep18).
+This tutorial introduces an implementation of the CEP-18 standard for the Casper blockchain, known as the Casper Fungible Token. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/cep18).
 
-The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-20 tokens are blockchain-based assets that have value and can be transferred or recorded.
+The [Ethereum Request for Comment (CEP-18)](https://eips.ethereum.org/EIPS/eip-20#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These CEP-18 tokens are blockchain-based assets that have value and can be transferred or recorded.
 
-The Casper Fungible Token standard is the Casper Platform's ERC-20 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
+The Casper Fungible Token standard is the Casper Platform's CEP-18 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
 The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-cep18-crate/latest/casper_cep18_crate/) library.
 

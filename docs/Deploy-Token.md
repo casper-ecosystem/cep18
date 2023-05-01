@@ -1,6 +1,6 @@
-# Deploying an ERC-20 Compliant Token on Casper
+# Deploying an CEP-18 Compliant Token on Casper
 
-On the Casper Network, it is possible to create smart contracts that emulate ERC-20 tokens on Ethereum. These tokens have all of the capabilities of traditional ERC-20 tokens, allowing one to approve, transfer, inquire the balance of, etc. By following this guide, you'll be able to create your own ERC-20 token and deploy it to the Casper Network.
+On the Casper Network, it is possible to create smart contracts that emulate CEP-18 tokens on Ethereum. These tokens have all of the capabilities of traditional CEP-18 tokens, allowing one to approve, transfer, inquire the balance of, etc. By following this guide, you'll be able to create your own CEP-18 token and deploy it to the Casper Network.
 
 ## Prerequisites
 
@@ -85,7 +85,7 @@ An error message will be provided if a deploy fails. Deployments may fail for a 
 
 ## Transfer Tokens
 
-You can send ERC-20 compliant tokens on the Casper Network as per the ERC specification. We'll use the same  `cep18iface` script to execute the transfer deployments.
+You can send CEP-18 compliant tokens on the Casper Network as per the ERC specification. We'll use the same  `cep18iface` script to execute the transfer deployments.
 
 You will need an amount and a destination to execute a transfer. The amount corresponds to the number of tokens you want to transfer, and the destination is the hexadecimal public key of the receiving account. Your command should look like this:
 
