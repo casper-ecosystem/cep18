@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
 use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 
@@ -10,7 +8,7 @@ use crate::utility::{
         TOKEN_TOTAL_SUPPLY,
     },
     installer_request_builders::{
-        cep18_check_balance_of, cep18_check_total_supply, get_dictionary_value_from_key, setup,
+        cep18_check_balance_of, cep18_check_total_supply, setup,
         TestContext,
     },
 };
@@ -27,7 +25,6 @@ fn test_mint_and_burn_tokens() {
         mut builder,
         TestContext {
             cep18_token,
-            cep18_token_package,
             ..
         },
     ) = setup();
@@ -122,49 +119,6 @@ fn test_mint_and_burn_tokens() {
     );
 
     assert_eq!(total_supply_after_burn, total_supply_before_mint);
-
-    // test mint event
-    let mint_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(
-        &builder,
-        &cep18_token.into(),
-        "events",
-        "2",
-    );
-
-    let mut expected_mint_event: BTreeMap<String, String> = BTreeMap::new();
-
-    expected_mint_event.insert("event_type".to_string(), "mint".to_string());
-    expected_mint_event.insert("cep18_package".to_string(), cep18_token_package.to_string());
-    expected_mint_event.insert(
-        "recipient".to_string(),
-        "Key::Account(2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a)"
-            .to_string(),
-    );
-
-    expected_mint_event.insert("token_amount".to_string(), "1".to_string());
-
-    assert_eq!(mint_event, expected_mint_event);
-
-    // test burn event
-    let burn_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(
-        &builder,
-        &cep18_token.into(),
-        "events",
-        "3",
-    );
-
-    let mut expected_burn_event: BTreeMap<String, String> = BTreeMap::new();
-
-    expected_burn_event.insert("event_type".to_string(), "burn".to_string());
-    expected_burn_event.insert("cep18_package".to_string(), cep18_token_package.to_string());
-    expected_burn_event.insert(
-        "owner".to_string(),
-        "Key::Account(2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a)"
-            .to_string(),
-    );
-
-    expected_burn_event.insert("token_amount".to_string(), "1".to_string());
-    assert_eq!(burn_event, expected_burn_event);
 }
 
 #[test]

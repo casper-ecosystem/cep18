@@ -10,3 +10,5 @@ mod minting;
 mod transfer;
 #[cfg(test)]
 mod utility;
+#[cfg(test)]
+mod events;

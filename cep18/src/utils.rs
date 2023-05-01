@@ -1,13 +1,14 @@
 //! Implementation details.
 use core::convert::TryInto;
 
+use alloc::vec::Vec;
 use casper_contract::{
-    contract_api::{runtime, storage},
-    unwrap_or_revert::UnwrapOrRevert,
+    contract_api::{runtime, storage, self},
+    unwrap_or_revert::UnwrapOrRevert, ext_ffi,
 };
 use casper_types::{
-    bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, ContractPackageHash, Key,
-    URef, U256,
+    bytesrepr::{FromBytes, self}, system::CallStackElement, ApiError, CLTyped, ContractPackageHash, Key,
+    URef, U256, api_error,
 };
 
 use crate::{
@@ -85,4 +86,61 @@ pub fn get_package_hash() -> ContractPackageHash {
         .into_hash()
         .map(ContractPackageHash::new)
         .unwrap_or_revert_with(Cep18Error::PackageHashNotPackage)
+}
+
+pub fn get_named_arg_size(name: &str) -> Option<usize> {
+    let mut arg_size: usize = 0;
+    let ret = unsafe {
+        ext_ffi::casper_get_named_arg_size(
+            name.as_bytes().as_ptr(),
+            name.len(),
+            &mut arg_size as *mut usize,
+        )
+    };
+    match api_error::result_from(ret) {
+        Ok(_) => Some(arg_size),
+        Err(ApiError::MissingArgument) => None,
+        Err(e) => runtime::revert(e),
+    }
+}
+
+pub fn get_optional_named_arg_with_user_errors<T: FromBytes>(
+    name: &str,
+    invalid: Cep18Error,
+) -> Option<T> {
+    match get_named_arg_with_user_errors::<T>(name, Cep18Error::Phantom, invalid) {
+        Ok(val) => Some(val),
+        Err(_) => None,
+    }
+}
+
+pub fn get_named_arg_with_user_errors<T: FromBytes>(
+    name: &str,
+    missing: Cep18Error,
+    invalid: Cep18Error,
+) -> Result<T, Cep18Error> {
+    let arg_size = get_named_arg_size(name).ok_or(missing)?;
+    let arg_bytes = if arg_size > 0 {
+        let res = {
+            let data_non_null_ptr = contract_api::alloc_bytes(arg_size);
+            let ret = unsafe {
+                ext_ffi::casper_get_named_arg(
+                    name.as_bytes().as_ptr(),
+                    name.len(),
+                    data_non_null_ptr.as_ptr(),
+                    arg_size,
+                )
+            };
+            let data =
+                unsafe { Vec::from_raw_parts(data_non_null_ptr.as_ptr(), arg_size, arg_size) };
+            api_error::result_from(ret).map(|_| data)
+        };
+        // Assumed to be safe as `get_named_arg_size` checks the argument already
+        res.unwrap_or_revert_with(Cep18Error::FailedToGetArgBytes)
+    } else {
+        // Avoids allocation with 0 bytes and a call to get_named_arg
+        Vec::new()
+    };
+
+    bytesrepr::deserialize(arg_bytes).map_err(|_| invalid)
 }

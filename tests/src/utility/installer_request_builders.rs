@@ -18,7 +18,7 @@ use super::constants::{
     ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
     ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY,
     CEP18_CONTRACT_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_CONTRACT_KEY,
-    CEP18_TOKEN_CONTRACT_KEY, CEP18_TOKEN_CONTRACT_PACKAGE_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT,
+    CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT,
     CHECK_BALANCE_OF_ENTRYPOINT, CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE,
     METHOD_APPROVE_AS_STORED_CONTRACT, METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT,
     RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
@@ -39,7 +39,6 @@ pub(crate) fn invert_cep18_address(address: Key) -> Key {
 #[derive(Copy, Clone)]
 pub(crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
-    pub(crate) cep18_token_package: ContractPackageHash,
     pub(crate) cep18_test_contract: ContractPackageHash,
 }
 
@@ -106,16 +105,8 @@ pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .map(ContractPackageHash::new)
         .expect("should have contract package hash");
 
-    let cep18_token_package = account
-        .named_keys()
-        .get(CEP18_TOKEN_CONTRACT_PACKAGE_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have contract package hash");
-
     let test_context = TestContext {
         cep18_token,
-        cep18_token_package,
         cep18_test_contract,
     };
 

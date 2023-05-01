@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
 use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 
@@ -10,7 +8,7 @@ use crate::utility::{
         INCREASE_ALLOWANCE, METHOD_APPROVE, METHOD_TRANSFER_FROM,
     },
     installer_request_builders::{
-        cep18_check_allowance_of, get_dictionary_value_from_key, make_cep18_approve_request, setup,
+        cep18_check_allowance_of, make_cep18_approve_request, setup,
         test_approve_for, TestContext,
     },
 };
@@ -141,7 +139,6 @@ fn test_decrease_allowance() {
         mut builder,
         TestContext {
             cep18_token,
-            cep18_token_package,
             ..
         },
     ) = setup();
@@ -206,94 +203,4 @@ fn test_decrease_allowance() {
         account_1_allowance_after_increase,
         (allowance_amount_1 * 2) - allowance_amount_2
     );
-
-    // approve event
-
-    let approve_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(
-        &builder,
-        &cep18_token.into(),
-        "events",
-        "0",
-    );
-
-    let mut expected_approve_event: BTreeMap<String, String> = BTreeMap::new();
-
-    expected_approve_event.insert("event_type".to_string(), "SetAllowance".to_string());
-    expected_approve_event.insert("cep18_package".to_string(), cep18_token_package.to_string());
-    expected_approve_event.insert(
-        "owner".to_string(),
-        "Key::Account(58b891759929bd4ed5a9cce20b9d6e3c96a66c21386bed96040e17dd07b79fa7)"
-            .to_string(),
-    );
-    expected_approve_event.insert(
-        "spender".to_string(),
-        "Key::Hash(2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a)".to_string(),
-    );
-    expected_approve_event.insert("token_amount".to_string(), allowance_amount_1.to_string());
-
-    assert_eq!(approve_event, expected_approve_event);
-
-    // decrease allowance event
-    let decrease_allowance_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(
-        &builder,
-        &cep18_token.into(),
-        "events",
-        "1",
-    );
-
-    let mut expected_decrease_allowance_event: BTreeMap<String, String> = BTreeMap::new();
-
-    expected_decrease_allowance_event
-        .insert("event_type".to_string(), "DecreaseAllowance".to_string());
-    expected_decrease_allowance_event
-        .insert("cep18_package".to_string(), cep18_token_package.to_string());
-    expected_decrease_allowance_event.insert(
-        "owner".to_string(),
-        "Key::Account(58b891759929bd4ed5a9cce20b9d6e3c96a66c21386bed96040e17dd07b79fa7)"
-            .to_string(),
-    );
-    expected_decrease_allowance_event.insert(
-        "spender".to_string(),
-        "Key::Hash(2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a)".to_string(),
-    );
-    expected_decrease_allowance_event.insert(
-        "token_amount".to_string(),
-        (allowance_amount_1 - allowance_amount_2).to_string(),
-    );
-    expected_decrease_allowance_event.insert("decr_by".to_string(), allowance_amount_2.to_string());
-
-    assert_eq!(decrease_allowance_event, expected_decrease_allowance_event);
-
-    // increase allowance event
-
-    let increase_allowance_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(
-        &builder,
-        &cep18_token.into(),
-        "events",
-        "2",
-    );
-
-    let mut expected_increase_allowance_event: BTreeMap<String, String> = BTreeMap::new();
-
-    expected_increase_allowance_event
-        .insert("event_type".to_string(), "IncreaseAllowance".to_string());
-    expected_increase_allowance_event
-        .insert("cep18_package".to_string(), cep18_token_package.to_string());
-    expected_increase_allowance_event.insert(
-        "owner".to_string(),
-        "Key::Account(58b891759929bd4ed5a9cce20b9d6e3c96a66c21386bed96040e17dd07b79fa7)"
-            .to_string(),
-    );
-    expected_increase_allowance_event.insert(
-        "spender".to_string(),
-        "Key::Hash(2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a)".to_string(),
-    );
-    expected_increase_allowance_event.insert(
-        "token_amount".to_string(),
-        ((allowance_amount_1.saturating_mul(U256::from(2))).saturating_sub(allowance_amount_2))
-            .to_string(),
-    );
-    expected_increase_allowance_event.insert("inc_by".to_string(), allowance_amount_1.to_string());
-
-    assert_eq!(increase_allowance_event, expected_increase_allowance_event);
 }

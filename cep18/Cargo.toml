@@ -22,3 +22,4 @@ casper-contract = "1.4.4"
 casper-types = "1.6.0"
 hex = { version = "0.4.3", default-features = false }
 once_cell = { version = "1.16.0", default-features = false }
+casper-event-standard = { version = "0.2.0", default-features = false }

@@ -10,6 +10,7 @@ pub mod entry_points;
 mod error;
 mod events;
 mod utils;
+mod modalities;
 
 use alloc::{
     format,
@@ -32,10 +33,10 @@ use casper_types::{contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs
 use constants::{
     ACCESS_KEY_NAME_PREFIX, ADDRESS, ALLOWANCES, AMOUNT, BALANCES, CONTRACT_NAME_PREFIX,
     CONTRACT_VERSION_PREFIX, DECIMALS, ENTRY_POINT_INIT, HASH_KEY_NAME_PREFIX, NAME, OWNER,
-    PACKAGE_HASH, RECIPIENT, SPENDER, SYMBOL, TOTAL_SUPPLY,
+    PACKAGE_HASH, RECIPIENT, SPENDER, SYMBOL, TOTAL_SUPPLY, EVENTS_MODE,
 };
 pub use error::Cep18Error;
-use events::EVENTS;
+use events::{EVENTS, Event, SetAllowance, DecreaseAllowance, IncreaseAllowance, Transfer, TransferFrom, Mint, Burn};
 use utils::{get_total_supply_uref, read_total_supply_from, write_total_supply_to};
 
 #[no_mangle]
@@ -82,11 +83,11 @@ pub extern "C" fn approve() {
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
     let allowances_uref = get_allowances_uref();
     write_allowance_to(allowances_uref, owner, spender, amount);
-    events::record_event_dictionary(events::Event::SetAllowance {
+    events::record_event_dictionary(Event::SetAllowance(SetAllowance{
         owner,
         spender,
         allowance: amount,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -98,12 +99,12 @@ pub extern "C" fn decrease_allowance() {
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_sub(amount);
     write_allowance_to(allowances_uref, owner, spender, new_allowance);
-    events::record_event_dictionary(events::Event::DecreaseAllowance {
+    events::record_event_dictionary(Event::DecreaseAllowance(DecreaseAllowance{
         owner,
         spender,
         decr_by: amount,
         allowance: new_allowance,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -115,12 +116,12 @@ pub extern "C" fn increase_allowance() {
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_add(amount);
     write_allowance_to(allowances_uref, owner, spender, new_allowance);
-    events::record_event_dictionary(events::Event::IncreaseAllowance {
+    events::record_event_dictionary(Event::IncreaseAllowance( IncreaseAllowance{
         owner,
         spender,
         allowance: new_allowance,
         inc_by: amount,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -131,11 +132,11 @@ pub extern "C" fn transfer() {
     let sender = utils::get_immediate_caller_address().unwrap_or_revert();
 
     transfer_balance(sender, recipient, amount).unwrap_or_revert();
-    events::record_event_dictionary(events::Event::Transfer {
+    events::record_event_dictionary(Event::Transfer(Transfer{
         sender,
         recipient,
         amount,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -157,12 +158,12 @@ pub extern "C" fn transfer_from() {
 
     transfer_balance(owner, recipient, amount).unwrap_or_revert();
     write_allowance_to(allowances_uref, owner, spender, new_spender_allowance);
-    events::record_event_dictionary(events::Event::TransferFrom {
+    events::record_event_dictionary(Event::TransferFrom(TransferFrom{
         spender,
         owner,
         recipient,
         amount,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -188,10 +189,10 @@ pub extern "C" fn mint() {
     };
     write_balance_to(balances_uref, owner, new_balance);
     write_total_supply_to(total_supply_uref, new_total_supply);
-    events::record_event_dictionary(events::Event::Mint {
+    events::record_event_dictionary(Event::Mint(Mint{
         recipient: owner,
         amount,
-    })
+    }))
 }
 
 #[no_mangle]
@@ -216,7 +217,7 @@ pub extern "C" fn burn() {
     };
     write_balance_to(balances_uref, owner, new_balance);
     write_total_supply_to(total_supply_uref, new_total_supply);
-    events::record_event_dictionary(events::Event::Burn { owner, amount })
+    events::record_event_dictionary(Event::Burn(Burn{ owner, amount }))
 }
 
 #[no_mangle]
@@ -239,14 +240,15 @@ pub fn install_contract() {
     let symbol: String = runtime::get_named_arg(SYMBOL);
     let decimals: u8 = runtime::get_named_arg(DECIMALS);
     let total_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY);
-
+    let events_mode : u8 = utils::get_optional_named_arg_with_user_errors(EVENTS_MODE, Cep18Error::InvalidEventsMode).unwrap_or(0u8);
     let mut named_keys = NamedKeys::new();
     named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
     named_keys.insert(SYMBOL.to_string(), storage::new_uref(symbol).into());
     named_keys.insert(DECIMALS.to_string(), storage::new_uref(decimals).into());
+    named_keys.insert(TOTAL_SUPPLY.to_string(), storage::new_uref(total_supply).into());
     named_keys.insert(
-        TOTAL_SUPPLY.to_string(),
-        storage::new_uref(total_supply).into(),
+        EVENTS_MODE.to_string(),
+        storage::new_uref(events_mode).into(),
     );
 
     let entry_points = generate_entry_points();

@@ -24,6 +24,10 @@ pub enum Cep18Error {
     Overflow = 60003,
     PackageHashMissing = 60004,
     PackageHashNotPackage = 60005,
+    InvalidEventsMode = 60006,
+    MissingEventsMode = 60007,
+    Phantom = 60008,
+    FailedToGetArgBytes = 60009
 }
 
 impl From<Cep18Error> for ApiError {
