@@ -3,6 +3,8 @@ mod allowance;
 #[cfg(test)]
 mod burn;
 #[cfg(test)]
+mod events;
+#[cfg(test)]
 mod install;
 #[cfg(test)]
 mod minting;
@@ -10,5 +12,3 @@ mod minting;
 mod transfer;
 #[cfg(test)]
 mod utility;
-#[cfg(test)]
-mod events;

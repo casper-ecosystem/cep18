@@ -12,11 +12,14 @@ use casper_contract::{
 use casper_types::{Key, U256};
 
 use crate::{
-    constants::{BURN_ENTRY_POINT_NAME, MINT_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER, EVENTS_MODE},
-    utils::{get_package_hash, read_from}, modalities::EventsMode,
+    constants::{
+        BURN_ENTRY_POINT_NAME, EVENTS_MODE, MINT_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
+    },
+    modalities::EventsMode,
+    utils::{get_package_hash, read_from},
 };
 
-use casper_event_standard::{Event, emit};
+use casper_event_standard::{emit, Event};
 
 pub const PREFIX_HASH_KEY_NAME: &str = "cep18_package";
 pub const EVENT_TYPE: &str = "event_type";
@@ -26,7 +29,7 @@ pub const EVENTS: &str = "events";
 
 pub fn record_event_dictionary(event: Event) {
     let events_mode: EventsMode =
-    EventsMode::try_from(read_from::<u8>(EVENTS_MODE)).unwrap_or_revert();
+        EventsMode::try_from(read_from::<u8>(EVENTS_MODE)).unwrap_or_revert();
 
     match events_mode {
         EventsMode::NoEvents => {}
@@ -85,7 +88,7 @@ pub struct Transfer {
     pub sender: Key,
     pub recipient: Key,
     pub amount: U256,
-} 
+}
 
 #[derive(Event, Debug, PartialEq, Eq)]
 pub struct TransferFrom {
@@ -197,7 +200,7 @@ pub fn cep47(event: Event) {
     storage::dictionary_put(dictionary_uref, LEN, len + 1);
 }
 
-fn ces(event: Event){
+fn ces(event: Event) {
     match event {
         Event::Mint(ev) => emit(ev),
         Event::Burn(ev) => emit(ev),

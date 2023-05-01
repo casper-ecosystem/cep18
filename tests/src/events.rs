@@ -1,9 +1,28 @@
 use std::collections::BTreeMap;
 
-use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST, InMemoryWasmTestBuilder};
-use casper_types::{U256, runtime_args, RuntimeArgs, Key, system::mint, ContractHash, ContractPackageHash};
+use casper_engine_test_support::{
+    ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
+    MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
+};
+use casper_types::{
+    runtime_args, system::mint, ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
+};
 
-use crate::utility::{installer_request_builders::{cep18_check_balance_of, cep18_check_total_supply, get_dictionary_value_from_key, cep18_check_allowance_of, make_cep18_approve_request}, constants::{METHOD_MINT, TOKEN_OWNER_ADDRESS_1, OWNER, AMOUNT, TOKEN_OWNER_AMOUNT_1, TOKEN_OWNER_AMOUNT_2, TOKEN_OWNER_ADDRESS_2, TOKEN_TOTAL_SUPPLY, ARG_OWNER, ARG_AMOUNT, METHOD_BURN, ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, DECREASE_ALLOWANCE, ARG_SPENDER, INCREASE_ALLOWANCE, ARG_TOTAL_SUPPLY, ARG_DECIMALS, ARG_NAME, ARG_SYMBOL, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS, CEP18_TEST_CONTARCT_WASM, ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, CEP18_CONTRACT_WASM, CEP18_TOKEN_CONTRACT_KEY, CEP18_TOKEN_CONTRACT_PACKAGE_KEY, EVENTS_MODE}};
+use crate::utility::{
+    constants::{
+        ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, AMOUNT, ARG_AMOUNT,
+        ARG_DECIMALS, ARG_NAME, ARG_OWNER, ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY,
+        CEP18_CONTRACT_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TOKEN_CONTRACT_KEY,
+        CEP18_TOKEN_CONTRACT_PACKAGE_KEY, DECREASE_ALLOWANCE, EVENTS_MODE, INCREASE_ALLOWANCE,
+        METHOD_BURN, METHOD_MINT, OWNER, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_OWNER_ADDRESS_1,
+        TOKEN_OWNER_ADDRESS_2, TOKEN_OWNER_AMOUNT_1, TOKEN_OWNER_AMOUNT_2, TOKEN_SYMBOL,
+        TOKEN_TOTAL_SUPPLY,
+    },
+    installer_request_builders::{
+        cep18_check_allowance_of, cep18_check_balance_of, cep18_check_total_supply,
+        get_dictionary_value_from_key, make_cep18_approve_request,
+    },
+};
 
 #[test]
 fn test_events_cep47() {
@@ -196,8 +215,14 @@ fn test_events_cep47() {
     .build();
 
     builder.exec(approve_request).expect_success().commit();
-    builder.exec(decrease_allowance_request).expect_success().commit();
-    builder.exec(increase_allowance_request).expect_success().commit();
+    builder
+        .exec(decrease_allowance_request)
+        .expect_success()
+        .commit();
+    builder
+        .exec(increase_allowance_request)
+        .expect_success()
+        .commit();
 
     // test mint event
     let mint_event = get_dictionary_value_from_key::<BTreeMap<String, String>>(

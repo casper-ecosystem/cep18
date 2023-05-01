@@ -8,8 +8,7 @@ use crate::utility::{
         INCREASE_ALLOWANCE, METHOD_APPROVE, METHOD_TRANSFER_FROM,
     },
     installer_request_builders::{
-        cep18_check_allowance_of, make_cep18_approve_request, setup,
-        test_approve_for, TestContext,
+        cep18_check_allowance_of, make_cep18_approve_request, setup, test_approve_for, TestContext,
     },
 };
 use casper_execution_engine::core::{
@@ -135,13 +134,7 @@ fn should_not_transfer_from_without_enough_allowance() {
 
 #[test]
 fn test_decrease_allowance() {
-    let (
-        mut builder,
-        TestContext {
-            cep18_token,
-            ..
-        },
-    ) = setup();
+    let (mut builder, TestContext { cep18_token, .. }) = setup();
     let sender = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let owner = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let spender = Key::Hash([42; 32]);

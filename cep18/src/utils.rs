@@ -3,12 +3,15 @@ use core::convert::TryInto;
 
 use alloc::vec::Vec;
 use casper_contract::{
-    contract_api::{runtime, storage, self},
-    unwrap_or_revert::UnwrapOrRevert, ext_ffi,
+    contract_api::{self, runtime, storage},
+    ext_ffi,
+    unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::{FromBytes, self}, system::CallStackElement, ApiError, CLTyped, ContractPackageHash, Key,
-    URef, U256, api_error,
+    api_error,
+    bytesrepr::{self, FromBytes},
+    system::CallStackElement,
+    ApiError, CLTyped, ContractPackageHash, Key, URef, U256,
 };
 
 use crate::{

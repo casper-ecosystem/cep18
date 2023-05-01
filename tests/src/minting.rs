@@ -8,8 +8,7 @@ use crate::utility::{
         TOKEN_TOTAL_SUPPLY,
     },
     installer_request_builders::{
-        cep18_check_balance_of, cep18_check_total_supply, setup,
-        TestContext,
+        cep18_check_balance_of, cep18_check_total_supply, setup, TestContext,
     },
 };
 
@@ -21,13 +20,7 @@ use casper_execution_engine::core::{
 fn test_mint_and_burn_tokens() {
     let mint_amount = U256::one();
 
-    let (
-        mut builder,
-        TestContext {
-            cep18_token,
-            ..
-        },
-    ) = setup();
+    let (mut builder, TestContext { cep18_token, .. }) = setup();
     let mint_request = ExecuteRequestBuilder::contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         cep18_token,

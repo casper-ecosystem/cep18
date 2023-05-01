@@ -51,15 +51,13 @@ pub static ACCOUNT_1_SECRET_KEY: Lazy<SecretKey> =
     Lazy::new(|| SecretKey::secp256k1_from_bytes([221u8; 32]).unwrap());
 pub static ACCOUNT_1_PUBLIC_KEY: Lazy<PublicKey> =
     Lazy::new(|| PublicKey::from(&*ACCOUNT_1_SECRET_KEY));
-pub static ACCOUNT_1_ADDR: Lazy<AccountHash> =
-    Lazy::new(|| ACCOUNT_1_PUBLIC_KEY.to_account_hash());
+pub static ACCOUNT_1_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_1_PUBLIC_KEY.to_account_hash());
 
 pub static ACCOUNT_2_SECRET_KEY: Lazy<SecretKey> =
     Lazy::new(|| SecretKey::secp256k1_from_bytes([212u8; 32]).unwrap());
 pub static ACCOUNT_2_PUBLIC_KEY: Lazy<PublicKey> =
     Lazy::new(|| PublicKey::from(&*ACCOUNT_2_SECRET_KEY));
-pub static ACCOUNT_2_ADDR: Lazy<AccountHash> =
-    Lazy::new(|| ACCOUNT_2_PUBLIC_KEY.to_account_hash());
+pub static ACCOUNT_2_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_2_PUBLIC_KEY.to_account_hash());
 
 pub const TRANSFER_AMOUNT_1: u64 = 200_001;
 pub const TRANSFER_AMOUNT_2: u64 = 19_999;

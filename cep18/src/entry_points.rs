@@ -85,8 +85,9 @@ pub fn increase_allowance() -> EntryPoint {
         vec![
             Parameter::new(OWNER, Key::cl_type()),
             Parameter::new(SPENDER, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
-        U256::cl_type(),
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -98,8 +99,9 @@ pub fn decrease_allowance() -> EntryPoint {
         vec![
             Parameter::new(OWNER, Key::cl_type()),
             Parameter::new(SPENDER, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
-        U256::cl_type(),
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -155,8 +157,8 @@ pub fn decimals() -> EntryPoint {
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
-        Vec::new(),
-        u8::cl_type(),
+        vec![Parameter::new(AMOUNT, U256::cl_type())],
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -165,8 +167,8 @@ pub fn burn() -> EntryPoint {
 pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
-        Vec::new(),
-        u8::cl_type(),
+        vec![Parameter::new(AMOUNT, U256::cl_type())],
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -176,7 +178,7 @@ pub fn init() -> EntryPoint {
     EntryPoint::new(
         String::from(ENTRY_POINT_INIT),
         Vec::new(),
-        u8::cl_type(),
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
