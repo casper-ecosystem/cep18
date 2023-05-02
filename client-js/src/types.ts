@@ -2,7 +2,7 @@ import { type BigNumberish } from '@ethersproject/bignumber';
 import { type CLKeyParameters } from 'casper-js-sdk';
 
 /**
- * Arguments required for install ERC20
+ * Arguments required for install CEP18
  * @param name token name
  * @param symbol token symbol
  * @param decimals token decimals

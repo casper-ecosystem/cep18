@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { type CLPublicKey, DeployUtil } from 'casper-js-sdk';
 
-import ERC20Client from '../../src/ERC20Client';
+import ERC20Client from '../../src/CEP18Client';
 import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
 import APPROVE_ARGS_JSON from './json/approve-args.json';

@@ -1,21 +1,21 @@
-# `casper-erc20-js-client`
+# `casper-cep18-js-client`
 
-This JavaScript client gives you an easy way to install and interact with the Casper ERC-20 contract.
+This JavaScript client gives you an easy way to install and interact with the Casper CEP-18 contract.
 
 ## Installation
 
 Run this command to install the client:
 
 ```bash
-npm i casper-erc20-js-client
+npm i casper-cep18-js-client
 ```
 
 ## Usage example
 
-- Create an instance of the ERC-20 client:
+- Create an instance of the CEP-18 client:
 
   ```ts
-  const erc20 = new ERC20Client(
+  const cep18 = new CEP18Client(
     'http://localhost:11101/rpc', // Node address
     'casper-net-1' // Network name
   );
@@ -24,10 +24,10 @@ npm i casper-erc20-js-client
 - Create a deploy to install the contract:
 
   ```ts
-  import { ContractWASM, ERC20Client } from 'casper-erc20-js-client';
+  import { ContractWASM, CEP18Client } from 'casper-cep18-js-client';
 
-  const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
-  const deploy = await erc20.install(
+  const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
+  const deploy = await cep18.install(
     ContractWASM, // Contract wasm
     {
       name: tokenName,
@@ -45,7 +45,7 @@ npm i casper-erc20-js-client
 - Set the contract hash (a unique identifier for the network):
 
   ```ts
-  erc20.setContractHash(
+  cep18.setContractHash(
     'hash-c2402c3d88b13f14390ff46fde9c06b8590c9e45a9802f7fb8a2674ff9c1e5b1'
   );
   ```
@@ -53,13 +53,13 @@ npm i casper-erc20-js-client
 - You can retrieve token infomation by calling these methods:
 
   ```ts
-  const name = await erc20.name();
+  const name = await cep18.name();
 
-  const symbol = await erc20.symbol();
+  const symbol = await cep18.symbol();
 
-  const totalSupply = await erc20.totalSupply();
+  const totalSupply = await cep18.totalSupply();
 
-  const decimals = await erc20.decimals();
+  const decimals = await cep18.decimals();
   ```
 
 - **Transfers**
@@ -67,7 +67,7 @@ npm i casper-erc20-js-client
   - Create a deploy to transfer some tokens from the direct caller to a recipient:
 
     ```ts
-    const deploy = erc20.transfer(
+    const deploy = cep18.transfer(
       { recipient: recipientPublicKey, amount: 50_000_000_000 },
       5_000_000_000, // Payment amount
       ownerPublicKey,
@@ -79,7 +79,7 @@ npm i casper-erc20-js-client
   - Create a deploy to transfer from an account owner to a recipient given that the direct caller has been previously approved to spend the specified amount on behalf of the owner:
 
     ```ts
-    const deploy = erc20.transferFrom(
+    const deploy = cep18.transferFrom(
       {
         owner: ownerPublicKey,
         recipient: recipientPublicKey,
@@ -97,7 +97,7 @@ npm i casper-erc20-js-client
   Request the balance of an account with _balanceOf_:
 
   ```ts
-  const balance = await erc20.balanceOf(publicKey);
+  const balance = await cep18.balanceOf(publicKey);
   ```
 
 - **Approvals**
@@ -105,7 +105,7 @@ npm i casper-erc20-js-client
   Create a deploy to allow a spender to transfer up to a number of the direct caller’s tokens:
 
   ```ts
-  const deploy = erc20.approve(
+  const deploy = cep18.approve(
     {
       spender: spenderPublicKey,
       amount: approveAmount
@@ -122,7 +122,7 @@ npm i casper-erc20-js-client
   Return the number of owner’s tokens allowed to be spent by spender:
 
   ```ts
-  const allowance = await erc20.allowances(
+  const allowance = await cep18.allowances(
     ownersPublicKey,
     spenderPublicKey
   );
@@ -130,7 +130,7 @@ npm i casper-erc20-js-client
 
 ## More examples
 
-You can find all the available examples in the [E2E test script](https://github.com/casper-ecosystem/erc20/client-js/tests/e3e).
+You can find all the available examples in the [E2E test script](https://github.com/casper-ecosystem/cep18/client-js/tests/e3e).
 
 ## Development
 
@@ -153,7 +153,7 @@ Before working on the JS Client, make sure the bundled contract content in the [
 - Clone this repo
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20.git
+git clone https://github.com/casper-ecosystem/cep18.git
 ```
 
 - Go to `client-js` directory
