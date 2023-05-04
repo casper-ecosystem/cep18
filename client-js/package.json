@@ -14,7 +14,7 @@
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json",
     "generate:wasm": "ts-node \"src/scripts/generate-wasm.ts\"",
-    "postinstall": "npm run generate:wams"
+    "postinstall": "npm run generate:wasm"
   },
   "repository": {
     "type": "git",
