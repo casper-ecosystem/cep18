@@ -43,9 +43,6 @@ jobs:
         with:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: target/wasm32-unknown-unknown/release
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
         with:
