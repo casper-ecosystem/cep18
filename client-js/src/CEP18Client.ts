@@ -11,6 +11,7 @@ import {
   Contracts,
   DeployUtil,
   encodeBase16,
+  encodeBase64,
   GetDeployResult,
   type Keys,
   RuntimeArgs
@@ -184,7 +185,7 @@ export default class CEP18Client {
     const keyBytes = CLValueParsers.toBytes(
       CLValueBuilder.key(account)
     ).unwrap();
-    const dictKey = Buffer.from(keyBytes).toString('base64');
+    const dictKey = encodeBase64(keyBytes);
     let balance = BigNumber.from(0);
     try {
       balance = (
@@ -226,7 +227,7 @@ export default class CEP18Client {
     const blaked = blake2b(finalBytes, {
       dkLen: 32
     });
-    const dictKey = Buffer.from(blaked).toString('hex');
+    const dictKey = encodeBase16(blaked);
 
     let allowances = BigNumber.from(0);
 
