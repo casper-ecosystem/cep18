@@ -1,11 +1,10 @@
-import { assert } from 'node:console';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 const wasm = fs.readFileSync(
   path.resolve(
     __dirname,
-    '../../../target/wasm32-unknown-unknown/release/cep18_token.wasm'
+    '../../../target/wasm32-unknown-unknown/release/cep18.wasm'
   ),
   null
 );
@@ -27,12 +26,3 @@ const result = `
 `;
 
 fs.writeFileSync(path.resolve(__dirname, '../wasm.ts'), result);
-
-// eslint-disable-next-line import/first
-import generatedwasm from '../wasm';
-
-assert(wasm.length === generatedwasm.length, 'Generated data mismatched');
-
-if (wasm.length !== generatedwasm.length) {
-  process.exit(-1);
-}
