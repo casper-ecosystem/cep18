@@ -37,20 +37,20 @@ jobs:
         node-version: [16.x]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
       - uses: actions/download-artifact@v3
         with:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release/cep18.wasm
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: "https://registry.npmjs.org"
-
       - name: Install
-        run: cd client-js && npm install
-
+        working-directory: client-js
+        run: npm install
       - name: test
-        # working-directory: client-js
-        run: cd client-js && npm run test:unit
+        working-directory: client-js
+        run: npm run test:unit
