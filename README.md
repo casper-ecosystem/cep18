@@ -13,6 +13,7 @@ make prepare
 ```
 
 ## Build Smart Contracts
+
 To build the example fungible token contract and supporting test contracts:
 
 ```
@@ -35,14 +36,12 @@ make test
 
 ## JavaScript Client SDK
 
-A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/cep18-client) can be used to interact with the fungible token contract. 
-
+A [JavaScript client SDK](https://github.com/casper-ecosystem/erc20/tree/master/client-js#readme) can be used to interact with the fungible token contract.
 
 ## Documentation
 
 For more information, visit the below guides:
-- [Casper Fungible Token Tutorial](/docs/TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract. 
+
+- [Casper Fungible Token Tutorial](/docs/TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract.
 - [Casper Fungible Token How-To Guide](/docs/Sample-Guide.md) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an fungible token contract.
 - [Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - A quick guide on how to deploy the Casper fungible token to the Casper Network.
-
-

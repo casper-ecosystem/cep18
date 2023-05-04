@@ -1,7 +1,11 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
-import { CasperClient, type CLPublicKey, encodeBase16 } from 'casper-js-sdk';
+import {
+  CasperServiceByJsonRPC,
+  type CLPublicKey,
+  encodeBase16
+} from 'casper-js-sdk';
 
-import { CEP18Client, InstallArgs, wasm } from '../../src';
+import { CEP18Client, ContractWASM, InstallArgs } from '../../src';
 import { DEPLOY_TIMEOUT, NETWORK_NAME, NODE_URL, users } from '../config';
 import {
   expectDeployResultToSuccess,
@@ -10,9 +14,8 @@ import {
 } from '../utils';
 
 describe('CEP18Client', () => {
-  const client = new CasperClient(NODE_URL);
   const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
-
+  const client = new CasperServiceByJsonRPC(NODE_URL);
   const owner = users[0];
   const ali = users[1];
   const bob = users[2];
@@ -39,12 +42,7 @@ describe('CEP18Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
-
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
 
@@ -55,7 +53,7 @@ describe('CEP18Client', () => {
 
   beforeAll(async () => {
     const deploy = cep18.install(
-      wasm,
+      ContractWASM,
       tokenInfo,
       60_000_000_000,
       owner.publicKey,
@@ -63,12 +61,9 @@ describe('CEP18Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
 
@@ -156,12 +151,9 @@ describe('CEP18Client', () => {
       [ali]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
+    const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
 
@@ -185,17 +177,31 @@ describe('CEP18Client', () => {
       [owner]
     );
 
-    await client.putDeploy(deploy);
+    await deploy.send(NODE_URL);
 
-    const result = await client.nodeClient.waitForDeploy(
-      deploy,
-      DEPLOY_TIMEOUT
-    );
-
+    const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
     expectDeployResultToSuccess(result);
 
     const balance = await cep18.balanceOf(ali.publicKey);
 
     expect(balance.eq(amount));
+  });
+
+  it('should throw error when try to transfer more than owned balance', async () => {
+    const amount = 5_000_000_000_000;
+
+    const deploy = cep18.transfer(
+      { recipient: ali.publicKey, amount },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    await deploy.send(NODE_URL);
+
+    await expect(
+      client.waitForDeploy(deploy, DEPLOY_TIMEOUT)
+    ).rejects.toThrowError('ERROR_INSUFFICIENT_BALANCE');
   });
 });

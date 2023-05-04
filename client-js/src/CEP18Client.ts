@@ -2,18 +2,21 @@ import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { blake2b } from '@noble/hashes/blake2b';
 import {
   CasperClient,
+  CasperServiceByJsonRPC,
   type CLKeyParameters,
   type CLPublicKey,
   type CLU256,
   CLValueBuilder,
   CLValueParsers,
   Contracts,
-  type DeployUtil,
+  DeployUtil,
   encodeBase16,
+  GetDeployResult,
   type Keys,
   RuntimeArgs
 } from 'casper-js-sdk';
 
+import { ContractError } from './error';
 import {
   ApproveArgs,
   InstallArgs,
@@ -26,18 +29,20 @@ const { Contract } = Contracts;
 export default class CEP18Client {
   public contractClient: Contracts.Contract;
 
-  public contractHash?: string;
-
-  public contractPackageHash?: string;
-
   constructor(public nodeAddress: string, public networkName: string) {
     this.contractClient = new Contract(new CasperClient(nodeAddress));
   }
 
   public setContractHash(contractHash: string, contractPackageHash?: string) {
-    this.contractHash = contractHash;
-    this.contractPackageHash = contractPackageHash;
     this.contractClient.setContractHash(contractHash, contractPackageHash);
+  }
+
+  public get contractHash() {
+    return this.contractClient.contractHash;
+  }
+
+  public get contractPackageHash() {
+    return this.contractClient.contractPackageHash;
   }
 
   /**
@@ -273,5 +278,36 @@ export default class CEP18Client {
     return this.contractClient.queryContractData([
       'total_supply'
     ]) as Promise<BigNumber>;
+  }
+
+  /**
+   * Parse deploy result by given hash.
+   * It the deploy wasn't successful, throws `ContractError` if there was operational error, otherwise `Error` with original error message.
+   * @param deployHash deploy hash
+   * @returns `GetDeployResult`
+   */
+  public async parseDeployResult(deployHash: string): Promise<GetDeployResult> {
+    const casperClient = new CasperServiceByJsonRPC(this.nodeAddress);
+
+    const result = await casperClient.getDeployInfo(deployHash);
+    if (
+      result.execution_results.length > 0 &&
+      result.execution_results[0].result.Failure
+    ) {
+      // Parse execution result
+      const { error_message } = result.execution_results[0].result.Failure;
+      const contractErrorMessagePrefix = 'User error: ';
+      if (error_message.startsWith(contractErrorMessagePrefix)) {
+        const errorCode = parseInt(
+          error_message.substring(
+            contractErrorMessagePrefix.length,
+            error_message.length
+          ),
+          10
+        );
+        throw new ContractError(errorCode);
+      } else throw new Error(error_message);
+    }
+    return result;
   }
 }

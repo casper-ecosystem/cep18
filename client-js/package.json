@@ -34,7 +34,6 @@
     "/dist"
   ],
   "dependencies": {
-    "@casperlabs/ts-results": "^3.3.5",
     "@ethersproject/bignumber": "^5.7.0",
     "@noble/hashes": "^1.2.0"
   },

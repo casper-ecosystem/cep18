@@ -21,11 +21,14 @@ npm i casper-cep18-js-client
   );
   ```
 
-- Install the contract:
+- Create a deploy to install the contract:
 
   ```ts
-  const deploy = await cep18.install(
-    wasm, // Contract wasm
+  import { ContractWASM, ERC20Client } from 'casper-erc20-js-client';
+
+  const erc20 = new ERC20Client(NODE_URL, NETWORK_NAME);
+  const deploy = await erc20.install(
+    ContractWASM, // Contract wasm
     {
       name: tokenName,
       symbol: tokenSymbol,
@@ -37,10 +40,6 @@ npm i casper-cep18-js-client
     CHAIN_NAME,
     [owner]
   );
-
-  await client.putDeploy(deploy);
-
-  const result = await client.nodeClient.waitForDeploy(deploy);
   ```
 
 - Set the contract hash (a unique identifier for the network):
@@ -65,7 +64,7 @@ npm i casper-cep18-js-client
 
 - **Transfers**
 
-  - Transfer some tokens from the direct caller to a recipient:
+  - Create a deploy to transfer some tokens from the direct caller to a recipient:
 
     ```ts
     const deploy = cep18.transfer(
@@ -77,7 +76,7 @@ npm i casper-cep18-js-client
     );
     ```
 
-  - Transfer from an account owner to a recipient given that the direct caller has been previously approved to spend the specified amount on behalf of the owner:
+  - Create a deploy to transfer from an account owner to a recipient given that the direct caller has been previously approved to spend the specified amount on behalf of the owner:
 
     ```ts
     const deploy = cep18.transferFrom(
@@ -103,7 +102,7 @@ npm i casper-cep18-js-client
 
 - **Approvals**
 
-  Allow a spender to transfer up to a number of the direct caller’s tokens:
+  Create a deploy to allow a spender to transfer up to a number of the direct caller’s tokens:
 
   ```ts
   const deploy = cep18.approve(
