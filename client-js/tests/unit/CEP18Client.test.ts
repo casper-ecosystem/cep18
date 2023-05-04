@@ -1,11 +1,10 @@
 // eslint-disable-next-line eslint-comments/disable-enable-pair
 /* eslint-disable no-console */
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { type CLPublicKey, DeployUtil } from 'casper-js-sdk';
 
+import { ContractWASM } from '../../src';
 import CEP18Client from '../../src/CEP18Client';
 import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
@@ -53,18 +52,8 @@ describe('CEP18Client', () => {
   };
 
   beforeAll(() => {
-    const wasm = new Uint8Array(
-      fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../target/wasm32-unknown-unknown/release/cep18_token.wasm'
-        ),
-        null
-      ).buffer
-    );
-
     const deploy = cep18.install(
-      wasm,
+      ContractWASM,
       tokenInfo,
       60_000_000_000,
       owner.publicKey,
