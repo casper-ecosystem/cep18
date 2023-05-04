@@ -49,9 +49,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install
-        working-directory: client-js
-        run: npm install
+        run: cd client-js && npm install
 
       - name: test
-        working-directory: client-js
-        run: npm run test:unit
+        # working-directory: client-js
+        run: cd client-js && npm run test:unit
