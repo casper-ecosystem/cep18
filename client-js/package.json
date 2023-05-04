@@ -13,7 +13,8 @@
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json",
-    "generate:wasm": "ts-node \"src/scripts/generate-wasm.ts\""
+    "generate:wasm": "ts-node \"src/scripts/generate-wasm.ts\"",
+    "postinstall": "npm run generate:wams"
   },
   "repository": {
     "type": "git",

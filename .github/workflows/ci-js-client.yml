@@ -1,14 +1,17 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: publish-casper-cep18-js-client
+name: ci-casper-cep18-js-client
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [master]
+
+  pull_request:
+    branches: [master]
 
 jobs:
-  publish:
+  ci:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -40,16 +43,6 @@ jobs:
         working-directory: ./client
         run: npm install
 
-      - name: build
-        working-directory: ./client
-        run: npm run build
-
       - name: test
         working-directory: ./client
         run: npm run test:unit
-
-      - name: Publish to NPM
-        working-directory: ./client
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
