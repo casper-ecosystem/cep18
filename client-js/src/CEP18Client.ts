@@ -177,6 +177,68 @@ export default class CEP18Client {
   }
 
   /**
+   * Increase allowance to the spender
+   * @param args @see {@link ApproveArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
+  public increaseAllowance(
+    args: ApproveArgs,
+    paymentAmount: BigNumberish,
+    sender: CLPublicKey,
+    chainName: string,
+    signingKeys?: Keys.AsymmetricKey[]
+  ): DeployUtil.Deploy {
+    const runtimeArgs = RuntimeArgs.fromMap({
+      spender: CLValueBuilder.key(args.spender),
+      amount: CLValueBuilder.u256(args.amount)
+    });
+
+    return this.contractClient.callEntrypoint(
+      'increase_allowance',
+      runtimeArgs,
+      sender,
+      chainName,
+      BigNumber.from(paymentAmount).toString(),
+      signingKeys
+    );
+  }
+
+  /**
+   * Decrease allowance from the spender
+   * @param args @see {@link ApproveArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
+  public decreaseAllowance(
+    args: ApproveArgs,
+    paymentAmount: BigNumberish,
+    sender: CLPublicKey,
+    chainName: string,
+    signingKeys?: Keys.AsymmetricKey[]
+  ): DeployUtil.Deploy {
+    const runtimeArgs = RuntimeArgs.fromMap({
+      spender: CLValueBuilder.key(args.spender),
+      amount: CLValueBuilder.u256(args.amount)
+    });
+
+    return this.contractClient.callEntrypoint(
+      'decrease_allowance',
+      runtimeArgs,
+      sender,
+      chainName,
+      BigNumber.from(paymentAmount).toString(),
+      signingKeys
+    );
+  }
+
+  /**
    * Returns the given account's balance
    * @param account account info to get balance
    * @returns account's balance
