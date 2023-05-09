@@ -58,3 +58,6 @@ pub const RECIPIENT: &str = "recipient";
 pub const PACKAGE_HASH: &str = "package_hash";
 pub const EVENTS_MODE: &str = "events_mode";
 pub const SECURITY_BADGES: &str = "security_badges";
+pub const ADMIN_LIST: &str = "admin_list";
+pub const MINTER_LIST: &str = "minter_list";
+pub const BURNER_LIST: &str = "burner_list";

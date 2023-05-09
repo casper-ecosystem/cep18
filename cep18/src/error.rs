@@ -29,6 +29,9 @@ pub enum Cep18Error {
     Phantom = 60008,
     FailedToGetArgBytes = 60009,
     InsufficientRights = 60010,
+    InvalidAdminList = 60011,
+    InvalidMinterList = 60012,
+    InvalidBurnerList = 60013,
 }
 
 impl From<Cep18Error> for ApiError {
