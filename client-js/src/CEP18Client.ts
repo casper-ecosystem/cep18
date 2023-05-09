@@ -64,13 +64,17 @@ export default class CEP18Client {
     chainName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
-    const { name, symbol, decimals, totalSupply } = args;
+    const { name, symbol, decimals, totalSupply, eventsMode } = args;
     const runtimeArgs = RuntimeArgs.fromMap({
       name: CLValueBuilder.string(name),
       symbol: CLValueBuilder.string(symbol),
       decimals: CLValueBuilder.u8(decimals),
       total_supply: CLValueBuilder.u256(totalSupply)
     });
+
+    if (eventsMode !== undefined) {
+      runtimeArgs.insert('events_mode', CLValueBuilder.u8(eventsMode));
+    }
 
     return this.contractClient.install(
       wasm,

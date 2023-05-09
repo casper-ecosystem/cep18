@@ -1,6 +1,11 @@
 import { type BigNumberish } from '@ethersproject/bignumber';
 import { type CLKeyParameters } from 'casper-js-sdk';
 
+export enum EVENTS_MODE {
+  NoEvents = 0,
+  CES = 1
+}
+
 /**
  * Arguments required for install CEP18
  * @param name token name
@@ -14,6 +19,7 @@ export interface InstallArgs {
   symbol: string;
   decimals: BigNumberish;
   totalSupply: BigNumberish;
+  eventsMode?: EVENTS_MODE;
 }
 
 export interface TransferableArgs {
