@@ -57,3 +57,4 @@ pub const AMOUNT: &str = "amount";
 pub const RECIPIENT: &str = "recipient";
 pub const PACKAGE_HASH: &str = "package_hash";
 pub const EVENTS_MODE: &str = "events_mode";
+pub const SECURITY_BADGES: &str = "security_badges";

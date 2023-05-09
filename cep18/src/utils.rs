@@ -1,20 +1,27 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
 use casper_contract::{
-    contract_api::{self, runtime, storage},
+    contract_api::{
+        self,
+        runtime::{self, revert},
+        storage::{self, dictionary_get},
+    },
     ext_ffi,
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
     api_error,
-    bytesrepr::{self, FromBytes},
+    bytesrepr::{self, FromBytes, ToBytes},
     system::CallStackElement,
     ApiError, CLTyped, Key, URef, U256,
 };
 
-use crate::{constants::TOTAL_SUPPLY, error::Cep18Error};
+use crate::{
+    constants::{SECURITY_BADGES, TOTAL_SUPPLY},
+    error::Cep18Error,
+};
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -135,4 +142,56 @@ pub fn get_named_arg_with_user_errors<T: FromBytes>(
     };
 
     bytesrepr::deserialize(arg_bytes).map_err(|_| invalid)
+}
+
+#[repr(u8)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum SecurityBadge {
+    Admin = 0,
+    Minter = 1,
+    Burner = 2,
+}
+
+impl CLTyped for SecurityBadge {
+    fn cl_type() -> casper_types::CLType {
+        casper_types::CLType::U8
+    }
+}
+
+impl ToBytes for SecurityBadge {
+    fn to_bytes(&self) -> Result<Vec<u8>, bytesrepr::Error> {
+        Ok(vec![*self as u8])
+    }
+
+    fn serialized_length(&self) -> usize {
+        1
+    }
+}
+
+impl FromBytes for SecurityBadge {
+    fn from_bytes(bytes: &[u8]) -> Result<(Self, &[u8]), bytesrepr::Error> {
+        Ok((
+            match bytes[0] {
+                0 => SecurityBadge::Admin,
+                1 => SecurityBadge::Minter,
+                2 => SecurityBadge::Burner,
+                _ => return Err(bytesrepr::Error::LeftOverBytes),
+            },
+            &[],
+        ))
+    }
+}
+
+pub fn sec_check(allowed_badge_list: Vec<SecurityBadge>) {
+    let caller = get_immediate_caller_address()
+        .unwrap_or_revert()
+        .to_bytes()
+        .unwrap_or_revert();
+    if !allowed_badge_list.contains(
+        &dictionary_get::<SecurityBadge>(get_uref(SECURITY_BADGES), &base64::encode(caller))
+            .unwrap_or_revert()
+            .unwrap_or_revert_with(Cep18Error::InsufficientRights),
+    ) {
+        revert(Cep18Error::InsufficientRights)
+    }
 }

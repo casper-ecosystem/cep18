@@ -28,6 +28,7 @@ pub enum Cep18Error {
     MissingEventsMode = 60007,
     Phantom = 60008,
     FailedToGetArgBytes = 60009,
+    InsufficientRights = 60010,
 }
 
 impl From<Cep18Error> for ApiError {

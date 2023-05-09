@@ -15,6 +15,7 @@ mod utils;
 use alloc::{
     format,
     string::{String, ToString},
+    vec,
 };
 
 use allowances::{get_allowances_uref, read_allowance_from, write_allowance_to};
@@ -24,22 +25,26 @@ use entry_points::generate_entry_points;
 use casper_contract::{
     contract_api::{
         runtime::{self, get_caller, get_named_arg, put_key},
-        storage,
+        storage::{self, dictionary_put},
     },
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, U256};
+use casper_types::{
+    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, U256,
+};
 
 use constants::{
     ACCESS_KEY_NAME_PREFIX, ADDRESS, ALLOWANCES, AMOUNT, BALANCES, CONTRACT_NAME_PREFIX,
     CONTRACT_VERSION_PREFIX, DECIMALS, ENTRY_POINT_INIT, EVENTS_MODE, HASH_KEY_NAME_PREFIX, NAME,
-    OWNER, PACKAGE_HASH, RECIPIENT, SPENDER, SYMBOL, TOTAL_SUPPLY,
+    OWNER, PACKAGE_HASH, RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
 };
 pub use error::Cep18Error;
 use events::{
     Burn, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance, Transfer, TransferFrom,
 };
-use utils::{get_total_supply_uref, read_total_supply_from, write_total_supply_to};
+use utils::{
+    get_total_supply_uref, read_total_supply_from, sec_check, write_total_supply_to, SecurityBadge,
+};
 
 #[no_mangle]
 pub extern "C" fn name() {
@@ -170,6 +175,8 @@ pub extern "C" fn transfer_from() {
 
 #[no_mangle]
 pub extern "C" fn mint() {
+    sec_check(vec![SecurityBadge::Admin, SecurityBadge::Minter]);
+
     let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
 
@@ -199,6 +206,8 @@ pub extern "C" fn mint() {
 
 #[no_mangle]
 pub extern "C" fn burn() {
+    sec_check(vec![SecurityBadge::Admin, SecurityBadge::Burner]);
+
     let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
     let balances_uref = get_balances_uref();
@@ -231,6 +240,13 @@ pub extern "C" fn init() {
     let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY);
     let caller = get_caller();
     write_balance_to(balances_uref, caller.into(), initial_supply);
+
+    let security_badges_dict = storage::new_dictionary(SECURITY_BADGES).unwrap_or_revert();
+    dictionary_put(
+        security_badges_dict,
+        &base64::encode(Key::from(get_caller()).to_bytes().unwrap_or_revert()),
+        SecurityBadge::Admin,
+    )
 }
 
 #[no_mangle]
@@ -256,7 +272,6 @@ pub fn install_contract() {
         EVENTS_MODE.to_string(),
         storage::new_uref(events_mode).into(),
     );
-
     let entry_points = generate_entry_points();
 
     let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}{name}");
