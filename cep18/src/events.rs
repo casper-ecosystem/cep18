@@ -39,6 +39,7 @@ pub struct Burn {
     pub amount: U256,
 }
 
+// `approve` entry point
 #[derive(Event, Debug, PartialEq, Eq)]
 pub struct SetAllowance {
     pub owner: Key,

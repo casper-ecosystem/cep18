@@ -11,6 +11,7 @@ use alloc::{
 use casper_contract::{
     self,
     contract_api::{runtime, storage},
+    unwrap_or_revert::UnwrapOrRevert,
 };
 
 use casper_types::{
@@ -53,7 +54,11 @@ fn store_result<T: CLTyped + ToBytes>(result: T) {
 
 #[no_mangle]
 extern "C" fn check_total_supply() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let total_supply: U256 = runtime::call_contract(
         token_contract,
         TOTAL_SUPPLY_ENTRY_POINT_NAME,
@@ -64,7 +69,11 @@ extern "C" fn check_total_supply() {
 
 #[no_mangle]
 extern "C" fn check_balance_of() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let address: Key = runtime::get_named_arg(ADDRESS_RUNTIME_ARG_NAME);
 
     let balance_args = runtime_args! {
@@ -78,7 +87,11 @@ extern "C" fn check_balance_of() {
 
 #[no_mangle]
 extern "C" fn check_allowance_of() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let owner: Key = runtime::get_named_arg(OWNER_RUNTIME_ARG_NAME);
     let spender: Key = runtime::get_named_arg(SPENDER_RUNTIME_ARG_NAME);
 
@@ -94,7 +107,11 @@ extern "C" fn check_allowance_of() {
 
 #[no_mangle]
 extern "C" fn transfer_as_stored_contract() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let recipient: Key = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
 
@@ -108,7 +125,11 @@ extern "C" fn transfer_as_stored_contract() {
 
 #[no_mangle]
 extern "C" fn transfer_from_as_stored_contract() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let owner: Key = runtime::get_named_arg(OWNER_RUNTIME_ARG_NAME);
     let recipient: Key = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
@@ -128,7 +149,11 @@ extern "C" fn transfer_from_as_stored_contract() {
 
 #[no_mangle]
 extern "C" fn approve_as_stored_contract() {
-    let token_contract: ContractHash = runtime::get_named_arg(TOKEN_CONTRACT_RUNTIME_ARG_NAME);
+    let token_contract: ContractHash = ContractHash::new(
+        runtime::get_named_arg::<Key>(TOKEN_CONTRACT_RUNTIME_ARG_NAME)
+            .into_hash()
+            .unwrap_or_revert(),
+    );
     let spender: Key = runtime::get_named_arg(SPENDER_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
 

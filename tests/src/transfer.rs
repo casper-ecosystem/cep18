@@ -227,7 +227,7 @@ fn should_transfer_from_account_by_contract() {
         ARG_AMOUNT => allowance_amount_1,
     };
     let cep18_transfer_from_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => cep18_token,
+        ARG_TOKEN_CONTRACT => Key::from(cep18_token),
         ARG_OWNER => Key::Account(owner),
         ARG_RECIPIENT => recipient,
         ARG_AMOUNT => transfer_from_amount_1,
