@@ -9,6 +9,8 @@ import CEP18Client from '../../src/CEP18Client';
 import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
 import APPROVE_ARGS_JSON from './json/approve-args.json';
+import DECREASE_ALLOWANCE_ARGS_JSON from './json/decrase-allowance-args.json';
+import INCREASE_ALLOWANCE_ARGS_JSON from './json/incrase-allowance-args.json';
 import INSTALL_ARGS_JSON from './json/install-args.json';
 import TRANSFER_ARGS_JSON from './json/transfer-args.json';
 import TRANSFER_FROM_ARGS_JSON from './json/transfer-from-args.json';
@@ -150,6 +152,54 @@ describe('CEP18Client', () => {
     );
     expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
       TRANSFER_ARGS_JSON
+    );
+  });
+
+  it('should construct increaseAllowance args properly', () => {
+    const spender = ali.publicKey;
+    const amount = 50_000_000_000;
+    const deploy = cep18.increaseAllowance(
+      {
+        spender,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
+
+    expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
+      'increase_allowance'
+    );
+    expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
+      INCREASE_ALLOWANCE_ARGS_JSON
+    );
+  });
+
+  it('should construct decreaseAllowance args properly', () => {
+    const spender = ali.publicKey;
+    const amount = 50_000_000_000;
+    const deploy = cep18.decreaseAllowance(
+      {
+        spender,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
+
+    expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
+      'decrease_allowance'
+    );
+    expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
+      DECREASE_ALLOWANCE_ARGS_JSON
     );
   });
 });
