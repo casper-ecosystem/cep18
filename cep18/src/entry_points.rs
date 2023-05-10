@@ -8,7 +8,7 @@ use casper_types::{
 
 use crate::constants::{
     ADDRESS, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT, APPROVE_ENTRY_POINT_NAME,
-    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
+    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, CHANGE_SECURITY, DECIMALS_ENTRY_POINT_NAME,
     DECREASE_ALLOWANCE_ENTRY_POINT_NAME, ENTRY_POINT_INIT, INCREASE_ALLOWANCE_ENTRY_POINT_NAME,
     MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
     SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME,
@@ -174,6 +174,16 @@ pub fn mint() -> EntryPoint {
     )
 }
 
+pub fn change_security() -> EntryPoint {
+    EntryPoint::new(
+        String::from(CHANGE_SECURITY),
+        vec![],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 pub fn init() -> EntryPoint {
     EntryPoint::new(
         String::from(ENTRY_POINT_INIT),
@@ -201,5 +211,6 @@ pub fn generate_entry_points() -> EntryPoints {
     entry_points.add_entry_point(transfer_from());
     entry_points.add_entry_point(burn());
     entry_points.add_entry_point(mint());
+    entry_points.add_entry_point(change_security());
     entry_points
 }

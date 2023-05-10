@@ -1,12 +1,12 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-use alloc::{vec, vec::Vec};
+use alloc::{collections::BTreeMap, vec, vec::Vec};
 use casper_contract::{
     contract_api::{
         self,
         runtime::{self, revert},
-        storage::{self, dictionary_get},
+        storage::{self, dictionary_get, dictionary_put},
     },
     ext_ffi,
     unwrap_or_revert::UnwrapOrRevert,
@@ -150,6 +150,8 @@ pub enum SecurityBadge {
     Admin = 0,
     Minter = 1,
     Burner = 2,
+    MintAndBurn = 3,
+    None = 4,
 }
 
 impl CLTyped for SecurityBadge {
@@ -175,6 +177,8 @@ impl FromBytes for SecurityBadge {
                 0 => SecurityBadge::Admin,
                 1 => SecurityBadge::Minter,
                 2 => SecurityBadge::Burner,
+                3 => SecurityBadge::MintAndBurn,
+                4 => SecurityBadge::None,
                 _ => return Err(bytesrepr::Error::LeftOverBytes),
             },
             &[],
@@ -193,5 +197,16 @@ pub fn sec_check(allowed_badge_list: Vec<SecurityBadge>) {
             .unwrap_or_revert_with(Cep18Error::InsufficientRights),
     ) {
         revert(Cep18Error::InsufficientRights)
+    }
+}
+
+pub fn change_sec_badge(badge_map: BTreeMap<Key, SecurityBadge>) {
+    let sec_uref = get_uref(SECURITY_BADGES);
+    for (user, badge) in badge_map {
+        dictionary_put(
+            sec_uref,
+            &base64::encode(user.to_bytes().unwrap_or_revert()),
+            badge,
+        )
     }
 }

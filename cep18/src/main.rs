@@ -13,6 +13,7 @@ mod modalities;
 mod utils;
 
 use alloc::{
+    collections::BTreeMap,
     format,
     string::{String, ToString},
     vec,
@@ -37,8 +38,8 @@ use casper_types::{
 use constants::{
     ACCESS_KEY_NAME_PREFIX, ADDRESS, ADMIN_LIST, ALLOWANCES, AMOUNT, BALANCES, BURNER_LIST,
     CONTRACT_NAME_PREFIX, CONTRACT_VERSION_PREFIX, DECIMALS, ENTRY_POINT_INIT, EVENTS_MODE,
-    HASH_KEY_NAME_PREFIX, MINTER_LIST, NAME, OWNER, PACKAGE_HASH, RECIPIENT, SECURITY_BADGES,
-    SPENDER, SYMBOL, TOTAL_SUPPLY,
+    HASH_KEY_NAME_PREFIX, MINTER_LIST, MINT_AND_BURN_LIST, NAME, NONE_LIST, OWNER, PACKAGE_HASH,
+    RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
 };
 pub use error::Cep18Error;
 use events::{
@@ -177,7 +178,11 @@ pub extern "C" fn transfer_from() {
 
 #[no_mangle]
 pub extern "C" fn mint() {
-    sec_check(vec![SecurityBadge::Admin, SecurityBadge::Minter]);
+    sec_check(vec![
+        SecurityBadge::Admin,
+        SecurityBadge::Minter,
+        SecurityBadge::MintAndBurn,
+    ]);
 
     let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
@@ -208,7 +213,11 @@ pub extern "C" fn mint() {
 
 #[no_mangle]
 pub extern "C" fn burn() {
-    sec_check(vec![SecurityBadge::Admin, SecurityBadge::Burner]);
+    sec_check(vec![
+        SecurityBadge::Admin,
+        SecurityBadge::Burner,
+        SecurityBadge::MintAndBurn,
+    ]);
 
     let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
@@ -256,6 +265,10 @@ pub extern "C" fn init() {
         utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
     let burner_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
+    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+        MINT_AND_BURN_LIST,
+        Cep18Error::InvalidMintAndBurnList,
+    );
 
     if let Some(minter_list) = minter_list {
         for minter in minter_list {
@@ -275,6 +288,15 @@ pub extern "C" fn init() {
             );
         }
     }
+    if let Some(mint_and_burn_list) = mint_and_burn_list {
+        for mint_and_burn in mint_and_burn_list {
+            dictionary_put(
+                security_badges_dict,
+                &base64::encode(mint_and_burn.to_bytes().unwrap_or_revert()),
+                SecurityBadge::MintAndBurn,
+            );
+        }
+    }
     if let Some(admin_list) = admin_list {
         for admin in admin_list {
             dictionary_put(
@@ -284,6 +306,52 @@ pub extern "C" fn init() {
             );
         }
     }
+}
+
+#[no_mangle]
+pub extern "C" fn change_security() {
+    sec_check(vec![SecurityBadge::Admin]);
+    let admin_list: Option<Vec<Key>> =
+        utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
+    let minter_list: Option<Vec<Key>> =
+        utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
+    let burner_list: Option<Vec<Key>> =
+        utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
+    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+        MINT_AND_BURN_LIST,
+        Cep18Error::InvalidMintAndBurnList,
+    );
+    let none_list: Option<Vec<Key>> =
+        utils::get_optional_named_arg_with_user_errors(NONE_LIST, Cep18Error::InvalidNoneList);
+
+    let mut badge_map: BTreeMap<Key, SecurityBadge> = BTreeMap::new();
+    if let Some(minter_list) = minter_list {
+        for account_key in minter_list {
+            badge_map.insert(account_key, SecurityBadge::Minter);
+        }
+    }
+    if let Some(burner_list) = burner_list {
+        for account_key in burner_list {
+            badge_map.insert(account_key, SecurityBadge::Burner);
+        }
+    }
+    if let Some(mint_and_burn_list) = mint_and_burn_list {
+        for account_key in mint_and_burn_list {
+            badge_map.insert(account_key, SecurityBadge::MintAndBurn);
+        }
+    }
+    if let Some(admin_list) = admin_list {
+        for account_key in admin_list {
+            badge_map.insert(account_key, SecurityBadge::Admin);
+        }
+    }
+    if let Some(none_list) = none_list {
+        for account_key in none_list {
+            badge_map.insert(account_key, SecurityBadge::None);
+        }
+    }
+
+    utils::change_sec_badge(badge_map);
 }
 
 #[no_mangle]
@@ -304,6 +372,10 @@ pub fn install_contract() {
         utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
     let burner_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
+    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+        MINT_AND_BURN_LIST,
+        Cep18Error::InvalidMintAndBurnList,
+    );
 
     let mut named_keys = NamedKeys::new();
     named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
@@ -352,6 +424,11 @@ pub fn install_contract() {
     if let Some(burner_list) = burner_list {
         init_args
             .insert(BURNER_LIST, burner_list)
+            .unwrap_or_revert();
+    }
+    if let Some(mint_and_burn_list) = mint_and_burn_list {
+        init_args
+            .insert(MINT_AND_BURN_LIST, mint_and_burn_list)
             .unwrap_or_revert();
     }
 

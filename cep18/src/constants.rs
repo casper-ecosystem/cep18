@@ -61,3 +61,6 @@ pub const SECURITY_BADGES: &str = "security_badges";
 pub const ADMIN_LIST: &str = "admin_list";
 pub const MINTER_LIST: &str = "minter_list";
 pub const BURNER_LIST: &str = "burner_list";
+pub const NONE_LIST: &str = "burner_list";
+pub const MINT_AND_BURN_LIST: &str = "mint_and_burn_list";
+pub const CHANGE_SECURITY: &str = "change_security";

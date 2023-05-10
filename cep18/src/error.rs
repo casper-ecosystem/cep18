@@ -32,6 +32,8 @@ pub enum Cep18Error {
     InvalidAdminList = 60011,
     InvalidMinterList = 60012,
     InvalidBurnerList = 60013,
+    InvalidMintAndBurnList = 60014,
+    InvalidNoneList = 60015,
 }
 
 impl From<Cep18Error> for ApiError {
