@@ -12,8 +12,5 @@ doctest = false
 test = false
 
 [dependencies]
-casper-contract = "1.4.4"
-casper-types = "1.6.0"
-hex = { version = "0.4.3", default-features = false }
-blake2 = { version = "0.10.6", default-features = false }
-base64 = { version = "0.21.0", default-features = false }
+casper-contract = "=1.4.4"
+casper-types = "=1.6.0"
