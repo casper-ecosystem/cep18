@@ -13,7 +13,7 @@
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json",
-    "generate:wasm": "ts-node \"src/scripts/generate-wasm.ts\"",
+    "generate:wasm": "ts-node \"src/scripts/copy-and-convert-wasms.ts\"",
     "postinstall": "npm run generate:wasm"
   },
   "repository": {
@@ -30,7 +30,7 @@
   "bugs": {
     "url": "https://github.com/casper-ecosystem/cep18/issues"
   },
-  "homepage": "https://github.com/casper-ecosystem/cep18#readme",
+  "homepage": "https://github.com/casper-ecosystem/cep18/tree/master/client-js#readme",
   "files": [
     "/dist"
   ],

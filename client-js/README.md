@@ -26,8 +26,8 @@ npm i casper-cep18-js-client
   ```ts
   import { ContractWASM, CEP18Client } from 'casper-cep18-js-client';
 
-  const erc20 = new CEP18Client(NODE_URL, NETWORK_NAME);
-  const deploy = erc20.install(
+  const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
+  const deploy = cep18.install(
     ContractWASM, // Contract wasm
     {
       name: tokenName,
