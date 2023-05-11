@@ -34,6 +34,7 @@ pub enum Cep18Error {
     InvalidBurnerList = 60013,
     InvalidMintAndBurnList = 60014,
     InvalidNoneList = 60015,
+    InvalidEnableMBFlag = 60016,
 }
 
 impl From<Cep18Error> for ApiError {

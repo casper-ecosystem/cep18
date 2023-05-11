@@ -195,7 +195,7 @@ pub fn init() -> EntryPoint {
 }
 
 /// Returns the default set of CEP18 token entry points.
-pub fn generate_entry_points() -> EntryPoints {
+pub fn generate_entry_points(enable_mint_burn: bool) -> EntryPoints {
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(init());
     entry_points.add_entry_point(name());
@@ -209,8 +209,10 @@ pub fn generate_entry_points() -> EntryPoints {
     entry_points.add_entry_point(decrease_allowance());
     entry_points.add_entry_point(increase_allowance());
     entry_points.add_entry_point(transfer_from());
-    entry_points.add_entry_point(burn());
-    entry_points.add_entry_point(mint());
     entry_points.add_entry_point(change_security());
+    if enable_mint_burn {
+        entry_points.add_entry_point(burn());
+        entry_points.add_entry_point(mint());
+    }
     entry_points
 }

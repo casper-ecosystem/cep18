@@ -37,9 +37,9 @@ use casper_types::{
 
 use constants::{
     ACCESS_KEY_NAME_PREFIX, ADDRESS, ADMIN_LIST, ALLOWANCES, AMOUNT, BALANCES, BURNER_LIST,
-    CONTRACT_NAME_PREFIX, CONTRACT_VERSION_PREFIX, DECIMALS, ENTRY_POINT_INIT, EVENTS_MODE,
-    HASH_KEY_NAME_PREFIX, MINTER_LIST, MINT_AND_BURN_LIST, NAME, NONE_LIST, OWNER, PACKAGE_HASH,
-    RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
+    CONTRACT_NAME_PREFIX, CONTRACT_VERSION_PREFIX, DECIMALS, ENABLE_MINT_BURN, ENTRY_POINT_INIT,
+    EVENTS_MODE, HASH_KEY_NAME_PREFIX, MINTER_LIST, MINT_AND_BURN_LIST, NAME, NONE_LIST, OWNER,
+    PACKAGE_HASH, RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
 };
 pub use error::Cep18Error;
 use events::{
@@ -377,6 +377,12 @@ pub fn install_contract() {
         Cep18Error::InvalidMintAndBurnList,
     );
 
+    let enable_mint_burn: bool = utils::get_optional_named_arg_with_user_errors(
+        ENABLE_MINT_BURN,
+        Cep18Error::InvalidEnableMBFlag,
+    )
+    .unwrap_or(false);
+
     let mut named_keys = NamedKeys::new();
     named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
     named_keys.insert(SYMBOL.to_string(), storage::new_uref(symbol).into());
@@ -389,7 +395,7 @@ pub fn install_contract() {
         EVENTS_MODE.to_string(),
         storage::new_uref(events_mode).into(),
     );
-    let entry_points = generate_entry_points();
+    let entry_points = generate_entry_points(enable_mint_burn);
 
     let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}{name}");
 

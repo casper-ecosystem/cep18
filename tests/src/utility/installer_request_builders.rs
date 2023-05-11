@@ -41,6 +41,15 @@ pub(crate) struct TestContext {
 }
 
 pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
+    setup_with_args(runtime_args! {
+        ARG_NAME => TOKEN_NAME,
+        ARG_SYMBOL => TOKEN_SYMBOL,
+        ARG_DECIMALS => TOKEN_DECIMALS,
+        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
+    })
+}
+
+pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBuilder, TestContext) {
     let mut builder = InMemoryWasmTestBuilder::default();
     builder.run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST);
 
@@ -61,17 +70,9 @@ pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     let transfer_request_2 =
         ExecuteRequestBuilder::transfer(*DEFAULT_ACCOUNT_ADDR, transfer_2_args).build();
 
-    let install_request_1 = ExecuteRequestBuilder::standard(
-        *DEFAULT_ACCOUNT_ADDR,
-        CEP18_CONTRACT_WASM,
-        runtime_args! {
-            ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        },
-    )
-    .build();
+    let install_request_1 =
+        ExecuteRequestBuilder::standard(*DEFAULT_ACCOUNT_ADDR, CEP18_CONTRACT_WASM, install_args)
+            .build();
 
     let install_request_2 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,

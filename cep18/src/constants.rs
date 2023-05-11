@@ -64,3 +64,4 @@ pub const BURNER_LIST: &str = "burner_list";
 pub const NONE_LIST: &str = "burner_list";
 pub const MINT_AND_BURN_LIST: &str = "mint_and_burn_list";
 pub const CHANGE_SECURITY: &str = "change_security";
+pub const ENABLE_MINT_BURN: &str = "enable_mint_burn";
