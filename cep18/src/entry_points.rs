@@ -83,7 +83,6 @@ pub fn increase_allowance() -> EntryPoint {
     EntryPoint::new(
         String::from(INCREASE_ALLOWANCE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER, Key::cl_type()),
             Parameter::new(SPENDER, Key::cl_type()),
             Parameter::new(AMOUNT, U256::cl_type()),
         ],
@@ -97,7 +96,6 @@ pub fn decrease_allowance() -> EntryPoint {
     EntryPoint::new(
         String::from(DECREASE_ALLOWANCE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER, Key::cl_type()),
             Parameter::new(SPENDER, Key::cl_type()),
             Parameter::new(AMOUNT, U256::cl_type()),
         ],
