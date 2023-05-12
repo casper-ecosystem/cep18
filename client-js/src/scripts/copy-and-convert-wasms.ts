@@ -3,7 +3,10 @@ import * as path from 'node:path';
 
 const LIST_OF_WASMS = ['cep18.wasm'];
 
-const PATH_FROM = path.resolve(__dirname, '../../../tests/wasm');
+const PATH_FROM = path.resolve(
+  __dirname,
+  '../../../target/wasm32-unknown-unknown/release'
+);
 const PATH_TO = path.resolve(__dirname, '../wasm');
 
 const convertFileContent = (base64: string) => `
