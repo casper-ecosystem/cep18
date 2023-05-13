@@ -79,6 +79,7 @@ pub fn approve() -> EntryPoint {
     )
 }
 
+/// Returns the `increase_allowance` entry point.
 pub fn increase_allowance() -> EntryPoint {
     EntryPoint::new(
         String::from(INCREASE_ALLOWANCE_ENTRY_POINT_NAME),
@@ -92,6 +93,7 @@ pub fn increase_allowance() -> EntryPoint {
     )
 }
 
+/// Returns the `decrease_allowance` entry point.
 pub fn decrease_allowance() -> EntryPoint {
     EntryPoint::new(
         String::from(DECREASE_ALLOWANCE_ENTRY_POINT_NAME),
@@ -152,6 +154,7 @@ pub fn decimals() -> EntryPoint {
     )
 }
 
+/// Returns the `burn` entry point.
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
@@ -162,6 +165,7 @@ pub fn burn() -> EntryPoint {
     )
 }
 
+/// Returns the `mint` entry point.
 pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
@@ -172,6 +176,7 @@ pub fn mint() -> EntryPoint {
     )
 }
 
+/// Returns the `change_security` entry point.
 pub fn change_security() -> EntryPoint {
     EntryPoint::new(
         String::from(CHANGE_SECURITY),
@@ -182,6 +187,7 @@ pub fn change_security() -> EntryPoint {
     )
 }
 
+/// Returns the `init` entry point.
 pub fn init() -> EntryPoint {
     EntryPoint::new(
         String::from(ENTRY_POINT_INIT),

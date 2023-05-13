@@ -26,7 +26,7 @@ use entry_points::generate_entry_points;
 
 use casper_contract::{
     contract_api::{
-        runtime::{self, get_caller, get_named_arg, put_key},
+        runtime::{self, get_caller, get_key, get_named_arg, put_key, revert},
         storage::{self, dictionary_put},
     },
     unwrap_or_revert::UnwrapOrRevert,
@@ -242,8 +242,13 @@ pub extern "C" fn burn() {
     events::record_event_dictionary(Event::Burn(Burn { owner, amount }))
 }
 
+/// Initiates the contracts states. Only used by the installer call,
+/// later calls will cause it to revert.
 #[no_mangle]
 pub extern "C" fn init() {
+    if get_key(ALLOWANCES).is_some() {
+        revert(Cep18Error::AlreadyInitialized);
+    }
     let package_hash = get_named_arg::<Key>(PACKAGE_HASH);
     put_key(PACKAGE_HASH, package_hash);
     storage::new_dictionary(ALLOWANCES).unwrap_or_revert();

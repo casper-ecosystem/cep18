@@ -1,6 +1,6 @@
 [package]
 name = "cep18-test-contract"
-version = "0.2.1"
+version = "1.0.0"
 authors = ["Michał Papierski <michal@casperlabs.io>"]
 edition = "2018"
 

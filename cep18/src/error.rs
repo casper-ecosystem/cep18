@@ -8,9 +8,6 @@ use casper_types::ApiError;
 /// Where a smart contract consuming this library needs to define further error variants, it can
 /// return those via the [`Error::User`] variant or equivalently via the [`ApiError::User`]
 /// variant.
-///
-/// Such a user error should be in the range `[0..(u16::MAX - 4)]` (i.e. [0, 65532]) to avoid
-/// conflicting with the other `Error` variants.
 #[repr(u16)]
 #[derive(Clone, Copy)]
 pub enum Cep18Error {
@@ -35,6 +32,7 @@ pub enum Cep18Error {
     InvalidMintAndBurnList = 60014,
     InvalidNoneList = 60015,
     InvalidEnableMBFlag = 60016,
+    AlreadyInitialized = 60017,
 }
 
 impl From<Cep18Error> for ApiError {

@@ -6,19 +6,21 @@ use casper_types::{bytesrepr::ToBytes, Key, URef, U256};
 
 use crate::{constants::BALANCES, error::Cep18Error, utils};
 
-/// Creates a dictionary item key for a dictionary item.
+/// Creates a dictionary item key for a dictionary item, by base64 encoding the Key argument
+/// since stringified Keys are too long to be used as dictionary keys.
 #[inline]
 fn make_dictionary_item_key(owner: Key) -> String {
     let preimage = owner.to_bytes().unwrap_or_revert();
     // NOTE: As for now dictionary item keys are limited to 64 characters only. Instead of using
-    // hashing (which will effectively hash a hash) we'll use base64. Preimage is about 33 bytes for
-    // both Key variants, and approximated base64-encoded length will be 4 * (33 / 3) ~ 44
+    // hashing (which will effectively hash a hash) we'll use base64. Preimage is 33 bytes for
+    // both used Key variants, and approximated base64-encoded length will be 4 * (33 / 3) ~ 44
     // characters.
     // Even if the preimage increased in size we still have extra space but even in case of much
     // larger preimage we can switch to base85 which has ratio of 4:5.
     base64::encode(preimage)
 }
 
+/// Getter for the "balances" dictionary URef.
 pub(crate) fn get_balances_uref() -> URef {
     utils::get_uref(BALANCES)
 }
