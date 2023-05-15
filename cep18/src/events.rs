@@ -39,7 +39,6 @@ pub struct Burn {
     pub amount: U256,
 }
 
-// `approve` entry point
 #[derive(Event, Debug, PartialEq, Eq)]
 pub struct SetAllowance {
     pub owner: Key,
@@ -77,6 +76,7 @@ pub struct TransferFrom {
     pub recipient: Key,
     pub amount: U256,
 }
+
 fn ces(event: Event) {
     match event {
         Event::Mint(ev) => emit(ev),

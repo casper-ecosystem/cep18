@@ -8,11 +8,11 @@ use casper_types::{
 
 use crate::constants::{
     ADDRESS, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT, APPROVE_ENTRY_POINT_NAME,
-    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, CHANGE_SECURITY, DECIMALS_ENTRY_POINT_NAME,
-    DECREASE_ALLOWANCE_ENTRY_POINT_NAME, ENTRY_POINT_INIT, INCREASE_ALLOWANCE_ENTRY_POINT_NAME,
-    MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER,
-    SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME,
-    TRANSFER_FROM_ENTRY_POINT_NAME,
+    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, CHANGE_SECURITY_ENTRY_POINT_NAME,
+    DECIMALS_ENTRY_POINT_NAME, DECREASE_ALLOWANCE_ENTRY_POINT_NAME,
+    INCREASE_ALLOWANCE_ENTRY_POINT_NAME, INIT_ENTRY_POINT_NAME, MINT_ENTRY_POINT_NAME,
+    NAME_ENTRY_POINT_NAME, OWNER, RECIPIENT, SPENDER, SYMBOL_ENTRY_POINT_NAME,
+    TOTAL_SUPPLY_ENTRY_POINT_NAME, TRANSFER_ENTRY_POINT_NAME, TRANSFER_FROM_ENTRY_POINT_NAME,
 };
 
 /// Returns the `name` entry point.
@@ -179,7 +179,7 @@ pub fn mint() -> EntryPoint {
 /// Returns the `change_security` entry point.
 pub fn change_security() -> EntryPoint {
     EntryPoint::new(
-        String::from(CHANGE_SECURITY),
+        String::from(CHANGE_SECURITY_ENTRY_POINT_NAME),
         vec![],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -190,7 +190,7 @@ pub fn change_security() -> EntryPoint {
 /// Returns the `init` entry point.
 pub fn init() -> EntryPoint {
     EntryPoint::new(
-        String::from(ENTRY_POINT_INIT),
+        String::from(INIT_ENTRY_POINT_NAME),
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,

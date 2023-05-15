@@ -41,7 +41,10 @@ pub const MINT_ENTRY_POINT_NAME: &str = "mint";
 /// Name of `burn` entry point.
 pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 /// Name of `init` entry point.
-pub const ENTRY_POINT_INIT: &str = "init";
+pub const INIT_ENTRY_POINT_NAME: &str = "init";
+/// Name of `change_security` entry point.
+pub const CHANGE_SECURITY_ENTRY_POINT_NAME: &str = "change_security";
+
 pub const INCREASE_ALLOWANCE_ENTRY_POINT_NAME: &str = "increase_allowance";
 pub const DECREASE_ALLOWANCE_ENTRY_POINT_NAME: &str = "decrease_allowance";
 
@@ -63,5 +66,4 @@ pub const MINTER_LIST: &str = "minter_list";
 pub const BURNER_LIST: &str = "burner_list";
 pub const NONE_LIST: &str = "burner_list";
 pub const MINT_AND_BURN_LIST: &str = "mint_and_burn_list";
-pub const CHANGE_SECURITY: &str = "change_security";
 pub const ENABLE_MINT_BURN: &str = "enable_mint_burn";
