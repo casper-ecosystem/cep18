@@ -43,10 +43,12 @@ use constants::{
 };
 pub use error::Cep18Error;
 use events::{
-    Burn, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance, Transfer, TransferFrom,
+    Burn, ChangeSecurity, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance,
+    Transfer, TransferFrom,
 };
 use utils::{
-    get_total_supply_uref, read_total_supply_from, sec_check, write_total_supply_to, SecurityBadge,
+    get_immediate_caller_address, get_total_supply_uref, read_from, read_total_supply_from,
+    sec_check, write_total_supply_to, SecurityBadge,
 };
 
 #[no_mangle]
@@ -178,6 +180,9 @@ pub extern "C" fn transfer_from() {
 
 #[no_mangle]
 pub extern "C" fn mint() {
+    if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
+        revert(Cep18Error::MintBurnDisabled);
+    }
     sec_check(vec![
         SecurityBadge::Admin,
         SecurityBadge::Minter,
@@ -213,6 +218,9 @@ pub extern "C" fn mint() {
 
 #[no_mangle]
 pub extern "C" fn burn() {
+    if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
+        revert(Cep18Error::MintBurnDisabled);
+    }
     sec_check(vec![
         SecurityBadge::Admin,
         SecurityBadge::Burner,
@@ -315,6 +323,9 @@ pub extern "C" fn init() {
 
 #[no_mangle]
 pub extern "C" fn change_security() {
+    if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
+        revert(Cep18Error::MintBurnDisabled);
+    }
     sec_check(vec![SecurityBadge::Admin]);
     let admin_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
@@ -356,7 +367,11 @@ pub extern "C" fn change_security() {
         }
     }
 
-    utils::change_sec_badge(badge_map);
+    utils::change_sec_badge(&badge_map);
+    events::record_event_dictionary(Event::ChangeSecurity(ChangeSecurity {
+        admin: get_immediate_caller_address().unwrap_or_revert(),
+        sec_change_map: badge_map,
+    }));
 }
 
 #[no_mangle]
@@ -382,11 +397,11 @@ pub fn install_contract() {
         Cep18Error::InvalidMintAndBurnList,
     );
 
-    let enable_mint_burn: bool = utils::get_optional_named_arg_with_user_errors(
+    let enable_mint_burn: u8 = utils::get_optional_named_arg_with_user_errors(
         ENABLE_MINT_BURN,
         Cep18Error::InvalidEnableMBFlag,
     )
-    .unwrap_or(false);
+    .unwrap_or(0);
 
     let mut named_keys = NamedKeys::new();
     named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
@@ -400,7 +415,11 @@ pub fn install_contract() {
         EVENTS_MODE.to_string(),
         storage::new_uref(events_mode).into(),
     );
-    let entry_points = generate_entry_points(enable_mint_burn);
+    named_keys.insert(
+        ENABLE_MINT_BURN.to_string(),
+        storage::new_uref(enable_mint_burn).into(),
+    );
+    let entry_points = generate_entry_points();
 
     let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}{name}");
 

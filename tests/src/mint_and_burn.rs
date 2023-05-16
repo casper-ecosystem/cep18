@@ -1,5 +1,5 @@
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
-use casper_types::{runtime_args, system::MINT, ApiError, Key, RuntimeArgs, U256};
+use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 
 use crate::utility::{
     constants::{
@@ -270,7 +270,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::NoSuchMethod(ref user_error)) if user_error == MINT),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
         "{:?}",
         error
     );
@@ -290,7 +290,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::NoSuchMethod(ref user_error)) if user_error == METHOD_BURN),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
         "{:?}",
         error
     );

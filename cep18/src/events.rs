@@ -1,9 +1,14 @@
 use core::convert::TryFrom;
 
+use alloc::collections::BTreeMap;
 use casper_contract::unwrap_or_revert::UnwrapOrRevert;
 use casper_types::{Key, U256};
 
-use crate::{constants::EVENTS_MODE, modalities::EventsMode, utils::read_from};
+use crate::{
+    constants::EVENTS_MODE,
+    modalities::EventsMode,
+    utils::{read_from, SecurityBadge},
+};
 
 use casper_event_standard::{emit, Event};
 
@@ -25,6 +30,7 @@ pub enum Event {
     DecreaseAllowance(DecreaseAllowance),
     Transfer(Transfer),
     TransferFrom(TransferFrom),
+    ChangeSecurity(ChangeSecurity),
 }
 
 #[derive(Event, Debug, PartialEq, Eq)]
@@ -77,6 +83,12 @@ pub struct TransferFrom {
     pub amount: U256,
 }
 
+#[derive(Event, Debug, PartialEq, Eq)]
+pub struct ChangeSecurity {
+    pub admin: Key,
+    pub sec_change_map: BTreeMap<Key, SecurityBadge>,
+}
+
 fn ces(event: Event) {
     match event {
         Event::Mint(ev) => emit(ev),
@@ -86,5 +98,6 @@ fn ces(event: Event) {
         Event::DecreaseAllowance(ev) => emit(ev),
         Event::Transfer(ev) => emit(ev),
         Event::TransferFrom(ev) => emit(ev),
+        Event::ChangeSecurity(ev) => emit(ev),
     }
 }

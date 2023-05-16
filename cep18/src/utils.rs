@@ -144,7 +144,7 @@ pub fn get_named_arg_with_user_errors<T: FromBytes>(
 }
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SecurityBadge {
     Admin = 0,
     Minter = 1,
@@ -199,9 +199,9 @@ pub fn sec_check(allowed_badge_list: Vec<SecurityBadge>) {
     }
 }
 
-pub fn change_sec_badge(badge_map: BTreeMap<Key, SecurityBadge>) {
+pub fn change_sec_badge(badge_map: &BTreeMap<Key, SecurityBadge>) {
     let sec_uref = get_uref(SECURITY_BADGES);
-    for (user, badge) in badge_map {
+    for (&user, &badge) in badge_map {
         dictionary_put(
             sec_uref,
             &base64::encode(user.to_bytes().unwrap_or_revert()),

@@ -33,6 +33,7 @@ pub enum Cep18Error {
     InvalidNoneList = 60015,
     InvalidEnableMBFlag = 60016,
     AlreadyInitialized = 60017,
+    MintBurnDisabled = 60018,
 }
 
 impl From<Cep18Error> for ApiError {
