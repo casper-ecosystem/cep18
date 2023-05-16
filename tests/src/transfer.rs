@@ -500,24 +500,24 @@ fn should_transfer_contract_to_account() {
     );
 }
 
-// #[test]
-// fn should_transfer_account_to_contract() {
-//     let (mut builder, test_context) = setup();
+#[test]
+fn should_transfer_account_to_contract() {
+    let (mut builder, test_context) = setup();
 
-//     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
-//     let recipient1 = Key::Account(*ACCOUNT_1_ADDR);
-//     let sender2 = Key::Account(*ACCOUNT_1_ADDR);
-//     let recipient2 = Key::Hash(test_context.test_contract.value());
+    let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
+    let recipient1 = Key::Account(*ACCOUNT_1_ADDR);
+    let sender2 = Key::Account(*ACCOUNT_1_ADDR);
+    let recipient2 = Key::Hash(test_context.cep18_test_contract.value());
 
-//     test_cep18_transfer(
-//         &mut builder,
-//         &test_context,
-//         sender1,
-//         recipient1,
-//         sender2,
-//         recipient2,
-//     );
-// }
+    test_cep18_transfer(
+        &mut builder,
+        &test_context,
+        sender1,
+        recipient1,
+        sender2,
+        recipient2,
+    );
+}
 
 #[test]
 fn should_transfer_account_to_account() {

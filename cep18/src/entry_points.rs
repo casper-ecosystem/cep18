@@ -36,6 +36,7 @@ pub fn symbol() -> EntryPoint {
         EntryPointType::Contract,
     )
 }
+
 /// Returns the `transfer_from` entry point.
 pub fn transfer_from() -> EntryPoint {
     EntryPoint::new(
