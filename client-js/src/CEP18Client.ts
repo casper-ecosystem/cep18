@@ -1,14 +1,12 @@
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import { blake2b } from '@noble/hashes/blake2b';
 import {
-  CasperClient,
   CasperServiceByJsonRPC,
   type CLKeyParameters,
   type CLPublicKey,
   type CLU256,
   CLValueBuilder,
   CLValueParsers,
-  Contracts,
   DeployUtil,
   encodeBase16,
   encodeBase64,
@@ -18,35 +16,36 @@ import {
 } from 'casper-js-sdk';
 
 import { ContractError } from './error';
+import { TypedContract } from './TypedContract';
 import {
   ApproveArgs,
   BurnArgs,
   ChangeSecurityArgs,
+  EVENTS_MODE,
   InstallArgs,
   MintArgs,
   TransferArgs,
   TransferFromArgs
 } from './types';
 
-const { Contract } = Contracts;
-
-export default class CEP18Client {
-  public contractClient: Contracts.Contract;
-
+export default class CEP18Client extends TypedContract {
   constructor(public nodeAddress: string, public networkName: string) {
-    this.contractClient = new Contract(new CasperClient(nodeAddress));
+    super(nodeAddress, networkName);
   }
 
-  public setContractHash(contractHash: string, contractPackageHash?: string) {
+  public setContractHash(
+    contractHash: `hash-${string}`,
+    contractPackageHash?: `hash-${string}`
+  ) {
     this.contractClient.setContractHash(contractHash, contractPackageHash);
   }
 
-  public get contractHash() {
-    return this.contractClient.contractHash;
+  public get contractHash(): `hash-${string}` {
+    return this.contractClient.contractHash as `hash-${string}`;
   }
 
-  public get contractPackageHash() {
-    return this.contractClient.contractPackageHash;
+  public get contractPackageHash(): `hash-${string}` {
+    return this.contractClient.contractPackageHash as `hash-${string}`;
   }
 
   /**
@@ -55,7 +54,7 @@ export default class CEP18Client {
    * @param args contract install arguments @see {@link InstallArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -64,7 +63,7 @@ export default class CEP18Client {
     args: InstallArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const { name, symbol, decimals, totalSupply, eventsMode } = args;
@@ -84,7 +83,7 @@ export default class CEP18Client {
       runtimeArgs,
       BigNumber.from(paymentAmount).toString(),
       sender,
-      chainName,
+      networkName,
       signingKeys
     );
   }
@@ -94,7 +93,7 @@ export default class CEP18Client {
    * @param args @see {@link TransferArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -102,7 +101,7 @@ export default class CEP18Client {
     args: TransferArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -114,7 +113,7 @@ export default class CEP18Client {
       'transfer',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -125,7 +124,7 @@ export default class CEP18Client {
    * @param args @see {@link TransferFromArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -133,7 +132,7 @@ export default class CEP18Client {
     args: TransferFromArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -146,7 +145,7 @@ export default class CEP18Client {
       'transfer_from',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -157,7 +156,7 @@ export default class CEP18Client {
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -165,7 +164,7 @@ export default class CEP18Client {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -177,7 +176,7 @@ export default class CEP18Client {
       'approve',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -188,7 +187,7 @@ export default class CEP18Client {
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -196,7 +195,7 @@ export default class CEP18Client {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -208,7 +207,7 @@ export default class CEP18Client {
       'increase_allowance',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -219,7 +218,7 @@ export default class CEP18Client {
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -227,7 +226,7 @@ export default class CEP18Client {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -239,7 +238,7 @@ export default class CEP18Client {
       'decrease_allowance',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -251,7 +250,7 @@ export default class CEP18Client {
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -259,7 +258,7 @@ export default class CEP18Client {
     args: MintArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -271,7 +270,7 @@ export default class CEP18Client {
       'mint',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -282,7 +281,7 @@ export default class CEP18Client {
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender deploy sender
-   * @param chainName chain name which will be deployed to
+   * @param networkName network name which will be deployed to
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @returns Deploy object which can be send to the node.
    */
@@ -290,7 +289,7 @@ export default class CEP18Client {
     args: BurnArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -302,17 +301,26 @@ export default class CEP18Client {
       'burn',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
   }
 
+  /**
+   * Change token security
+   * @param args @see {@link ChangeSecurityArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param networkName network name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
   public changeSecurity(
     args: ChangeSecurityArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    chainName: string,
+    networkName: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({});
@@ -358,7 +366,7 @@ export default class CEP18Client {
       'change_security',
       runtimeArgs,
       sender,
-      chainName,
+      networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -467,6 +475,17 @@ export default class CEP18Client {
     return this.contractClient.queryContractData([
       'total_supply'
     ]) as Promise<BigNumber>;
+  }
+
+  /**
+   * Returns the event mode of the CEP18 token
+   */
+  public async eventsMode(): Promise<keyof typeof EVENTS_MODE> {
+    const internalValue = (await this.contractClient.queryContractData([
+      'events_mode'
+    ])) as BigNumber;
+    const u8res = internalValue.toNumber();
+    return EVENTS_MODE[u8res] as keyof typeof EVENTS_MODE;
   }
 
   /**

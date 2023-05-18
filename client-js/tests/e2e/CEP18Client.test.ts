@@ -70,7 +70,7 @@ describe('CEP18Client', () => {
     const contarctHash = findKeyFromAccountNamedKeys(
       accountInfo,
       'cep18_token_contract'
-    );
+    ) as `hash-${string}`;
     cep18.setContractHash(contarctHash);
 
     expectDeployResultToSuccess(result);
