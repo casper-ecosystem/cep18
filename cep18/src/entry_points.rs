@@ -159,7 +159,10 @@ pub fn decimals() -> EntryPoint {
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
-        vec![Parameter::new(AMOUNT, U256::cl_type())],
+        vec![
+          Parameter::new(OWNER, Key::cl_type()),
+          Parameter::new(AMOUNT, U256::cl_type()),
+        ],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -170,7 +173,10 @@ pub fn burn() -> EntryPoint {
 pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
-        vec![Parameter::new(AMOUNT, U256::cl_type())],
+        vec![
+          Parameter::new(OWNER, Key::cl_type()),
+          Parameter::new(AMOUNT, U256::cl_type()),
+        ],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
