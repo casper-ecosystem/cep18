@@ -10,6 +10,7 @@ import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
 import APPROVE_ARGS_JSON from './json/approve-args.json';
 import BURN_ARGS_JSON from './json/burn-args.json';
+import CHANGE_SECURITY_ARGS_JSON from './json/change-security-args.json';
 import DECREASE_ALLOWANCE_ARGS_JSON from './json/decrase-allowance-args.json';
 import INCREASE_ALLOWANCE_ARGS_JSON from './json/incrase-allowance-args.json';
 import INSTALL_ARGS_JSON from './json/install-args.json';
@@ -250,6 +251,43 @@ describe('CEP18Client', () => {
     );
     expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
       BURN_ARGS_JSON
+    );
+  });
+
+  it('should revert if no args were provided to changeSecurity', () => {
+    const invalidFunc = () =>
+      cep18.changeSecurity({}, 5_000_000_000, owner.publicKey, NETWORK_NAME, [
+        owner
+      ]);
+
+    expect(invalidFunc).toThrowError('Should provide at least one arg');
+  });
+
+  it('should construct changeSecurity args properly', () => {
+    const minterList = [ali.publicKey];
+    const burnerList = [ali.publicKey, bob.publicKey];
+    const deploy = cep18.changeSecurity(
+      {
+        adminList: [owner.publicKey],
+        minterList,
+        burnerList
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
+
+    expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
+      'change_security'
+    );
+    console.dir((JsonDeploy as any).session.StoredContractByHash.args, {
+      depth: null
+    });
+    expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
+      CHANGE_SECURITY_ARGS_JSON
     );
   });
 });

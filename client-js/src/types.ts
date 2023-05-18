@@ -45,3 +45,11 @@ export interface MintArgs extends TransferableArgs {
 export interface BurnArgs extends TransferableArgs {
   owner: CLKeyParameters;
 }
+
+export interface ChangeSecurityArgs {
+  adminList?: CLKeyParameters[];
+  minterList?: CLKeyParameters[];
+  burnerList?: CLKeyParameters[];
+  mintAndBurnList?: CLKeyParameters[];
+  noneList?: CLKeyParameters[];
+}

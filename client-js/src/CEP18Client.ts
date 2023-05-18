@@ -21,6 +21,7 @@ import { ContractError } from './error';
 import {
   ApproveArgs,
   BurnArgs,
+  ChangeSecurityArgs,
   InstallArgs,
   MintArgs,
   TransferArgs,
@@ -299,6 +300,62 @@ export default class CEP18Client {
 
     return this.contractClient.callEntrypoint(
       'burn',
+      runtimeArgs,
+      sender,
+      chainName,
+      BigNumber.from(paymentAmount).toString(),
+      signingKeys
+    );
+  }
+
+  public changeSecurity(
+    args: ChangeSecurityArgs,
+    paymentAmount: BigNumberish,
+    sender: CLPublicKey,
+    chainName: string,
+    signingKeys?: Keys.AsymmetricKey[]
+  ): DeployUtil.Deploy {
+    const runtimeArgs = RuntimeArgs.fromMap({});
+
+    // Add optional args
+    if (args.adminList) {
+      runtimeArgs.insert(
+        'admin_list',
+        CLValueBuilder.list(args.adminList.map(CLValueBuilder.key))
+      );
+    }
+    if (args.minterList) {
+      runtimeArgs.insert(
+        'minter_list',
+        CLValueBuilder.list(args.minterList.map(CLValueBuilder.key))
+      );
+    }
+    if (args.burnerList) {
+      runtimeArgs.insert(
+        'burner_list',
+        CLValueBuilder.list(args.burnerList.map(CLValueBuilder.key))
+      );
+    }
+    if (args.mintAndBurnList) {
+      runtimeArgs.insert(
+        'mint_and_burn_list',
+        CLValueBuilder.list(args.mintAndBurnList.map(CLValueBuilder.key))
+      );
+    }
+    if (args.noneList) {
+      runtimeArgs.insert(
+        'none_list',
+        CLValueBuilder.list(args.noneList.map(CLValueBuilder.key))
+      );
+    }
+
+    // Check if at least one arg is provided and revert if none was provided
+    if (runtimeArgs.args.size === 0) {
+      throw new Error('Should provide at least one arg');
+    }
+
+    return this.contractClient.callEntrypoint(
+      'change_security',
       runtimeArgs,
       sender,
       chainName,
