@@ -321,6 +321,12 @@ pub extern "C" fn init() {
     }
 }
 
+/// Admin EntryPoint to manipulate the security access granted to users.
+/// One user can only possess one access group badge.
+/// Change strength: None > Admin > MintAndBurn > Burner > Minter
+/// Change strength meaning by example: If user is added to both Minter and Admin they will be an
+/// Admin, also if a user is added to Admin and None then they will be removed from having rights.
+/// Beware: do not remove the last Admin because that will lock out all admin functionality.
 #[no_mangle]
 pub extern "C" fn change_security() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {

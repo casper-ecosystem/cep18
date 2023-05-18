@@ -160,8 +160,8 @@ pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
         vec![
-          Parameter::new(OWNER, Key::cl_type()),
-          Parameter::new(AMOUNT, U256::cl_type()),
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -174,8 +174,8 @@ pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
         vec![
-          Parameter::new(OWNER, Key::cl_type()),
-          Parameter::new(AMOUNT, U256::cl_type()),
+            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new(AMOUNT, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -187,7 +187,16 @@ pub fn mint() -> EntryPoint {
 pub fn change_security() -> EntryPoint {
     EntryPoint::new(
         String::from(CHANGE_SECURITY_ENTRY_POINT_NAME),
-        vec![],
+        vec![
+            // Optional Arguments (can be added or omitted when calling):
+            /*
+            - "admin_list" : Vec<Key>
+            - "mint_and_burn_list" : Vec<Key>
+            - "minter_list" : Vec<Key>
+            - "burner_list" : Vec<Key>
+            - "none_list" : Vec<Key>
+            */
+        ],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
