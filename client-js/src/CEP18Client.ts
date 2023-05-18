@@ -20,7 +20,9 @@ import {
 import { ContractError } from './error';
 import {
   ApproveArgs,
+  BurnArgs,
   InstallArgs,
+  MintArgs,
   TransferArgs,
   TransferFromArgs
 } from './types';
@@ -234,6 +236,69 @@ export default class CEP18Client {
 
     return this.contractClient.callEntrypoint(
       'decrease_allowance',
+      runtimeArgs,
+      sender,
+      chainName,
+      BigNumber.from(paymentAmount).toString(),
+      signingKeys
+    );
+  }
+
+  /**
+   * Create `args.amount` tokens and assigns them to `args.owner`.
+   * Increases the total supply
+   * @param args @see {@link ApproveArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
+  public mint(
+    args: MintArgs,
+    paymentAmount: BigNumberish,
+    sender: CLPublicKey,
+    chainName: string,
+    signingKeys?: Keys.AsymmetricKey[]
+  ): DeployUtil.Deploy {
+    const runtimeArgs = RuntimeArgs.fromMap({
+      owner: CLValueBuilder.key(args.owner),
+      amount: CLValueBuilder.u256(args.amount)
+    });
+
+    return this.contractClient.callEntrypoint(
+      'mint',
+      runtimeArgs,
+      sender,
+      chainName,
+      BigNumber.from(paymentAmount).toString(),
+      signingKeys
+    );
+  }
+
+  /**
+   * Destroy `args.amount` tokens from `args.owner`. Decreases the total supply
+   * @param args @see {@link ApproveArgs}
+   * @param paymentAmount payment amount required for installing the contract
+   * @param sender deploy sender
+   * @param chainName chain name which will be deployed to
+   * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
+   * @returns Deploy object which can be send to the node.
+   */
+  public burn(
+    args: BurnArgs,
+    paymentAmount: BigNumberish,
+    sender: CLPublicKey,
+    chainName: string,
+    signingKeys?: Keys.AsymmetricKey[]
+  ): DeployUtil.Deploy {
+    const runtimeArgs = RuntimeArgs.fromMap({
+      owner: CLValueBuilder.key(args.owner),
+      amount: CLValueBuilder.u256(args.amount)
+    });
+
+    return this.contractClient.callEntrypoint(
+      'burn',
       runtimeArgs,
       sender,
       chainName,

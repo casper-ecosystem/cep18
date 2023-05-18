@@ -9,9 +9,11 @@ import CEP18Client from '../../src/CEP18Client';
 import { InstallArgs } from '../../src/types';
 import { NETWORK_NAME, NODE_URL, users } from '../config';
 import APPROVE_ARGS_JSON from './json/approve-args.json';
+import BURN_ARGS_JSON from './json/burn-args.json';
 import DECREASE_ALLOWANCE_ARGS_JSON from './json/decrase-allowance-args.json';
 import INCREASE_ALLOWANCE_ARGS_JSON from './json/incrase-allowance-args.json';
 import INSTALL_ARGS_JSON from './json/install-args.json';
+import MINT_ARGS_JSON from './json/mint-args.json';
 import TRANSFER_ARGS_JSON from './json/transfer-args.json';
 import TRANSFER_FROM_ARGS_JSON from './json/transfer-from-args.json';
 
@@ -200,6 +202,54 @@ describe('CEP18Client', () => {
     );
     expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
       DECREASE_ALLOWANCE_ARGS_JSON
+    );
+  });
+
+  it('should construct mint args properly', () => {
+    const recipient = ali.publicKey;
+    const amount = 50_000_000_000;
+    const deploy = cep18.mint(
+      {
+        owner: recipient,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
+
+    expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
+      'mint'
+    );
+    expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
+      MINT_ARGS_JSON
+    );
+  });
+
+  it('should construct burn args properly', () => {
+    const recipient = ali.publicKey;
+    const amount = 50_000_000_000;
+    const deploy = cep18.burn(
+      {
+        owner: recipient,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+
+    const { deploy: JsonDeploy } = DeployUtil.deployToJson(deploy);
+
+    expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
+      'burn'
+    );
+    expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
+      BURN_ARGS_JSON
     );
   });
 });

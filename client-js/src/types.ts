@@ -37,3 +37,11 @@ export interface TransferFromArgs extends TransferArgs {
 export interface ApproveArgs extends TransferableArgs {
   spender: CLKeyParameters;
 }
+
+export interface MintArgs extends TransferableArgs {
+  owner: CLKeyParameters;
+}
+
+export interface BurnArgs extends TransferableArgs {
+  owner: CLKeyParameters;
+}
