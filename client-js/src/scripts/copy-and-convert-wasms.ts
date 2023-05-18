@@ -15,8 +15,11 @@ const convertFileContent = (base64: string) => `
   /* eslint-disable eslint-comments/no-unlimited-disable */
   /* eslint-disable */
   /* prettier-ignore */
+
+  import { decodeBase64 } from "casper-js-sdk";
+
   const base64 = "${base64}";
-  const wasm = new Uint8Array(Buffer.from(base64, 'base64'));
+  const wasm = decodeBase64(base64);
   export default wasm;
 `;
 
