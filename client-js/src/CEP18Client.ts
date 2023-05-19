@@ -63,7 +63,7 @@ export default class CEP18Client extends TypedContract {
     args: InstallArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const { name, symbol, decimals, totalSupply, eventsMode } = args;
@@ -83,7 +83,7 @@ export default class CEP18Client extends TypedContract {
       runtimeArgs,
       BigNumber.from(paymentAmount).toString(),
       sender,
-      networkName,
+      networkName ?? this.networkName,
       signingKeys
     );
   }
@@ -101,7 +101,7 @@ export default class CEP18Client extends TypedContract {
     args: TransferArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -113,7 +113,7 @@ export default class CEP18Client extends TypedContract {
       'transfer',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -132,7 +132,7 @@ export default class CEP18Client extends TypedContract {
     args: TransferFromArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -145,7 +145,7 @@ export default class CEP18Client extends TypedContract {
       'transfer_from',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -164,7 +164,7 @@ export default class CEP18Client extends TypedContract {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -176,7 +176,7 @@ export default class CEP18Client extends TypedContract {
       'approve',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -195,7 +195,7 @@ export default class CEP18Client extends TypedContract {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -207,7 +207,7 @@ export default class CEP18Client extends TypedContract {
       'increase_allowance',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -226,7 +226,7 @@ export default class CEP18Client extends TypedContract {
     args: ApproveArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -238,7 +238,7 @@ export default class CEP18Client extends TypedContract {
       'decrease_allowance',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -258,7 +258,7 @@ export default class CEP18Client extends TypedContract {
     args: MintArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -270,7 +270,7 @@ export default class CEP18Client extends TypedContract {
       'mint',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -289,7 +289,7 @@ export default class CEP18Client extends TypedContract {
     args: BurnArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({
@@ -301,7 +301,7 @@ export default class CEP18Client extends TypedContract {
       'burn',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
@@ -320,7 +320,7 @@ export default class CEP18Client extends TypedContract {
     args: ChangeSecurityArgs,
     paymentAmount: BigNumberish,
     sender: CLPublicKey,
-    networkName: string,
+    networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
     const runtimeArgs = RuntimeArgs.fromMap({});
@@ -366,7 +366,7 @@ export default class CEP18Client extends TypedContract {
       'change_security',
       runtimeArgs,
       sender,
-      networkName,
+      networkName ?? this.networkName,
       BigNumber.from(paymentAmount).toString(),
       signingKeys
     );
