@@ -19,15 +19,15 @@ use casper_execution_engine::core::{
 fn should_approve_funds_contract_to_account() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract,
+        cep18_test_contract_package,
         ..
     } = test_context;
 
     test_approve_for(
         &mut builder,
         &test_context,
-        Key::Hash(cep18_test_contract.value()),
-        Key::Hash(cep18_test_contract.value()),
+        Key::Hash(cep18_test_contract_package.value()),
+        Key::Hash(cep18_test_contract_package.value()),
         Key::Account(*DEFAULT_ACCOUNT_ADDR),
     );
 }
@@ -36,15 +36,15 @@ fn should_approve_funds_contract_to_account() {
 fn should_approve_funds_contract_to_contract() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract,
+        cep18_test_contract_package,
         ..
     } = test_context;
 
     test_approve_for(
         &mut builder,
         &test_context,
-        Key::Hash(cep18_test_contract.value()),
-        Key::Hash(cep18_test_contract.value()),
+        Key::Hash(cep18_test_contract_package.value()),
+        Key::Hash(cep18_test_contract_package.value()),
         Key::Hash([42; 32]),
     );
 }
