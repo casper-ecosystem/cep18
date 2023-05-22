@@ -853,23 +853,23 @@ To run the tests, issue the following command in the project folder, [cep18](htt
 
 ```
 
-The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob/master/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/cep18/tree/master/testing/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
+The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob/master/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/cep18/tree/master/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
 
 ## Configuring the Test Package {#configuring-the-test-package}
 
-In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/cep18/blob/master/testing/tests/Cargo.toml) file.
+In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/cep18/blob/master/tests/Cargo.toml) file.
 
 ```bash
 
     [package]
     name = "tests"
-    version = "0.2.1"
+    version = "1.0.0"
     ...
 
     [dependencies]
-    casper-types = "1.5.0"
-    casper-engine-test-support = "2.2.0"
-    casper-execution-engine = "2.0.1"
+    casper-types = "2.0.0"
+    casper-engine-test-support = "4.0.0"
+    casper-execution-engine = "4.0.0"
     once_cell = "1.16.0"
 
     [lib]
@@ -1117,7 +1117,7 @@ The example below shows one of the example tests. Visit [GitHub](https://github.
 
 ## Running the Tests {#running-the-tests}
 
-The [lib.rs](https://github.com/casper-ecosystem/cep18/blob/master/testing/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
+The [lib.rs](https://github.com/casper-ecosystem/cep18/blob/master/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
 
 ```rust
 

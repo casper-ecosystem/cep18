@@ -37,7 +37,7 @@ pub(crate) fn invert_cep18_address(address: Key) -> Key {
 #[derive(Copy, Clone)]
 pub(crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
-    pub(crate) cep18_test_contract: ContractPackageHash,
+    pub(crate) cep18_test_contract_package: ContractPackageHash,
 }
 
 pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
@@ -97,7 +97,7 @@ pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBui
         .map(ContractHash::new)
         .expect("should have contract hash");
 
-    let cep18_test_contract = account
+    let cep18_test_contract_package = account
         .named_keys()
         .get(CEP18_TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
@@ -106,7 +106,7 @@ pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBui
 
     let test_context = TestContext {
         cep18_token,
-        cep18_test_contract,
+        cep18_test_contract_package,
     };
 
     (builder, test_context)
@@ -120,7 +120,7 @@ pub(crate) fn cep18_check_total_supply(
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
 
-    let cep18_test_contract_hash = account
+    let cep18_test_contract_package = account
         .named_keys()
         .get(CEP18_TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
@@ -133,7 +133,7 @@ pub(crate) fn cep18_check_total_supply(
 
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
-        cep18_test_contract_hash,
+        cep18_test_contract_package,
         None,
         CHECK_TOTAL_SUPPLY_ENTRYPOINT,
         check_total_supply_args,
@@ -141,15 +141,15 @@ pub(crate) fn cep18_check_total_supply(
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    get_test_result(builder, cep18_test_contract_hash)
+    get_test_result(builder, cep18_test_contract_package)
 }
 
 pub(crate) fn get_test_result<T: FromBytes + CLTyped>(
     builder: &mut InMemoryWasmTestBuilder,
-    cep18_test_contract_hash: ContractPackageHash,
+    cep18_test_contract_package: ContractPackageHash,
 ) -> T {
     let contract_package = builder
-        .get_contract_package(cep18_test_contract_hash)
+        .get_contract_package(cep18_test_contract_package)
         .expect("should have contract package");
     let enabled_versions = contract_package.enabled_versions();
     let (_version, contract_hash) = enabled_versions
@@ -170,7 +170,7 @@ pub(crate) fn cep18_check_balance_of(
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
 
-    let cep18_test_contract_hash = account
+    let cep18_test_contract_package = account
         .named_keys()
         .get(CEP18_TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
@@ -183,7 +183,7 @@ pub(crate) fn cep18_check_balance_of(
     };
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
-        cep18_test_contract_hash,
+        cep18_test_contract_package,
         None,
         CHECK_BALANCE_OF_ENTRYPOINT,
         check_balance_args,
@@ -191,7 +191,7 @@ pub(crate) fn cep18_check_balance_of(
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    get_test_result(builder, cep18_test_contract_hash)
+    get_test_result(builder, cep18_test_contract_package)
 }
 
 pub(crate) fn cep18_check_allowance_of(
@@ -208,7 +208,7 @@ pub(crate) fn cep18_check_allowance_of(
         .and_then(|key| key.into_hash())
         .map(ContractHash::new)
         .expect("should have test contract hash");
-    let cep18_test_contract_hash = account
+    let cep18_test_contract_package = account
         .named_keys()
         .get(CEP18_TEST_CONTRACT_KEY)
         .and_then(|key| key.into_hash())
@@ -222,7 +222,7 @@ pub(crate) fn cep18_check_allowance_of(
     };
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
-        cep18_test_contract_hash,
+        cep18_test_contract_package,
         None,
         CHECK_ALLOWANCE_OF_ENTRYPOINT,
         check_balance_args,
@@ -230,7 +230,7 @@ pub(crate) fn cep18_check_allowance_of(
     .build();
     builder.exec(exec_request).expect_success().commit();
 
-    get_test_result(builder, cep18_test_contract_hash)
+    get_test_result(builder, cep18_test_contract_package)
 }
 
 pub(crate) fn test_cep18_transfer(
@@ -346,9 +346,9 @@ pub(crate) fn make_cep18_approve_request(
             },
         )
         .build(),
-        Key::Hash(contract_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
+        Key::Hash(contract_package_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            ContractPackageHash::new(contract_hash),
+            ContractPackageHash::new(contract_package_hash),
             None,
             METHOD_APPROVE_AS_STORED_CONTRACT,
             runtime_args! {
