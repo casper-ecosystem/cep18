@@ -207,7 +207,7 @@ fn should_transfer_from_account_by_contract() {
         mut builder,
         TestContext {
             cep18_token,
-            cep18_test_contract,
+            cep18_test_contract_package,
             ..
         },
     ) = setup();
@@ -218,7 +218,7 @@ fn should_transfer_from_account_by_contract() {
 
     let owner = *DEFAULT_ACCOUNT_ADDR;
 
-    let spender = Key::Hash(cep18_test_contract.value());
+    let spender = Key::Hash(cep18_test_contract_package.value());
     let recipient = Key::Account(*ACCOUNT_1_ADDR);
 
     let cep18_approve_args = runtime_args! {
@@ -247,7 +247,7 @@ fn should_transfer_from_account_by_contract() {
 
     let transfer_from_request_1 = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
-        cep18_test_contract,
+        cep18_test_contract_package,
         None,
         METHOD_FROM_AS_STORED_CONTRACT,
         cep18_transfer_from_args,
@@ -457,13 +457,13 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
 fn should_transfer_contract_to_contract() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract,
+        cep18_test_contract_package,
         ..
     } = test_context;
 
     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
-    let recipient1 = Key::Hash(cep18_test_contract.value());
-    let sender2 = Key::Hash(cep18_test_contract.value());
+    let recipient1 = Key::Hash(cep18_test_contract_package.value());
+    let sender2 = Key::Hash(cep18_test_contract_package.value());
     let recipient2 = Key::Hash([42; 32]);
 
     test_cep18_transfer(
@@ -480,14 +480,14 @@ fn should_transfer_contract_to_contract() {
 fn should_transfer_contract_to_account() {
     let (mut builder, test_context) = setup();
     let TestContext {
-        cep18_test_contract,
+        cep18_test_contract_package,
         ..
     } = test_context;
 
     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
-    let recipient1 = Key::Hash(cep18_test_contract.value());
+    let recipient1 = Key::Hash(cep18_test_contract_package.value());
 
-    let sender2 = Key::Hash(cep18_test_contract.value());
+    let sender2 = Key::Hash(cep18_test_contract_package.value());
     let recipient2 = Key::Account(*ACCOUNT_1_ADDR);
 
     test_cep18_transfer(
@@ -507,7 +507,7 @@ fn should_transfer_account_to_contract() {
     let sender1 = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let recipient1 = Key::Account(*ACCOUNT_1_ADDR);
     let sender2 = Key::Account(*ACCOUNT_1_ADDR);
-    let recipient2 = Key::Hash(test_context.cep18_test_contract.value());
+    let recipient2 = Key::Hash(test_context.cep18_test_contract_package.value());
 
     test_cep18_transfer(
         &mut builder,
