@@ -283,9 +283,6 @@ describe('CEP18Client', () => {
     expect((JsonDeploy as any).session.StoredContractByHash.entry_point).toBe(
       'change_security'
     );
-    console.dir((JsonDeploy as any).session.StoredContractByHash.args, {
-      depth: null
-    });
     expect((JsonDeploy as any).session.StoredContractByHash.args).toEqual(
       CHANGE_SECURITY_ARGS_JSON
     );

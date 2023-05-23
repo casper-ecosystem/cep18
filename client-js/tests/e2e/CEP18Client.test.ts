@@ -42,6 +42,8 @@ describe('CEP18Client', () => {
       [owner]
     );
 
+    await deploy.send(NODE_URL);
+
     const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
     expectDeployResultToSuccess(result);
@@ -55,7 +57,7 @@ describe('CEP18Client', () => {
     const deploy = cep18.install(
       ContractWASM,
       tokenInfo,
-      60_000_000_000,
+      150_000_000_000,
       owner.publicKey,
       NETWORK_NAME,
       [owner]
@@ -65,11 +67,13 @@ describe('CEP18Client', () => {
 
     const result = await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
+    expectDeployResultToSuccess(result);
+
     const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
 
     const contarctHash = findKeyFromAccountNamedKeys(
       accountInfo,
-      'cep18_token_contract'
+      `cep18_contract_hash_${tokenInfo.name}`
     ) as `hash-${string}`;
     cep18.setContractHash(contarctHash);
 
@@ -199,9 +203,9 @@ describe('CEP18Client', () => {
     );
 
     await deploy.send(NODE_URL);
-
+    await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
     await expect(
-      client.waitForDeploy(deploy, DEPLOY_TIMEOUT)
-    ).rejects.toThrowError('ERROR_INSUFFICIENT_BALANCE');
+      cep18.parseDeployResult(encodeBase16(deploy.hash))
+    ).rejects.toThrowError('InsufficientBalance');
   });
 });
