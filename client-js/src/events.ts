@@ -2,8 +2,8 @@ import { CLKey, CLU256, CLValue } from 'casper-js-sdk';
 
 export type Event<E extends Record<string, CLValue>> = {
   name: string;
-  contractHash: string;
-  contractPackageHash: string;
+  contractHash: `hash-${string}`;
+  contractPackageHash: `hash-${string}`;
   data: E;
 };
 

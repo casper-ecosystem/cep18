@@ -117,8 +117,8 @@ export default class EventEnabledContract {
 
     return results.map(r => ({
       ...r.event,
-      contractHash: encodeBase16(r.event.contractHash),
-      contractPackageHash: encodeBase16(r.event.contractPackageHash)
+      contractHash: `hash-${encodeBase16(r.event.contractHash)}`,
+      contractPackageHash: `hash-${encodeBase16(r.event.contractPackageHash)}`
     })) as CEP18Event[];
   }
 }
