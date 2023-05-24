@@ -1,12 +1,12 @@
 # Casper Fungible Token Tutorial
 
-This tutorial introduces an implementation of the ERC-20 standard for the Casper blockchain, known as the Casper Fungible Token. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
+This tutorial introduces an implementation of the CEP-18 standard for the Casper blockchain, known as the Casper Fungible Token. The code for this tutorial is available in [GitHub](https://github.com/casper-ecosystem/cep18).
 
-The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-20 tokens are blockchain-based assets that have value and can be transferred or recorded.
+The [Ethereum Request for Comment (CEP-18)](https://eips.ethereum.org/EIPS/eip-20#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These CEP-18 tokens are blockchain-based assets that have value and can be transferred or recorded.
 
-The Casper Fungible Token standard is the Casper Platform's ERC-20 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
+The Casper Fungible Token standard is the Casper Platform's CEP-18 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
-The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library.
+The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-cep18-crate/latest/casper_cep18_crate/) library.
 
 The [Writing Rust Contracts on Casper](https://docs.casperlabs.io/dapp-dev-guide/writing-contracts/getting-started/) document outlines many aspects of this tutorial and should be read first.
 
@@ -59,7 +59,7 @@ The [Writing Rust Contracts on Casper](https://docs.casperlabs.io/dapp-dev-guide
 First clone the contract from GitHub:
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20 && cd erc20
+git clone https://github.com/casper-ecosystem/cep18 && cd cep18
 ```
 
 Prepare your environment with the following command:
@@ -86,7 +86,7 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) of the Fungible Token for the Casper Network. This section explains the example contract in more detail.
+In [GitHub](https://github.com/casper-ecosystem/cep18), you will find a library and an [example implementation](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) of the Fungible Token for the Casper Network. This section explains the example contract in more detail.
 
 There are four steps to follow when you intend to create your own implementation of the Fungible Token contract, as follows:
 
@@ -101,7 +101,7 @@ This tutorial applies to the Rust implementation of the Casper Fungible Token st
 
 - [casper_contract](https://docs.rs/casper-contract/latest/casper_contract/index.html) - A Rust library for writing smart contracts on the Casper Network
 - [casper_types](https://docs.rs/casper-types/latest/casper_types/) - Types used to allow creation of Wasm contracts and tests for use on the Casper Network
-- [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) - A library for developing Fungible Tokens for the Casper Network
+- [casper_cep18](https://docs.rs/casper-cep18-crate/latest/casper_cep18_crate/) - A library for developing Fungible Tokens for the Casper Network
 
 Here is the code snippet which imports those crates:
 
@@ -111,22 +111,13 @@ use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 
 use casper_types::{CLValue, U256};
 
-use casper_erc20:{
-  constants::{
-    ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
-    NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
-    SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
-  },
-  Address, ERC20,
-};
-
 ```
 
 **Note**: In Rust, the keyword `use` is like an include statement in C/C++.
 
 ## Initializing the Contract {#initializing-the-contract}
 
-Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`.
+Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`.
 
 The code snippet for initializing the contract should look like this:
 
@@ -139,7 +130,7 @@ fn call() {
   let decimals = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
   let total_supply = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
 
-  let _token = ERC20::install(name, symbol, decimals, total_supply).unwrap_or_revert();
+  let _token = CEP18::install(name, symbol, decimals, total_supply).unwrap_or_revert();
 }
 
 ```
@@ -148,21 +139,21 @@ fn call() {
 
 This section briefly explains the contract methods used in the Casper Fungible Token contract.
 
-To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
+To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) in Github. If you have any questions, review the [casper_cep18](https://docs.rs/casper-cep18-crate/latest/casper_cep18_crate/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
 
 Also, for further unresolved issues please contact the casper development team via the Discord channel.
 
 Contract methods are:
 
-- [**allowance**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L71-L77) - Returns the amount of owner’s tokens allowed to be spent by the spender
-- [**approve**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L63-L69) - Allows a spender to transfer up to an amount of the direct caller’s tokens
-- [**balance_of**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L46-L51) - Returns the token balance of the owner
-- [**decimals**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L34-L38) - Returns the decimals of the token
-- [**name**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L22-L26)- Returns the name of the token
-- [**symbol**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L28-L32) - Returns the symbol of the token
-- [**total_supply**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L40-L44) - Returns the total supply of the token
-- [**transfer**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L53-L61) - Transfers an amount of tokens from the direct caller to a recipient
-- [**transfer_from**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L79-L87) - Transfers an amount of tokens from the owner to a recipient, if the direct caller has been previously approved to spend the specified amount on behalf of the owner
+- [**allowance**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L71-L77) - Returns the amount of owner’s tokens allowed to be spent by the spender
+- [**approve**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L63-L69) - Allows a spender to transfer up to an amount of the direct caller’s tokens
+- [**balance_of**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L46-L51) - Returns the token balance of the owner
+- [**decimals**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L34-L38) - Returns the decimals of the token
+- [**name**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L22-L26)- Returns the name of the token
+- [**symbol**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L28-L32) - Returns the symbol of the token
+- [**total_supply**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L40-L44) - Returns the total supply of the token
+- [**transfer**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L53-L61) - Transfers an amount of tokens from the direct caller to a recipient
+- [**transfer_from**](https://github.com/casper-ecosystem/cep18/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/cep18-token/src/main.rs#L79-L87) - Transfers an amount of tokens from the owner to a recipient, if the direct caller has been previously approved to spend the specified amount on behalf of the owner
 
 # Installing the Contract
 
@@ -181,7 +172,7 @@ Let's dive into the installation process.
 
 Here are the basic steps to install the Casper Fungible Token contract on a Casper Network.
 
-<img src="/images/erc20-deploy-flow.png" alt="erc20-deploy-flow" title="erc20-deploy-flow">
+<img src="/images/cep18-deploy-flow.png" alt="cep18-deploy-flow" title="cep18-deploy-flow">
 
 ## Cloning the Token Contract {#cloning-the-token-contract}
 
@@ -191,7 +182,7 @@ This step includes cloning and preparing the token contract for the deployment.
 
 ```bash
 
-git clone https://github.com/casper-ecosystem/erc20.git
+git clone https://github.com/casper-ecosystem/cep18.git
 
 ```
 
@@ -201,7 +192,7 @@ git clone https://github.com/casper-ecosystem/erc20.git
 
 ```bash
 
-cd erc20
+cd cep18
 make prepare
 make build-contracts
 
@@ -283,7 +274,7 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/erc20/target/wasm32-unknown-unknown/release/erc20_test.wasm"
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18_test.wasm"
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
@@ -304,7 +295,7 @@ casper-client get-deploy \
 
 ## Querying with Arguments {#querying-with-arguments}
 
-This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [Fungible Token contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
+This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [Fungible Token contract](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) to derive arguments.
 
 Use the command template below to query the network state with arguments:
 
@@ -323,7 +314,7 @@ The following steps will guide you through the process with sample values and re
 ### Cloning the Fungible Token Contract
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20.git
+git clone https://github.com/casper-ecosystem/cep18.git
 ```
 
 ### Getting an IP Address from a Testnet Peer
@@ -389,7 +380,7 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/erc20/target/wasm32-unknown-unknown/release/erc20_test.wasm"
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18_test.wasm"
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
@@ -828,10 +819,10 @@ You can see that the name is `CasperTest` in this example.
 
 The testing framework in this tutorial uses the [Casper engine test support](https://crates.io/crates/casper-engine-test-support) crate for testing the contract implementation against the Casper execution environment.
 
-The following section reviews the three [GitHub testing folders](https://github.com/casper-ecosystem/erc20/tree/master/testing), which create a testing framework for the Casper [Fungible Token](https://github.com/casper-ecosystem/erc20) project:
+The following section reviews the three [GitHub testing folders](https://github.com/casper-ecosystem/cep18/tree/master/testing), which create a testing framework for the Casper [Fungible Token](https://github.com/casper-ecosystem/cep18) project:
 
-- **erc20-test-call** - Links the test framework together and is required by the Rust toolchain
-- **erc20-test** - Sets up the testing context and creates helper functions used by unit tests
+- **cep18-test-call** - Links the test framework together and is required by the Rust toolchain
+- **cep18-test** - Sets up the testing context and creates helper functions used by unit tests
 - **tests** - Contains the unit tests
 
 The following is an example of a complete test:
@@ -854,7 +845,7 @@ The following is an example of a complete test:
     }
 ```
 
-To run the tests, issue the following command in the project folder, [erc20](https://github.com/casper-ecosystem/erc20):
+To run the tests, issue the following command in the project folder, [cep18](https://github.com/casper-ecosystem/cep18):
 
 ```bash
 
@@ -862,23 +853,23 @@ To run the tests, issue the following command in the project folder, [erc20](htt
 
 ```
 
-The project contains a [Makefile](https://github.com/casper-ecosystem/erc20/blob/master/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/erc20/tree/master/testing/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
+The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob/master/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/cep18/tree/master/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
 
 ## Configuring the Test Package {#configuring-the-test-package}
 
-In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/Cargo.toml) file.
+In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/cep18/blob/master/tests/Cargo.toml) file.
 
 ```bash
 
     [package]
     name = "tests"
-    version = "0.2.1"
+    version = "1.0.0"
     ...
 
     [dependencies]
-    casper-types = "1.5.0"
-    casper-engine-test-support = "2.2.0"
-    casper-execution-engine = "2.0.1"
+    casper-types = "2.0.0"
+    casper-engine-test-support = "4.0.0"
+    casper-execution-engine = "4.0.0"
     once_cell = "1.16.0"
 
     [lib]
@@ -888,37 +879,37 @@ In this project, we define a `tests` package using the [tests/Cargo.toml](https:
 
 ## Testing Logic {#testing-logic}
 
-In Github, you will find an [example](https://github.com/casper-ecosystem/erc20/tree/master/example) containing a Casper Fungible Token [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/erc20/tree/master/example/erc20-tests/src). The tests follow this sequence:
+In Github, you will find an [example](https://github.com/casper-ecosystem/cep18/tree/master/example) containing a Casper Fungible Token [contract](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-token/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/cep18/tree/master/example/cep18-tests/src). The tests follow this sequence:
 
 - [Step 1](#setting-up-the-testing-context) - Specify the starting state of the blockchain.
 - [Step 2](#deploying-the-contract) - Deploy the compiled contract to the blockchain and query it.
 - [Step 3](#invoking-contract-methods) - Create additional deploys for each of the methods in the contract.
 
-The [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs) accomplishes these steps by simulating a real-world deployment (storing the contract in the blockchain) and invoking methods in the contract.
+The [TestFixture](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs) accomplishes these steps by simulating a real-world deployment (storing the contract in the blockchain) and invoking methods in the contract.
 
 ### Setting up the testing context {#setting-up-the-testing-context}
 
-The code in the [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs) initializes the blockchain's [global state](https://docs.casperlabs.io/glossary/G/#global-state) with all the data and methods a smart contract needs.
+The code in the [TestFixture](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs) initializes the blockchain's [global state](https://docs.casperlabs.io/glossary/G/#global-state) with all the data and methods a smart contract needs.
 
-Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/erc20).
+Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/cep18).
 
 ```rust
 
-    // File https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs
+    // File https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs
 
     use casper_engine_test_support::{
         DeployItemBuilder, InMemoryWasmTestBuilder, ARG_AMOUNT, DEFAULT_PAYMENT,
         DEFAULT_RUN_GENESIS_REQUEST,
     };
-    use casper_erc20::constants as consts;
+    use casper_cep18::constants as consts;
     use casper_types::{
         account::AccountHash,
         bytesrepr::{FromBytes, ToBytes},
         runtime_args, CLTyped, ContractHash, Key, RuntimeArgs, U256,
     };
 
-    const CONTRACT_ERC20_TOKEN: &str = "erc20_token.wasm";
-    const CONTRACT_KEY_NAME: &str = "erc20_token_contract";
+    const CONTRACT_CEP18_TOKEN: &str = "cep18_token.wasm";
+    const CONTRACT_KEY_NAME: &str = "cep18_token_contract";
 
     fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {...}
     ...
@@ -929,7 +920,7 @@ Below is a subset of the required constants for this project. For the most up-to
 
 The next step is to define a struct that has its own virtual machine (VM) instance and implements the Fungible Token methods. This struct holds a `TestContext` of its own. The _contract_hash_ and the _session_code_ won’t change after the contract is deployed, so it is good to keep them handy.
 
-This code snippet builds the context and includes the compiled contract _.wasm_ binary being tested. The `TestFixture` struct creates a new instance of the `CONTRACT_ERC20_TOKEN` with the following accounts:
+This code snippet builds the context and includes the compiled contract _.wasm_ binary being tested. The `TestFixture` struct creates a new instance of the `CONTRACT_CEP18_TOKEN` with the following accounts:
 
 - `ali` - account used to deploy the contract
 - `bob`
@@ -937,11 +928,11 @@ This code snippet builds the context and includes the compiled contract _.wasm_ 
 
 **Note**: These accounts have a positive initial balance.
 
-The full and most recent code implementation is available on [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs).
+The full and most recent code implementation is available on [GitHub](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs).
 
 ```rust
 
-    // File https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs
+    // File https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs
 
     pub struct TestFixture {
         builder: InMemoryWasmTestBuilder,
@@ -951,7 +942,7 @@ The full and most recent code implementation is available on [GitHub](https://gi
     }
 
     impl TestFixture {
-        pub const TOKEN_NAME: &'static str = "Test ERC20";
+        pub const TOKEN_NAME: &'static str = "Test CEP18";
         pub const TOKEN_SYMBOL: &'static str = "TERC";
         pub const TOKEN_DECIMALS: u8 = 8;
         const TOKEN_TOTAL_SUPPLY_AS_U64: u64 = 1000;
@@ -964,7 +955,7 @@ The full and most recent code implementation is available on [GitHub](https://gi
           let mut builder = InMemoryWasmTestBuilder::default();
           builder.run_genesis(&DEFAULT_RUN_GENESIS_REQUEST).commit();
           let (ali, bob, joe) = super::utils::get_accounts(&mut builder);
-          let session_code = PathBuf::from(CONTRACT_ERC20_TOKEN);
+          let session_code = PathBuf::from(CONTRACT_CEP18_TOKEN);
           let session_args = runtime_args! {
               consts::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
               consts::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
@@ -1079,7 +1070,7 @@ The following code snippet describes a generic way to call a specific entry poin
     }
 ```
 
-The next code sample shows how to invoke one of the methods in the contract. The rest of the methods are available on [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs).
+The next code sample shows how to invoke one of the methods in the contract. The rest of the methods are available on [GitHub](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs).
 
 ```rust
 
@@ -1099,13 +1090,13 @@ The next code sample shows how to invoke one of the methods in the contract. The
 
 ## Creating Unit Tests {#creating-unit-tests}
 
-Within this testing context, you can create unit tests in a file called [integration_tests.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture/test_fixture.rs) file.
+Within this testing context, you can create unit tests in a file called [integration_tests.rs](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs) file.
 
-The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs) to find all the available tests.
+The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/integration_tests.rs) to find all the available tests.
 
 ```rust
 
-    // File https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs
+    // File https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/integration_tests.rs
 
     use casper_types::{Key, U256};
 
@@ -1126,7 +1117,7 @@ The example below shows one of the example tests. Visit [GitHub](https://github.
 
 ## Running the Tests {#running-the-tests}
 
-The [lib.rs](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
+The [lib.rs](https://github.com/casper-ecosystem/cep18/blob/master/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
 
 ```rust
 
@@ -1134,7 +1125,7 @@ The [lib.rs](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests
     mod lib_integration_tests;
 ```
 
-To run the tests, navigate to the parent [erc20 directory](https://github.com/casper-ecosystem/erc20) and run the command:
+To run the tests, navigate to the parent [cep18 directory](https://github.com/casper-ecosystem/cep18) and run the command:
 
 ```bash
 

@@ -1,0 +1,17 @@
+[
+  [
+    "owner",
+    {
+      "bytes": "0056befc13a6fd62e18f361700a5e08f966901c34df8041b36ec97d54d605c23de",
+      "cl_type": "Key"
+    }
+  ],
+  [
+    "recipient",
+    {
+      "bytes": "00ffaa73331421de42fd71a28824e1606a1ca7fa754f91f501f0cf56015f7284cd",
+      "cl_type": "Key"
+    }
+  ],
+  ["amount", { "bytes": "0500c817a804", "cl_type": "U256" }]
+]
