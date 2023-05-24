@@ -26,6 +26,16 @@ export type CEP18Event = Event<
   | TransferFrom
 >;
 
+export type EventsMap = {
+  Mint: Event<Mint>;
+  Burn: Event<Burn>;
+  SetAllowance: Event<SetAllowance>;
+  IncreaseAllowance: Event<IncreaseAllowance>;
+  DecreaseAllowance: Event<DecreaseAllowance>;
+  Transfer: Event<Transfer>;
+  TransferFrom: Event<TransferFrom>;
+};
+
 export type Mint = {
   recipient: CLKey;
   amount: CLU256;

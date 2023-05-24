@@ -1,26 +1,7 @@
 import { Contracts, EventStream } from 'casper-js-sdk';
 
 import EventEnabledContract from './EventEnabledContract';
-import {
-  Burn,
-  DecreaseAllowance,
-  Event,
-  IncreaseAllowance,
-  Mint,
-  SetAllowance,
-  Transfer,
-  TransferFrom
-} from './events';
-
-export type EventsMap = {
-  Mint: Event<Mint>;
-  Burn: Event<Burn>;
-  SetAllowance: Event<SetAllowance>;
-  IncreaseAllowance: Event<IncreaseAllowance>;
-  DecreaseAllowance: Event<DecreaseAllowance>;
-  Transfer: Event<Transfer>;
-  TransferFrom: Event<TransferFrom>;
-};
+import { EventsMap } from './events';
 
 interface ITypedContract {
   contractClient: Contracts.Contract;
@@ -48,10 +29,12 @@ interface ITypedContract {
   ): void;
 }
 
-export const TypedContract = EventEnabledContract as {
+const TypedContract = EventEnabledContract as {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   new (public nodeAddress: string, public networkName: string): ITypedContract;
 
   prototype: ITypedContract;
 };
+
+export default TypedContract;

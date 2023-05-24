@@ -16,7 +16,7 @@ import {
 } from 'casper-js-sdk';
 
 import { ContractError } from './error';
-import { TypedContract } from './TypedContract';
+import TypedContract from './TypedContract';
 import {
   ApproveArgs,
   BurnArgs,
