@@ -1,0 +1,10 @@
+[
+  [
+    "owner",
+    {
+      "bytes": "009fa1fc0808d3a5b9ea9f3af4ca7c8c3655568fdf378d8afdf8a7e56e58abbfd4",
+      "cl_type": "Key"
+    }
+  ],
+  ["amount", { "bytes": "0500743ba40b", "cl_type": "U256" }]
+]

@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: publish-casper-erc20-js-client
+name: publish-casper-cep18-js-client
 
 on:
   release:
@@ -19,6 +19,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
 
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          components: rustfmt, clippy
+      # Needed for gcc install
+      - run: sudo apt update && sudo apt install -y build-essential wabt
+      - uses: Swatinem/rust-cache@v1
+      - run: make prepare
+      - run: make build-contract
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
         with:
@@ -26,19 +37,19 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install
-        working-directory: ./client
+        working-directory: ./client-js
         run: npm install
 
       - name: build
-        working-directory: ./client
+        working-directory: ./client-js
         run: npm run build
 
       - name: test
-        working-directory: ./client
+        working-directory: ./client-js
         run: npm run test:unit
 
       - name: Publish to NPM
-        working-directory: ./client
+        working-directory: ./client-js
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
