@@ -43,8 +43,8 @@ use constants::{
 };
 pub use error::Cep18Error;
 use events::{
-    Burn, ChangeSecurity, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance,
-    Transfer, TransferFrom,
+    init_events, Burn, ChangeSecurity, DecreaseAllowance, Event, IncreaseAllowance, Mint,
+    SetAllowance, Transfer, TransferFrom,
 };
 use utils::{
     get_immediate_caller_address, get_total_supply_uref, read_from, read_total_supply_from,
@@ -282,6 +282,8 @@ pub extern "C" fn init() {
         MINT_AND_BURN_LIST,
         Cep18Error::InvalidMintAndBurnList,
     );
+
+    init_events();
 
     if let Some(minter_list) = minter_list {
         for minter in minter_list {

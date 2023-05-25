@@ -23,3 +23,4 @@ casper-types = "2.0.0"
 hex = { version = "0.4.3", default-features = false }
 once_cell = { version = "1.16.0", default-features = false }
 casper-event-standard = { version = "0.3.0", default-features = false }
+getrandom = { version = "0.2", features = ["js"] }
