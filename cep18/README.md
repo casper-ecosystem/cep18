@@ -16,8 +16,6 @@
 
 The fungible token implementation supports a couple of `modalities` that dictate the behavior of a specific contract instance. Modalities represent the common expectations around contract usage and behavior. The following section discusses the modalities currently available.
 
-<!-- TODO verify that these modalities canNOT be changed after installation. -->
-
 ### EventsMode
 
 The `EventsMode` modality determines how the installed instance of CEP-18 will handle the recording of events that occur from interacting with the contract. The mode is set by passing a `u8` value to the `events_mode` runtime argument: `--session-arg "events_mode:u8='1'"`. The default behavior is `NoEvents`.
@@ -39,13 +37,9 @@ The modality provides two options:
 
 `CES` is an option within the `EventsMode` modality that determines how changes to tokens issued by the contract instance will be recorded. Changes are recorded in the `__events` dictionary and can be observed via a node's Server Side Events stream. They may also be viewed by querying the dictionary at any time using the JSON-RPC interface.
 
-<!-- TODO who creates this dictionary? Is it created and managed by the casper_event_standard crate? -->
-
 The emitted events are encoded according to the [Casper Event Standard](https://github.com/make-software/casper-event-standard), and the schema is visible to an observer reading the `__events_schema` contract named key.
 
 For this CEP-18 reference implementation, the events schema is as follows:
-
-<!-- TODO check this table with the dev team. I've extracted from src/events.rs -->
 
 | Event name        | Included values and their type                                 |
 | ----------------- | -------------------------------------------------------------- |
@@ -141,8 +135,6 @@ This repository contains several ways of testing the fungible token contract and
 
 
 ## Error Codes
-
-<!-- TODO check with the dev team if these explanations are correct. I've extracted from the code. -->
 
 The table below summarizes the [error codes](./src/error.rs) you may see while working with fungible tokens.
 
