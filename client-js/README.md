@@ -118,7 +118,7 @@ const deploy = cep18.approve(
 );
 ```
 
-**Allowance**
+**Allowances**
 
 Return the number of owner’s tokens allowed to be spent by spender:
 
@@ -128,6 +128,88 @@ const allowance = await cep18.allowances(
   spenderPublicKey
 );
 ```
+
+To increase or decrease the spender's allowance, use the following methods:
+
+```ts
+const deploy = cep18.increaseAllowance(
+      {
+        spender,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+```
+
+```ts
+const deploy = cep18.decreaseAllowance(
+      {
+        spender,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+```
+
+**Minting Tokens**
+
+Mint tokens and assign them to a recipient:
+
+```ts
+const deploy = cep18.mint(
+      {
+        owner: recipient,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+```
+
+**Burning Tokens**
+
+Burn tokens and reduce them from the owner's account:
+
+```ts
+const deploy = cep18.burn(
+      {
+        owner: recipient,
+        amount
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+```
+
+**Changing User Security**
+
+```ts
+it('should construct changeSecurity args properly', () => {
+    const minterList = [ali.publicKey];
+    const burnerList = [ali.publicKey, bob.publicKey];
+    const deploy = cep18.changeSecurity(
+      {
+        adminList: [owner.publicKey],
+        minterList,
+        burnerList
+      },
+      5_000_000_000,
+      owner.publicKey,
+      NETWORK_NAME,
+      [owner]
+    );
+```
+
 
 ## Event Handling
 
