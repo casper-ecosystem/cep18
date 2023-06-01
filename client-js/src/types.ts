@@ -7,7 +7,7 @@ export enum EVENTS_MODE {
 }
 
 /**
- * Arguments required for install CEP18
+ * Arguments required for install CEP-18
  * @param name token name
  * @param symbol token symbol
  * @param decimals token decimals

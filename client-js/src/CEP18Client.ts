@@ -49,7 +49,7 @@ export default class CEP18Client extends TypedContract {
   }
 
   /**
-   * Intalls CEP18
+   * Intalls CEP-18
    * @param wasm contract representation of Uint8Array
    * @param args contract install arguments @see {@link InstallArgs}
    * @param paymentAmount payment amount required for installing the contract
@@ -446,21 +446,21 @@ export default class CEP18Client extends TypedContract {
   }
 
   /**
-   * Returns the name of the CEP18 token.
+   * Returns the name of the CEP-18 token.
    */
   public async name(): Promise<string> {
     return this.contractClient.queryContractData(['name']) as Promise<string>;
   }
 
   /**
-   * Returns the symbol of the CEP18 token.
+   * Returns the symbol of the CEP-18 token.
    */
   public async symbol(): Promise<string> {
     return this.contractClient.queryContractData(['symbol']) as Promise<string>;
   }
 
   /**
-   * Returns the decimals of the CEP18 token.
+   * Returns the decimals of the CEP-18 token.
    */
   public async decimals(): Promise<BigNumber> {
     return this.contractClient.queryContractData([
@@ -469,7 +469,7 @@ export default class CEP18Client extends TypedContract {
   }
 
   /**
-   * Returns the total supply of the CEP18 token.
+   * Returns the total supply of the CEP-18 token.
    */
   public async totalSupply(): Promise<BigNumber> {
     return this.contractClient.queryContractData([
@@ -478,7 +478,7 @@ export default class CEP18Client extends TypedContract {
   }
 
   /**
-   * Returns the event mode of the CEP18 token
+   * Returns the event mode of the CEP-18 token
    */
   public async eventsMode(): Promise<keyof typeof EVENTS_MODE> {
     const internalValue = (await this.contractClient.queryContractData([
