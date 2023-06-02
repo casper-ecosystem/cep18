@@ -194,20 +194,19 @@ const deploy = cep18.burn(
 **Changing User Security**
 
 ```ts
-it('should construct changeSecurity args properly', () => {
-    const minterList = [ali.publicKey];
-    const burnerList = [ali.publicKey, bob.publicKey];
-    const deploy = cep18.changeSecurity(
-      {
-        adminList: [owner.publicKey],
-        minterList,
-        burnerList
-      },
-      5_000_000_000,
-      owner.publicKey,
-      NETWORK_NAME,
-      [owner]
-    );
+const minterList = [ali.publicKey];
+const burnerList = [ali.publicKey, bob.publicKey];
+const deploy = cep18.changeSecurity(
+  {
+    adminList: [owner.publicKey],
+    minterList,
+    burnerList
+  },
+  5_000_000_000,
+  owner.publicKey,
+  NETWORK_NAME,
+  [owner]
+);
 ```
 
 
