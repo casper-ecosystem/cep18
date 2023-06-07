@@ -62,7 +62,7 @@ The `MintBurn` modality dictates whether tokens managed by a given instance of a
 This modality provides two options:
 
 1. `Disabled`: Tokens cannot be minted nor burned after contract installation. This is the default mode.
-2. `MintAndBurn`: Tokens can be minted and burnt.
+2. `MintAndBurn`: Tokens can be minted and burned.
 
 | MintBurn    | u8  |
 | ----------- | --- |
