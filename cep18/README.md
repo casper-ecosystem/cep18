@@ -55,7 +55,7 @@ For this CEP-18 reference implementation, the events schema is as follows:
 
 ### MintBurn
 
-The `MintBurn` modality dictates whether tokens managed by a given instance of a CEP-18 contract can be minted or burnt after contract installation. 
+The `MintBurn` modality dictates whether tokens managed by a given instance of a CEP-18 contract can be minted or burned after contract installation. 
 
 **IMPORTANT: This mode cannot be changed once the contract has been installed.**
 
