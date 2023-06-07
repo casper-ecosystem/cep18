@@ -212,7 +212,7 @@ const deploy = cep18.changeSecurity(
 
 ## Event Handling
 
-The CEP-18 token supports the [Casper Event Standard (CES)](https://github.com/make-software/casper-event-standard), and the token can be installed with or without event logging as described [here](../cep18/README.md#eventsmode). If you install the token with the EventsMode set to CES, you can listen to token events using the `EventStream` from the `casper-js-sdk`. To consume token events, you should also install the `@make-software/ces-js-parser` by running this command:
+CEP-18 tokens support the [Casper Event Standard (CES)](https://github.com/make-software/casper-event-standard), and tokens can be installed with or without event logging as described [here](../cep18/README.md#eventsmode). If you install a token with the EventsMode set to CES, you can listen to token events using the `EventStream` from the `casper-js-sdk`. To consume token events, you should also install the `@make-software/ces-js-parser` by running this command:
 
 ```bash
 npm install @make-software/ces-js-parser
