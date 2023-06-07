@@ -1,7 +1,7 @@
 {
   "name": "casper-cep18-js-client",
   "version": "1.0.0",
-  "description": "Casper CEP18 JavaScript Client",
+  "description": "Casper CEP-18 JavaScript Client",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

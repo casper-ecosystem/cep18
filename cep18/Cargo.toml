@@ -2,7 +2,7 @@
 name = "casper-cep18"
 version = "1.0.0"
 edition = "2018"
-description = "A library for developing CEP18 tokens for the Casper network."
+description = "A library for developing CEP-18 tokens for the Casper network."
 readme = "README.md"
 documentation = "https://docs.rs/casper-cep18"
 homepage = "https://casperlabs.io"
