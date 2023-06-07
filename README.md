@@ -1,47 +1,39 @@
 # Casper Fungible Tokens (CEP-18 Standard)
 
-A library for developing fungible tokens (CEP-18 Tokens) tokens for the Casper Network.
+This repository contains a reference contract implementation and tests for fungible tokens on a Casper network, following the [CEP-18 standard](https://github.com/casper-network/ceps/pull/18).
 
-The main functionality is provided via the CEP-18 struct, and is intended to be consumed by a smart contract written to be deployed on the Casper Network.
+## Preparation
 
-## Development
-
-Make sure the `wasm32-unknown-unknown` Rust target is installed.
+Install the `wasm32-unknown-unknown` Rust target with the following command.
 
 ```
 make prepare
 ```
 
-## Build Smart Contracts
+## Building and Testing the Contract
 
-To build the example fungible token contract and supporting test contracts:
-
-```
-make build-contracts
-```
-
-## Locating Smart Contract Wasm
-
-The Wasm for your new project can be found in the following local directory:
-
-```
-casper/cep18/target/wasm32-unknown-unknown/release/cep18_token.wasm
-```
-
-## Test
+To build the reference fungible token contract and supporting tests, run this command:
 
 ```
 make test
 ```
 
-## JavaScript Client SDK
+## Locating the Contract Wasm
 
-A [JavaScript client SDK](https://github.com/casper-ecosystem/erc20/tree/master/client-js#readme) can be used to interact with the fungible token contract.
+Find the Wasm for the contract in the following directory:
 
-## Documentation
+```
+casper/cep18/target/wasm32-unknown-unknown/release/cep18_token.wasm
+```
 
-For more information, visit the below guides:
+## A JavaScript Client SDK
 
-- [Casper Fungible Token Tutorial](/docs/TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract.
-- [Casper Fungible Token How-To Guide](/docs/Sample-Guide.md) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an fungible token contract.
-- [Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - A quick guide on how to deploy the Casper fungible token to the Casper Network.
+A [JavaScript client SDK](https://github.com/casper-ecosystem/cep18/tree/master/client-js#readme) has been provided to interact with the fungible token contract.
+
+## Tutorials
+
+For more information, visit the links below:
+
+- [The Casper Fungible Token Developer Tutorial](/docs/TUTORIAL.md) - How to implement, deploy, and test a fungible token contract.
+- [The Casper Fungible Token Usage Guide](/docs/Sample-Guide.md) - An example-driven guide on how to set up, query, transfer, approve, and check the balance of a fungible token contract.
+- [The Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - How to deploy the Casper fungible token to a Casper network.

@@ -214,7 +214,7 @@ pub fn init() -> EntryPoint {
     )
 }
 
-/// Returns the default set of CEP18 token entry points.
+/// Returns the default set of CEP-18 token entry points.
 pub fn generate_entry_points() -> EntryPoints {
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(init());
