@@ -44,7 +44,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --payment-amount 150000000000
 ```
 
-## Install the `cep18_test_ccontract` Contract Package
+## Install the `cep18_test_contract` Contract Package
 
 The following command will install the CEP-18 helper contract that allows you to check balances and access approval features.
 
