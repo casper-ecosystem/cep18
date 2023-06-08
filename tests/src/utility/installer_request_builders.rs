@@ -37,6 +37,7 @@ pub(crate) fn invert_cep18_address(address: Key) -> Key {
 #[derive(Copy, Clone)]
 pub(crate) struct TestContext {
     pub(crate) cep18_token: ContractHash,
+    pub(crate) cep18_token_contract_package: ContractPackageHash,
     pub(crate) cep18_test_contract_package: ContractPackageHash,
 }
 
@@ -104,9 +105,17 @@ pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBui
         .map(ContractPackageHash::new)
         .expect("should have contract package hash");
 
+    let cep18_token_contract_package = account
+        .named_keys()
+        .get("cep18_contract_package_CasperTest")
+        .and_then(|key| key.into_hash())
+        .map(ContractPackageHash::new)
+        .expect("should have contract package hash");
+
     let test_context = TestContext {
         cep18_token,
         cep18_test_contract_package,
+        cep18_token_contract_package,
     };
 
     (builder, test_context)

@@ -81,8 +81,8 @@ pub extern "C" fn balance_of() {
 
 #[no_mangle]
 pub extern "C" fn allowance() {
-    let owner: Key = runtime::get_named_arg(OWNER);
     let spender: Key = runtime::get_named_arg(SPENDER);
+    let owner: Key = runtime::get_named_arg(OWNER);
     let allowances_uref = get_allowances_uref();
     let val: U256 = read_allowance_from(allowances_uref, owner, spender);
     runtime::ret(CLValue::from_t(val).unwrap_or_revert());
@@ -90,9 +90,12 @@ pub extern "C" fn allowance() {
 
 #[no_mangle]
 pub extern "C" fn approve() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     write_allowance_to(allowances_uref, owner, spender, amount);
     events::record_event_dictionary(Event::SetAllowance(SetAllowance {
@@ -104,9 +107,12 @@ pub extern "C" fn approve() {
 
 #[no_mangle]
 pub extern "C" fn decrease_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_sub(amount);
@@ -121,9 +127,12 @@ pub extern "C" fn decrease_allowance() {
 
 #[no_mangle]
 pub extern "C" fn increase_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_add(amount);
@@ -138,10 +147,15 @@ pub extern "C" fn increase_allowance() {
 
 #[no_mangle]
 pub extern "C" fn transfer() {
-    let recipient: Key = runtime::get_named_arg(RECIPIENT);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
-
     let sender = utils::get_immediate_caller_address().unwrap_or_revert();
+    let recipient: Key = runtime::get_named_arg(RECIPIENT);
+    if recipient == utils::get_contract_self_address() {
+        revert(Cep18Error::CannotTargetSelfCep18);
+    }
+    if sender == recipient {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
 
     transfer_balance(sender, recipient, amount).unwrap_or_revert();
     events::record_event_dictionary(Event::Transfer(Transfer {
@@ -153,10 +167,17 @@ pub extern "C" fn transfer() {
 
 #[no_mangle]
 pub extern "C" fn transfer_from() {
-    let owner: Key = runtime::get_named_arg(OWNER);
-    let recipient: Key = runtime::get_named_arg(RECIPIENT);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let spender = utils::get_immediate_caller_address().unwrap_or_revert();
+    let recipient: Key = runtime::get_named_arg(RECIPIENT);
+    let owner: Key = runtime::get_named_arg(OWNER);
+
+    if recipient == utils::get_contract_self_address() {
+        revert(Cep18Error::CannotTargetSelfCep18);
+    }
+    if owner == recipient {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     if amount.is_zero() {
         return;
     }
@@ -183,6 +204,7 @@ pub extern "C" fn mint() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
         revert(Cep18Error::MintBurnDisabled);
     }
+
     sec_check(vec![
         SecurityBadge::Admin,
         SecurityBadge::Minter,
@@ -221,13 +243,19 @@ pub extern "C" fn burn() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
         revert(Cep18Error::MintBurnDisabled);
     }
+
+    let owner: Key = runtime::get_named_arg(OWNER);
+
+    if owner != get_immediate_caller_address().unwrap_or_revert() {
+        revert(Cep18Error::InvalidBurnTarget);
+    }
+
     sec_check(vec![
         SecurityBadge::Admin,
         SecurityBadge::Burner,
         SecurityBadge::MintAndBurn,
     ]);
 
-    let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
     let balances_uref = get_balances_uref();
     let total_supply_uref = get_total_supply_uref();

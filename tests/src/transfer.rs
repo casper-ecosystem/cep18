@@ -285,7 +285,7 @@ fn should_transfer_from_account_by_contract() {
 }
 
 #[test]
-fn should_have_correct_balance_after_own_transfer() {
+fn should_not_be_able_to_own_transfer() {
     let (mut builder, TestContext { cep18_token, .. }) = setup();
 
     let sender = Key::Account(*DEFAULT_ACCOUNT_ADDR);
@@ -301,22 +301,18 @@ fn should_have_correct_balance_after_own_transfer() {
     let token_transfer_request_1 =
         make_cep18_transfer_request(sender, &cep18_token, recipient, transfer_amount);
 
-    builder
-        .exec(token_transfer_request_1)
-        .expect_success()
-        .commit();
+    builder.exec(token_transfer_request_1).commit();
 
-    let sender_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, sender);
-    assert_eq!(sender_balance_before, sender_balance_after);
-
-    let recipient_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, recipient);
-    assert_eq!(recipient_balance_before, recipient_balance_after);
-
-    assert_eq!(sender_balance_after, recipient_balance_after);
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        "{:?}",
+        error
+    );
 }
 
 #[test]
-fn should_have_correct_balance_after_own_transfer_from() {
+fn should_not_be_able_to_own_transfer_from() {
     let (mut builder, TestContext { cep18_token, .. }) = setup();
 
     let owner = Key::Account(*DEFAULT_ACCOUNT_ADDR);
@@ -330,9 +326,14 @@ fn should_have_correct_balance_after_own_transfer_from() {
     let approve_request =
         make_cep18_approve_request(sender, &cep18_token, spender, allowance_amount);
 
-    builder.exec(approve_request).expect_success().commit();
+    builder.exec(approve_request).commit();
 
-    let spender_allowance_before = cep18_check_allowance_of(&mut builder, owner, spender);
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        "{:?}",
+        error
+    );
 
     let sender_balance_before = cep18_check_balance_of(&mut builder, &cep18_token, sender);
     let recipient_balance_before = cep18_check_balance_of(&mut builder, &cep18_token, recipient);
@@ -354,23 +355,13 @@ fn should_have_correct_balance_after_own_transfer_from() {
         .build()
     };
 
-    builder
-        .exec(transfer_from_request)
-        .expect_success()
-        .commit();
+    builder.exec(transfer_from_request).commit();
 
-    let sender_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, sender);
-    assert_eq!(sender_balance_before, sender_balance_after);
-
-    let recipient_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, recipient);
-    assert_eq!(recipient_balance_before, recipient_balance_after);
-
-    assert_eq!(sender_balance_after, recipient_balance_after);
-
-    let spender_allowance_after = cep18_check_allowance_of(&mut builder, owner, spender);
-    assert_eq!(
-        spender_allowance_after,
-        spender_allowance_before - transfer_amount
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        "{:?}",
+        error
     );
 }
 
@@ -407,20 +398,19 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
 
     let owner = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let spender = Key::Account(*ACCOUNT_1_ADDR);
-    let sender = Key::Account(*ACCOUNT_1_ADDR);
-    let recipient = Key::Account(*DEFAULT_ACCOUNT_ADDR);
+    let recipient = Key::Account(*ACCOUNT_2_ADDR);
 
     let allowance_amount = U256::from(1);
     let transfer_amount = U256::zero();
 
     let approve_request =
-        make_cep18_approve_request(sender, &cep18_token, spender, allowance_amount);
+        make_cep18_approve_request(owner, &cep18_token, spender, allowance_amount);
 
     builder.exec(approve_request).expect_success().commit();
 
     let spender_allowance_before = cep18_check_allowance_of(&mut builder, owner, spender);
 
-    let sender_balance_before = cep18_check_balance_of(&mut builder, &cep18_token, sender);
+    let owner_balance_before = cep18_check_balance_of(&mut builder, &cep18_token, owner);
     let recipient_balance_before = cep18_check_balance_of(&mut builder, &cep18_token, recipient);
 
     let transfer_from_request = {
@@ -430,7 +420,7 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
             ARG_AMOUNT => transfer_amount,
         };
         ExecuteRequestBuilder::contract_call_by_hash(
-            sender.into_account().unwrap(),
+            owner.into_account().unwrap(),
             cep18_token,
             METHOD_TRANSFER_FROM,
             cep18_transfer_from_args,
@@ -443,8 +433,8 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
         .expect_success()
         .commit();
 
-    let sender_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, sender);
-    assert_eq!(sender_balance_before, sender_balance_after);
+    let owner_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, owner);
+    assert_eq!(owner_balance_before, owner_balance_after);
 
     let recipient_balance_after = cep18_check_balance_of(&mut builder, &cep18_token, recipient);
     assert_eq!(recipient_balance_before, recipient_balance_after);
@@ -534,5 +524,42 @@ fn should_transfer_account_to_account() {
         recipient1,
         sender2,
         recipient2,
+    );
+}
+
+#[test]
+fn should_not_transfer_to_self_cep18() {
+    let (
+        mut builder,
+        TestContext {
+            cep18_token,
+            cep18_token_contract_package,
+            ..
+        },
+    ) = setup();
+
+    let initial_supply = U256::from(TOKEN_TOTAL_SUPPLY);
+
+    let transfer_1_sender = *DEFAULT_ACCOUNT_ADDR;
+
+    let cep18_transfer_1_args = runtime_args! {
+        ARG_RECIPIENT => Key::from(cep18_token_contract_package),
+        ARG_AMOUNT => initial_supply,
+    };
+
+    let token_transfer_request_1 = ExecuteRequestBuilder::contract_call_by_hash(
+        transfer_1_sender,
+        cep18_token,
+        METHOD_TRANSFER,
+        cep18_transfer_1_args,
+    )
+    .build();
+
+    builder.exec(token_transfer_request_1).commit();
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60020),
+        "{:?}",
+        error
     );
 }

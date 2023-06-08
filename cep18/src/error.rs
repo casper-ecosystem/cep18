@@ -49,6 +49,9 @@ pub enum Cep18Error {
     AlreadyInitialized = 60017,
     ///  The mint and burn mode is disabled.
     MintBurnDisabled = 60018,
+    CannotTargetSelfUser = 60019,
+    CannotTargetSelfCep18 = 60020,
+    InvalidBurnTarget = 60021,
 }
 
 impl From<Cep18Error> for ApiError {

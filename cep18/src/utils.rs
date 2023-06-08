@@ -1,7 +1,7 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-use alloc::{collections::BTreeMap, vec, vec::Vec};
+use alloc::{borrow::ToOwned, collections::BTreeMap, vec, vec::Vec};
 use casper_contract::{
     contract_api::{
         self,
@@ -71,6 +71,11 @@ pub(crate) fn get_immediate_caller_address() -> Result<Key, Cep18Error> {
         .nth(1)
         .map(call_stack_element_to_address)
         .ok_or(Cep18Error::InvalidContext)
+}
+
+pub(crate) fn get_contract_self_address() -> Key {
+    let call_stack = runtime::get_call_stack();
+    call_stack_element_to_address(call_stack.last().unwrap_or_revert().to_owned())
 }
 
 pub fn get_total_supply_uref() -> URef {
