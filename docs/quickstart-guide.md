@@ -1,7 +1,7 @@
 
-# Casper Fungible Token Quickstart Guide
+# Casper Fungible Token Quick Start Guide
 
-This quickstart guide introduces you to the Casper client commands and Wasm files necessary to deploy a CEP-18 Casper Fungible Token contract to a [Casper network](https://cspr.live).
+This quick start guide introduces you to the Casper client commands and Wasm files necessary to deploy a CEP-18 Casper Fungible Token contract to a [Casper network](https://cspr.live).
 
 The [Ethereum Request for Comment (ERC20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed. These fungible tokens are blockchain-based assets that have value and can be transferred or recorded.
 
