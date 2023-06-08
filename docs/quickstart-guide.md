@@ -96,6 +96,7 @@ At this point, the account that installed both the main contract and the helper 
 
 ### Next Steps
 
-In the following sections, sample guide explains the querying of the contract package, token transfers and approvals, and final balance checks with code samples.
+In the following sections, sample guide explains the querying of the contract package, token transfers and approvals.
 
-- [CEP-18 Contract Interaction Tutorial](INTERACTION.md)
+- [Exploring the CEP18 Contracts](./query.md)
+- [CEP-18 Token Transfers and Allowances](./transfer.md)
