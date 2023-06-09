@@ -75,7 +75,7 @@ The name of your contract will print in the console when the deploy succeeds.
 
 `... Contract name: Test Token`
 
-Your CFT contract instance is now successfully installed. Next, we will cover transferring tokens.
+Your Casper fungible token contract instance is now successfully installed. Next, we will cover transferring tokens.
 
 **Note:**
 
