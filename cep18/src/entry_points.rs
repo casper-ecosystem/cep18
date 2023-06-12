@@ -248,6 +248,18 @@ pub fn request_bridge_back() -> EntryPoint {
     )
 }
 
+pub fn exchange_from_old_token() -> EntryPoint {
+    EntryPoint::new(
+        String::from("exchange_from_old_token"),
+        vec![
+            Parameter::new(AMOUNT, U256::cl_type())
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 /// Returns the `init` entry point.
 pub fn init() -> EntryPoint {
     EntryPoint::new(

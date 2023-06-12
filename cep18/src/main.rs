@@ -22,7 +22,7 @@ use alloc::{
 
 use allowances::{get_allowances_uref, read_allowance_from, write_allowance_to};
 use balances::{get_balances_uref, read_balance_from, transfer_balance, write_balance_to};
-use entry_points::generate_entry_points;
+use entry_points::{exchange_from_old_token as exchange_token, generate_entry_points};
 
 use casper_contract::{
     contract_api::{
@@ -33,7 +33,7 @@ use casper_contract::{
 };
 use casper_types::{
     bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, ContractPackageHash, Key,
-    RuntimeArgs, U256, URef
+    RuntimeArgs, URef, U256,
 };
 
 use constants::{
@@ -187,8 +187,8 @@ pub extern "C" fn mint() {
     // only minter can mint
     sec_check(vec![
         SecurityBadge::Admin,
-        SecurityBadge::Minter, 
-        SecurityBadge::MintAndBurn
+        SecurityBadge::Minter,
+        SecurityBadge::MintAndBurn,
     ]);
 
     let owner: Key = runtime::get_named_arg("recipient");
@@ -294,11 +294,14 @@ pub extern "C" fn request_bridge_back() {
     let request_index: U256 = utils::get_key("request_index").unwrap();
     let next_index = request_index + U256::one();
 
-    let request_amount_after_fee = amount.checked_sub(fee).ok_or(Cep18Error::RequestAmountTooLow).unwrap_or_revert();
+    let request_amount_after_fee = amount
+        .checked_sub(fee)
+        .ok_or(Cep18Error::RequestAmountTooLow)
+        .unwrap_or_revert();
 
     utils::set_key("request_index", next_index);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
-    
+
     if fee > U256::zero() {
         transfer_balance(owner, dev_address, fee).unwrap_or_revert();
         events::record_event_dictionary(Event::Transfer(Transfer {
@@ -310,12 +313,16 @@ pub extern "C" fn request_bridge_back() {
 
     _burn_token(owner, request_amount_after_fee);
     // emit event request bridge and save request data
-    utils::write_dictionary_value_from_key("request_map", &request_index.to_string(), events::RequestBridgeBackData {
-        to_chainid: to_chainid,
-        from: owner,
-        to: receiver_address,
-        amount: request_amount_after_fee
-    });
+    utils::write_dictionary_value_from_key(
+        "request_map",
+        &request_index.to_string(),
+        events::RequestBridgeBackData {
+            to_chainid: to_chainid,
+            from: owner,
+            to: receiver_address,
+            amount: request_amount_after_fee,
+        },
+    );
     let mut event = BTreeMap::new();
     let package_hash = runtime::get_key(PACKAGE_HASH).unwrap_or_revert();
     event.insert("contract_package_hash", package_hash.to_string());
@@ -339,6 +346,61 @@ pub extern "C" fn burn() {
     // let owner = utils::get_immediate_caller_address().unwrap_or_revert();
     // let amount: U256 = runtime::get_named_arg(AMOUNT);
     // _burn_token(owner, amount);
+}
+
+#[no_mangle]
+pub extern "C" fn exchange_from_old_token() {
+    let old_token_package_hash: Key = utils::get_key("old_token_package_hash").unwrap();
+    let amount: U256 = runtime::get_named_arg("amount");
+    let caller = get_immediate_caller_address().unwrap_or_revert();
+    let package_hash = runtime::get_key(PACKAGE_HASH).unwrap_or_revert();
+    // transfer in and burn
+    let _: () = runtime::call_versioned_contract(
+        old_token_package_hash.into_hash().unwrap().into(),
+        None,
+        "transfer_from",
+        runtime_args! {
+            "owner" => caller,
+            "amount" => amount,
+            "recipient" => package_hash
+        },
+    );
+
+    // burn
+    let _: () = runtime::call_versioned_contract(
+        old_token_package_hash.into_hash().unwrap().into(),
+        None,
+        "burn",
+        runtime_args! {
+            "amount" => amount
+        },
+    );
+
+    // mint new token
+    let balances_uref = get_balances_uref();
+    let total_supply_uref = get_total_supply_uref();
+    let new_balance = {
+        let balance = read_balance_from(balances_uref, caller);
+        balance
+            .checked_add(amount)
+            .ok_or(Cep18Error::Overflow)
+            .unwrap_or_revert()
+    };
+
+    let new_total_supply = {
+        let total_supply: U256 = read_total_supply_from(total_supply_uref);
+        total_supply
+            .checked_add(amount)
+            .ok_or(Cep18Error::Overflow)
+            .unwrap_or_revert()
+    };
+
+    write_balance_to(balances_uref, caller, new_balance);
+    write_total_supply_to(total_supply_uref, new_total_supply);
+    events::record_event_dictionary(Event::Mint(Mint {
+        recipient: caller,
+        amount: amount,
+    }));
 }
 
 fn _burn_token(owner: Key, amount: U256) {
@@ -372,6 +434,14 @@ pub extern "C" fn init() {
     }
 
     // adding key for dotoracle wrapped token
+    let old_token_package_hash: Option<Key> = utils::get_optional_named_arg_with_user_errors(
+        "old_token_package_hash",
+        Cep18Error::InvalidOldToken,
+    );
+    if let Some(old_token_package_hash) = old_token_package_hash {
+        utils::set_key("old_token_package_hash", old_token_package_hash);
+    }
+
     // request index to track
     utils::set_key("request_index", U256::one());
     // request map to store request event data
@@ -532,6 +602,10 @@ pub fn install_contract() {
         let swap_fee: U256 = get_named_arg("swap_fee");
         let origin_chainid: U256 = get_named_arg("origin_chainid");
         let origin_contract_address: String = get_named_arg("origin_contract_address");
+        let old_token_package_hash: Option<Key> = utils::get_optional_named_arg_with_user_errors(
+            "old_token_package_hash",
+            Cep18Error::InvalidOldToken,
+        );
 
         let admin_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
             ADMIN_LIST,
@@ -573,7 +647,10 @@ pub fn install_contract() {
             ENABLE_MINT_BURN.to_string(),
             storage::new_uref(enable_mint_burn).into(),
         );
-        let entry_points = generate_entry_points();
+        let mut entry_points = generate_entry_points();
+        if old_token_package_hash.is_some() {
+            entry_points.add_entry_point(exchange_token());
+        }
 
         let (contract_hash, contract_version) = storage::new_contract(
             entry_points,
@@ -593,15 +670,20 @@ pub fn install_contract() {
             storage::new_uref(contract_version).into(),
         );
         // Call contract to initialize it
-        let mut init_args =
-            runtime_args! {
-                TOTAL_SUPPLY => total_supply, 
-                PACKAGE_HASH => package_hash,
-                "dev" => dev_address,
-                "swap_fee" => swap_fee,
-                "origin_chainid" => origin_chainid,
-                "origin_contract_address" => origin_contract_address
-            };
+        let mut init_args = runtime_args! {
+            TOTAL_SUPPLY => total_supply,
+            PACKAGE_HASH => package_hash,
+            "dev" => dev_address,
+            "swap_fee" => swap_fee,
+            "origin_chainid" => origin_chainid,
+            "origin_contract_address" => origin_contract_address
+        };
+
+        if let Some(old_token_package_hash) = old_token_package_hash {
+            init_args
+                .insert("old_token_package_hash", old_token_package_hash)
+                .unwrap_or_revert();
+        }
 
         if let Some(admin_list) = admin_list {
             init_args.insert(ADMIN_LIST, admin_list).unwrap_or_revert();
