@@ -110,3 +110,4 @@ node_modules/
 dist
 
 tests/wasm
+deploy

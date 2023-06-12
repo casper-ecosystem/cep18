@@ -1,0 +1,21 @@
+{
+  "name": "cep18-wrapped-token",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "blakejs": "^1.2.1",
+    "casper-js-client-helper": "^1.0.1",
+    "casper-web3": "https://github.com/DegaLabs/casper-web3.git",
+    "dotenv": "^16.0.1"
+  }
+}
