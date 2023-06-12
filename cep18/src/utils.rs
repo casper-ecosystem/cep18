@@ -1,7 +1,7 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-use alloc::{collections::BTreeMap, vec, vec::Vec};
+use alloc::{collections::BTreeMap, vec, vec::Vec, string::String};
 use casper_contract::{
     contract_api::{
         self,
@@ -208,4 +208,59 @@ pub fn change_sec_badge(badge_map: &BTreeMap<Key, SecurityBadge>) {
             badge,
         )
     }
+}
+
+pub fn get_key<T: FromBytes + CLTyped>(name: &str) -> Option<T> {
+    match runtime::get_key(name) {
+        None => None,
+        Some(value) => {
+            let key = value.try_into().unwrap_or_revert();
+            let result = storage::read(key).unwrap_or_revert().unwrap_or_revert();
+            Some(result)
+        }
+    }
+}
+
+pub fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
+    match runtime::get_key(name) {
+        Some(key) => {
+            let key_ref = key.try_into().unwrap_or_revert();
+            storage::write(key_ref, value);
+        }
+        None => {
+            let key = storage::new_uref(value).into();
+            runtime::put_key(name, key);
+        }
+    }
+}
+
+pub fn get_dictionary_value_from_key<T: CLTyped + FromBytes>(
+    dictionary_name: &str,
+    key: &str,
+) -> Option<T> {
+    let seed_uref = get_uref(dictionary_name);
+
+    match storage::dictionary_get::<T>(seed_uref, key) {
+        Ok(maybe_value) => maybe_value,
+        Err(_) => None,
+    }
+}
+
+pub fn write_dictionary_value_from_key<T: CLTyped + FromBytes + ToBytes>(
+    dictionary_name: &str,
+    key: &str,
+    value: T,
+) {
+    let seed_uref = get_uref(dictionary_name);
+
+    match storage::dictionary_get::<T>(seed_uref, key) {
+        Ok(None | Some(_)) => storage::dictionary_put(seed_uref, key, value),
+        Err(error) => runtime::revert(error),
+    }
+}
+
+pub fn make_mintid_dictionary_item_key(mintid: &String) -> String {
+    let preimage = mintid.as_bytes();
+    let key_bytes = runtime::blake2b(&preimage);
+    hex::encode(&key_bytes)
 }

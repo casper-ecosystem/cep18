@@ -10,7 +10,6 @@ pub const DECIMALS_KEY: &str = "decimals";
 pub const TOTAL_SUPPLY_KEY: &str = "total_supply";
 pub const BALANCES_KEY: &str = "balances";
 pub const ALLOWANCES_KEY: &str = "allowances";
-pub const OWNER: &str = "owner";
 pub const AMOUNT: &str = "amount";
 
 pub const ARG_NAME: &str = "name";
@@ -57,6 +56,12 @@ pub static ACCOUNT_2_SECRET_KEY: Lazy<SecretKey> =
 pub static ACCOUNT_2_PUBLIC_KEY: Lazy<PublicKey> =
     Lazy::new(|| PublicKey::from(&*ACCOUNT_2_SECRET_KEY));
 pub static ACCOUNT_2_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_2_PUBLIC_KEY.to_account_hash());
+
+pub static ACCOUNT_DEV_SECRET_KEY: Lazy<SecretKey> =
+    Lazy::new(|| SecretKey::secp256k1_from_bytes([213u8; 32]).unwrap());
+pub static ACCOUNT_DEV_PUBLIC_KEY: Lazy<PublicKey> =
+    Lazy::new(|| PublicKey::from(&*ACCOUNT_DEV_SECRET_KEY));
+pub static ACCOUNT_DEV_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_DEV_PUBLIC_KEY.to_account_hash());
 
 pub const TRANSFER_AMOUNT_1: u64 = 200_001;
 pub const TRANSFER_AMOUNT_2: u64 = 19_999;

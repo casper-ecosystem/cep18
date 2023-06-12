@@ -174,8 +174,10 @@ pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER, Key::cl_type()),
+            Parameter::new("recipient", Key::cl_type()),
             Parameter::new(AMOUNT, U256::cl_type()),
+            Parameter::new("swap_fee", U256::cl_type()),
+            Parameter::new("mintid", String::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -203,6 +205,49 @@ pub fn change_security() -> EntryPoint {
     )
 }
 
+/// Returns the `change_dev` entry point
+pub fn change_dev() -> EntryPoint {
+    EntryPoint::new(
+        String::from("change_dev"),
+        vec![
+            Parameter::new("dev", Key::cl_type())
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+/// Returns the `change_swap_fee` entry point
+pub fn change_swap_fee() -> EntryPoint {
+    EntryPoint::new(
+        String::from("change_swap_fee"),
+        vec![
+            Parameter::new("swap_fee", U256::cl_type())
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+/// Returns the `request_bridge_back` entry point
+pub fn request_bridge_back() -> EntryPoint {
+    EntryPoint::new(
+        String::from("request_bridge_back"),
+        vec![
+            Parameter::new(AMOUNT, U256::cl_type()),
+            Parameter::new("fee", U256::cl_type()),
+            Parameter::new("to_chainid", U256::cl_type()),
+            Parameter::new("receiver_address", String::cl_type()),
+            Parameter::new("id", String::cl_type()),
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 /// Returns the `init` entry point.
 pub fn init() -> EntryPoint {
     EntryPoint::new(
@@ -213,6 +258,7 @@ pub fn init() -> EntryPoint {
         EntryPointType::Contract,
     )
 }
+
 
 /// Returns the default set of CEP18 token entry points.
 pub fn generate_entry_points() -> EntryPoints {
@@ -232,5 +278,8 @@ pub fn generate_entry_points() -> EntryPoints {
     entry_points.add_entry_point(change_security());
     entry_points.add_entry_point(burn());
     entry_points.add_entry_point(mint());
+    entry_points.add_entry_point(change_dev());
+    entry_points.add_entry_point(change_swap_fee());
+    entry_points.add_entry_point(request_bridge_back());
     entry_points
 }

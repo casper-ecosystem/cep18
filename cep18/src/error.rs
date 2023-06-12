@@ -34,6 +34,19 @@ pub enum Cep18Error {
     InvalidEnableMBFlag = 60016,
     AlreadyInitialized = 60017,
     MintBurnDisabled = 60018,
+    NoAccessRights,
+    /// MintTooLow.
+    MintTooLow,
+    /// AlreadyMint.
+    AlreadyMint,
+    /// InvalidFee.
+    InvalidFee,
+    /// request id exist.
+    RequestIdExist,
+    /// request amount too low.
+    RequestAmountTooLow,
+    /// request id
+    RequestIdIllFormatted,
 }
 
 impl From<Cep18Error> for ApiError {

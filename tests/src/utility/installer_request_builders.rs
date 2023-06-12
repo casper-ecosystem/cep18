@@ -13,7 +13,7 @@ use crate::utility::constants::{
 };
 
 use super::constants::{
-    ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
+    ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ACCOUNT_DEV_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
     ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY,
     CEP18_CONTRACT_WASM, CEP18_TEST_CONTARCT_WASM, CEP18_TEST_CONTRACT_KEY,
     CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT, CHECK_BALANCE_OF_ENTRYPOINT,
@@ -45,11 +45,17 @@ pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         ARG_NAME => TOKEN_NAME,
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
-        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
+        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY)
     })
 }
 
 pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBuilder, TestContext) {
+    let mut install_args = install_args;
+    install_args.insert("dev", Key::from(*ACCOUNT_DEV_ADDR)).unwrap();
+    install_args.insert("swap_fee", U256::zero()).unwrap();
+    install_args.insert("origin_chainid", U256::one()).unwrap();
+    install_args.insert("origin_contract_address", "origin_contract_address").unwrap();
+
     let mut builder = InMemoryWasmTestBuilder::default();
     builder.run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST);
 

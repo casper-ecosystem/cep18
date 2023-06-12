@@ -32,7 +32,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, U256,
+    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, ContractPackageHash, Key,
+    RuntimeArgs, U256, URef
 };
 
 use constants::{
@@ -183,24 +184,47 @@ pub extern "C" fn mint() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
         revert(Cep18Error::MintBurnDisabled);
     }
+    // only minter can mint
     sec_check(vec![
         SecurityBadge::Admin,
-        SecurityBadge::Minter,
-        SecurityBadge::MintAndBurn,
+        SecurityBadge::Minter, 
+        SecurityBadge::MintAndBurn
     ]);
 
-    let owner: Key = runtime::get_named_arg(OWNER);
+    let owner: Key = runtime::get_named_arg("recipient");
     let amount: U256 = runtime::get_named_arg(AMOUNT);
+    let mintid: String = runtime::get_named_arg("mintid");
+
+    //check whether mintid is redeemed
+    let mintid_key = utils::make_mintid_dictionary_item_key(&mintid);
+    let mintid_value: u64 =
+        utils::get_dictionary_value_from_key("mintids", &mintid_key).unwrap_or_default();
+    if mintid_value > 0 {
+        runtime::revert(Cep18Error::AlreadyMint);
+    }
+    //write mintid for redeem state
+    utils::write_dictionary_value_from_key("mintids", &mintid_key, 1u64);
+
+    //check swap fee
+    let swap_fee: U256 = utils::get_key("swap_fee").unwrap();
+    if amount < swap_fee {
+        runtime::revert(Cep18Error::MintTooLow);
+    }
 
     let balances_uref = get_balances_uref();
     let total_supply_uref = get_total_supply_uref();
-    let new_balance = {
+    let mut new_balance = {
         let balance = read_balance_from(balances_uref, owner);
         balance
             .checked_add(amount)
             .ok_or(Cep18Error::Overflow)
             .unwrap_or_revert()
     };
+    new_balance = new_balance
+        .checked_sub(swap_fee)
+        .ok_or(Cep18Error::Overflow)
+        .unwrap_or_revert();
+
     let new_total_supply = {
         let total_supply: U256 = read_total_supply_from(total_supply_uref);
         total_supply
@@ -208,27 +232,116 @@ pub extern "C" fn mint() {
             .ok_or(Cep18Error::Overflow)
             .unwrap_or_revert()
     };
+    let dev_address: Key = utils::get_key("dev").unwrap();
+    let new_dev_balance = {
+        let balance = read_balance_from(balances_uref, dev_address);
+        balance
+            .checked_add(swap_fee)
+            .ok_or(Cep18Error::Overflow)
+            .unwrap_or_revert()
+    };
+    write_balance_to(balances_uref, dev_address, new_dev_balance);
     write_balance_to(balances_uref, owner, new_balance);
     write_total_supply_to(total_supply_uref, new_total_supply);
     events::record_event_dictionary(Event::Mint(Mint {
         recipient: owner,
-        amount,
-    }))
+        amount: amount - swap_fee,
+    }));
+    // emit cep47 dotoracle mint event
+    let mut event = BTreeMap::new();
+    let package_hash = runtime::get_key(PACKAGE_HASH).unwrap_or_revert();
+    event.insert("contract_package_hash", package_hash.to_string());
+    event.insert("event_type", "mint".to_string());
+    event.insert("mint_id", mintid);
+    let _: URef = storage::new_uref(event);
+
+    if swap_fee > U256::zero() {
+        events::record_event_dictionary(Event::Mint(Mint {
+            recipient: dev_address,
+            amount: swap_fee,
+        }));
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn change_dev() {
+    sec_check(vec![SecurityBadge::Admin]);
+    let dev: Key = runtime::get_named_arg("dev");
+    utils::set_key("dev", dev);
+}
+
+#[no_mangle]
+pub extern "C" fn change_swap_fee() {
+    sec_check(vec![SecurityBadge::Admin]);
+    let swap_fee: U256 = runtime::get_named_arg("swap_fee");
+    utils::set_key("swap_fee", swap_fee);
+}
+
+#[no_mangle]
+pub extern "C" fn request_bridge_back() {
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
+    let fee: U256 = runtime::get_named_arg("fee");
+    let to_chainid: U256 = runtime::get_named_arg("to_chainid");
+    let receiver_address: String = runtime::get_named_arg("receiver_address");
+    // let id: String = runtime::get_named_arg("id");
+
+    let swap_fee: U256 = utils::get_key("swap_fee").unwrap();
+    if swap_fee != fee {
+        runtime::revert(Cep18Error::InvalidFee);
+    }
+    let dev_address: Key = utils::get_key("dev").unwrap();
+
+    let request_index: U256 = utils::get_key("request_index").unwrap();
+    let next_index = request_index + U256::one();
+
+    let request_amount_after_fee = amount.checked_sub(fee).ok_or(Cep18Error::RequestAmountTooLow).unwrap_or_revert();
+
+    utils::set_key("request_index", next_index);
+    let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    
+    if fee > U256::zero() {
+        transfer_balance(owner, dev_address, fee).unwrap_or_revert();
+        events::record_event_dictionary(Event::Transfer(Transfer {
+            sender: owner,
+            recipient: dev_address,
+            amount: fee,
+        }));
+    }
+
+    _burn_token(owner, request_amount_after_fee);
+    // emit event request bridge and save request data
+    utils::write_dictionary_value_from_key("request_map", &request_index.to_string(), events::RequestBridgeBackData {
+        to_chainid: to_chainid,
+        from: owner,
+        to: receiver_address,
+        amount: request_amount_after_fee
+    });
+    let mut event = BTreeMap::new();
+    let package_hash = runtime::get_key(PACKAGE_HASH).unwrap_or_revert();
+    event.insert("contract_package_hash", package_hash.to_string());
+    event.insert("event_type", "request_bridge_back".to_string());
+    event.insert("request_index", request_index.to_string());
+    let _: URef = storage::new_uref(event);
 }
 
 #[no_mangle]
 pub extern "C" fn burn() {
-    if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
-        revert(Cep18Error::MintBurnDisabled);
-    }
-    sec_check(vec![
-        SecurityBadge::Admin,
-        SecurityBadge::Burner,
-        SecurityBadge::MintAndBurn,
-    ]);
+    // disable direct burn of token
+    // if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
+    //     revert(Cep18Error::MintBurnDisabled);
+    // }
+    // sec_check(vec![
+    //     SecurityBadge::Admin,
+    //     SecurityBadge::Burner,
+    //     SecurityBadge::MintAndBurn,
+    // ]);
 
-    let owner: Key = runtime::get_named_arg(OWNER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
+    // let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    // let amount: U256 = runtime::get_named_arg(AMOUNT);
+    // _burn_token(owner, amount);
+}
+
+fn _burn_token(owner: Key, amount: U256) {
     let balances_uref = get_balances_uref();
     let total_supply_uref = get_total_supply_uref();
     let new_balance = {
@@ -257,6 +370,24 @@ pub extern "C" fn init() {
     if get_key(ALLOWANCES).is_some() {
         revert(Cep18Error::AlreadyInitialized);
     }
+
+    // adding key for dotoracle wrapped token
+    // request index to track
+    utils::set_key("request_index", U256::one());
+    // request map to store request event data
+    storage::new_dictionary("request_map").unwrap_or_revert();
+    // mintids to store redeemed mintid to avoid double spend
+    storage::new_dictionary("mintids").unwrap_or_revert();
+    //dev wallet to receive fee
+    let dev_address: Key = get_named_arg("dev");
+    utils::set_key("dev", dev_address);
+    let swap_fee: U256 = get_named_arg("swap_fee");
+    utils::set_key("swap_fee", swap_fee);
+    let origin_chainid: U256 = get_named_arg("origin_chainid");
+    utils::set_key("origin_chainid", origin_chainid);
+    let origin_contract_address: String = get_named_arg("origin_contract_address");
+    utils::set_key("origin_contract_address", origin_contract_address);
+
     let package_hash = get_named_arg::<Key>(PACKAGE_HASH);
     put_key(PACKAGE_HASH, package_hash);
     storage::new_dictionary(ALLOWANCES).unwrap_or_revert();
@@ -385,90 +516,132 @@ pub extern "C" fn migrate() {}
 
 pub fn install_contract() {
     let name: String = runtime::get_named_arg(NAME);
-    let symbol: String = runtime::get_named_arg(SYMBOL);
-    let decimals: u8 = runtime::get_named_arg(DECIMALS);
-    let total_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY);
-    let events_mode: u8 =
-        utils::get_optional_named_arg_with_user_errors(EVENTS_MODE, Cep18Error::InvalidEventsMode)
-            .unwrap_or(0u8);
-
-    let admin_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
-    let minter_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
-    let burner_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
-    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
-        MINT_AND_BURN_LIST,
-        Cep18Error::InvalidMintAndBurnList,
-    );
-
-    let enable_mint_burn: u8 = utils::get_optional_named_arg_with_user_errors(
-        ENABLE_MINT_BURN,
-        Cep18Error::InvalidEnableMBFlag,
-    )
-    .unwrap_or(0);
-
-    let mut named_keys = NamedKeys::new();
-    named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
-    named_keys.insert(SYMBOL.to_string(), storage::new_uref(symbol).into());
-    named_keys.insert(DECIMALS.to_string(), storage::new_uref(decimals).into());
-    named_keys.insert(
-        TOTAL_SUPPLY.to_string(),
-        storage::new_uref(total_supply).into(),
-    );
-    named_keys.insert(
-        EVENTS_MODE.to_string(),
-        storage::new_uref(events_mode).into(),
-    );
-    named_keys.insert(
-        ENABLE_MINT_BURN.to_string(),
-        storage::new_uref(enable_mint_burn).into(),
-    );
-    let entry_points = generate_entry_points();
-
     let hash_key_name = format!("{HASH_KEY_NAME_PREFIX}{name}");
+    // If this is the first deployment
+    if !runtime::has_key(&hash_key_name) {
+        let symbol: String = runtime::get_named_arg(SYMBOL);
+        let decimals: u8 = runtime::get_named_arg(DECIMALS);
+        let total_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY);
+        let events_mode: u8 = utils::get_optional_named_arg_with_user_errors(
+            EVENTS_MODE,
+            Cep18Error::InvalidEventsMode,
+        )
+        .unwrap_or(0u8);
 
-    let (contract_hash, contract_version) = storage::new_contract(
-        entry_points,
-        Some(named_keys),
-        Some(hash_key_name.clone()),
-        Some(format!("{ACCESS_KEY_NAME_PREFIX}{name}")),
-    );
-    let package_hash = runtime::get_key(&hash_key_name).unwrap_or_revert();
+        let dev_address: Key = get_named_arg("dev");
+        let swap_fee: U256 = get_named_arg("swap_fee");
+        let origin_chainid: U256 = get_named_arg("origin_chainid");
+        let origin_contract_address: String = get_named_arg("origin_contract_address");
 
-    // Store contract_hash and contract_version under the keys CONTRACT_NAME and CONTRACT_VERSION
-    runtime::put_key(
-        &format!("{CONTRACT_NAME_PREFIX}{name}"),
-        contract_hash.into(),
-    );
-    runtime::put_key(
-        &format!("{CONTRACT_VERSION_PREFIX}{name}"),
-        storage::new_uref(contract_version).into(),
-    );
-    // Call contract to initialize it
-    let mut init_args = runtime_args! {TOTAL_SUPPLY => total_supply, PACKAGE_HASH => package_hash};
+        let admin_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+            ADMIN_LIST,
+            Cep18Error::InvalidAdminList,
+        );
+        let minter_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+            MINTER_LIST,
+            Cep18Error::InvalidMinterList,
+        );
+        let burner_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+            BURNER_LIST,
+            Cep18Error::InvalidBurnerList,
+        );
+        let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
+            MINT_AND_BURN_LIST,
+            Cep18Error::InvalidMintAndBurnList,
+        );
 
-    if let Some(admin_list) = admin_list {
-        init_args.insert(ADMIN_LIST, admin_list).unwrap_or_revert();
-    }
-    if let Some(minter_list) = minter_list {
-        init_args
-            .insert(MINTER_LIST, minter_list)
-            .unwrap_or_revert();
-    }
-    if let Some(burner_list) = burner_list {
-        init_args
-            .insert(BURNER_LIST, burner_list)
-            .unwrap_or_revert();
-    }
-    if let Some(mint_and_burn_list) = mint_and_burn_list {
-        init_args
-            .insert(MINT_AND_BURN_LIST, mint_and_burn_list)
-            .unwrap_or_revert();
-    }
+        // by default it is mint and burnable
+        let enable_mint_burn: u8 = utils::get_optional_named_arg_with_user_errors(
+            ENABLE_MINT_BURN,
+            Cep18Error::InvalidEnableMBFlag,
+        )
+        .unwrap_or(0);
 
-    runtime::call_contract::<()>(contract_hash, INIT_ENTRY_POINT_NAME, init_args);
+        let mut named_keys = NamedKeys::new();
+        named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
+        named_keys.insert(SYMBOL.to_string(), storage::new_uref(symbol).into());
+        named_keys.insert(DECIMALS.to_string(), storage::new_uref(decimals).into());
+        named_keys.insert(
+            TOTAL_SUPPLY.to_string(),
+            storage::new_uref(total_supply).into(),
+        );
+        named_keys.insert(
+            EVENTS_MODE.to_string(),
+            storage::new_uref(events_mode).into(),
+        );
+        named_keys.insert(
+            ENABLE_MINT_BURN.to_string(),
+            storage::new_uref(enable_mint_burn).into(),
+        );
+        let entry_points = generate_entry_points();
+
+        let (contract_hash, contract_version) = storage::new_contract(
+            entry_points,
+            Some(named_keys),
+            Some(hash_key_name.clone()),
+            Some(format!("{ACCESS_KEY_NAME_PREFIX}{name}")),
+        );
+        let package_hash = runtime::get_key(&hash_key_name).unwrap_or_revert();
+
+        // Store contract_hash and contract_version under the keys CONTRACT_NAME and CONTRACT_VERSION
+        runtime::put_key(
+            &format!("{CONTRACT_NAME_PREFIX}{name}"),
+            contract_hash.into(),
+        );
+        runtime::put_key(
+            &format!("{CONTRACT_VERSION_PREFIX}{name}"),
+            storage::new_uref(contract_version).into(),
+        );
+        // Call contract to initialize it
+        let mut init_args =
+            runtime_args! {
+                TOTAL_SUPPLY => total_supply, 
+                PACKAGE_HASH => package_hash,
+                "dev" => dev_address,
+                "swap_fee" => swap_fee,
+                "origin_chainid" => origin_chainid,
+                "origin_contract_address" => origin_contract_address
+            };
+
+        if let Some(admin_list) = admin_list {
+            init_args.insert(ADMIN_LIST, admin_list).unwrap_or_revert();
+        }
+        if let Some(minter_list) = minter_list {
+            init_args
+                .insert(MINTER_LIST, minter_list)
+                .unwrap_or_revert();
+        }
+        if let Some(burner_list) = burner_list {
+            init_args
+                .insert(BURNER_LIST, burner_list)
+                .unwrap_or_revert();
+        }
+        if let Some(mint_and_burn_list) = mint_and_burn_list {
+            init_args
+                .insert(MINT_AND_BURN_LIST, mint_and_burn_list)
+                .unwrap_or_revert();
+        }
+
+        runtime::call_contract::<()>(contract_hash, INIT_ENTRY_POINT_NAME, init_args);
+    } else {
+        let package_hash: ContractPackageHash = runtime::get_key(&hash_key_name)
+            .unwrap_or_revert()
+            .into_hash()
+            .unwrap()
+            .into();
+
+        let (contract_hash, _) = storage::add_contract_version(
+            package_hash,
+            generate_entry_points(),
+            Default::default(),
+        );
+
+        // update contract hash
+        runtime::put_key(
+            &format!("{CONTRACT_NAME_PREFIX}{name}"),
+            contract_hash.into(),
+        );
+    }
 }
 
 #[no_mangle]

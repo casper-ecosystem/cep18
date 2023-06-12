@@ -9,7 +9,7 @@ casper-types = "2.0.0"
 casper-engine-test-support = "4.0.0"
 casper-execution-engine = "4.0.0"
 once_cell = "1.16.0"
-
+rand = "0.5.5"
 [lib]
 name = "tests"
 bench = false

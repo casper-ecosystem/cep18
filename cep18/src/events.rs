@@ -1,5 +1,5 @@
 use core::convert::TryFrom;
-
+use alloc::{ string::String, vec::Vec };
 use alloc::collections::BTreeMap;
 use casper_contract::unwrap_or_revert::UnwrapOrRevert;
 use casper_types::{Key, U256};
@@ -11,6 +11,16 @@ use crate::{
 };
 
 use casper_event_standard::{emit, Event};
+
+use casper_types_derive::{CLTyped, FromBytes, ToBytes};
+
+#[derive(Clone, CLTyped, ToBytes, FromBytes)]
+pub(crate) struct RequestBridgeBackData {
+    pub to_chainid: U256,
+    pub from: Key,
+    pub to: String,
+    pub amount: U256
+}
 
 pub fn record_event_dictionary(event: Event) {
     let events_mode: EventsMode =
