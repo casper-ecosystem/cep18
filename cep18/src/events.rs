@@ -10,7 +10,7 @@ use crate::{
     utils::{read_from, SecurityBadge},
 };
 
-use casper_event_standard::{emit, Event};
+use casper_event_standard::{emit, Event, Schemas};
 
 use casper_types_derive::{CLTyped, FromBytes, ToBytes};
 
@@ -109,5 +109,23 @@ fn ces(event: Event) {
         Event::Transfer(ev) => emit(ev),
         Event::TransferFrom(ev) => emit(ev),
         Event::ChangeSecurity(ev) => emit(ev),
+    }
+}
+
+pub fn init_events() {
+    let events_mode: EventsMode =
+        EventsMode::try_from(read_from::<u8>(EVENTS_MODE)).unwrap_or_revert();
+
+    if events_mode == EventsMode::CES {
+        let schemas = Schemas::new()
+            .with::<Mint>()
+            .with::<Burn>()
+            .with::<SetAllowance>()
+            .with::<IncreaseAllowance>()
+            .with::<DecreaseAllowance>()
+            .with::<Transfer>()
+            .with::<TransferFrom>()
+            .with::<ChangeSecurity>();
+        casper_event_standard::init(schemas);
     }
 }

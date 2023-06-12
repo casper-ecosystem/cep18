@@ -1,4 +1,4 @@
-//! Constants used by the CEP18 contract.
+//! Constants used by the CEP-18 contract.
 
 /// Name of named-key for `name`.
 pub const NAME: &str = "name";

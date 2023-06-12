@@ -2,7 +2,7 @@
 name = "casper-cep18"
 version = "1.0.0"
 edition = "2018"
-description = "A library for developing CEP18 tokens for the Casper network."
+description = "A library for developing CEP-18 tokens for the Casper network."
 readme = "README.md"
 documentation = "https://docs.rs/casper-cep18"
 homepage = "https://casperlabs.io"
@@ -24,3 +24,4 @@ hex = { version = "0.4.3", default-features = false }
 once_cell = { version = "1.16.0", default-features = false }
 casper-event-standard = { version = "0.3.0", default-features = false }
 casper_types_derive = "0.1.0"
+getrandom = { version = "0.2", features = ["js"] }

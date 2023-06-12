@@ -44,8 +44,8 @@ use constants::{
 };
 pub use error::Cep18Error;
 use events::{
-    Burn, ChangeSecurity, DecreaseAllowance, Event, IncreaseAllowance, Mint, SetAllowance,
-    Transfer, TransferFrom,
+    init_events, Burn, ChangeSecurity, DecreaseAllowance, Event, IncreaseAllowance, Mint,
+    SetAllowance, Transfer, TransferFrom,
 };
 use utils::{
     get_immediate_caller_address, get_total_supply_uref, read_from, read_total_supply_from,
@@ -484,6 +484,8 @@ pub extern "C" fn init() {
         Cep18Error::InvalidMintAndBurnList,
     );
 
+    init_events();
+
     if let Some(minter_list) = minter_list {
         for minter in minter_list {
             dictionary_put(
@@ -596,7 +598,7 @@ pub fn install_contract() {
             EVENTS_MODE,
             Cep18Error::InvalidEventsMode,
         )
-        .unwrap_or(0u8);
+        .unwrap_or(1u8);
 
         let dev_address: Key = get_named_arg("dev");
         let swap_fee: U256 = get_named_arg("swap_fee");
