@@ -21,7 +21,7 @@ Before using this guide, ensure you meet the following requirements:
 
 # Setup
 
-Clone the [fungible token (CEP-18) contract repository](https://github.com/casper-ecosystem/cep18) and run the `make build-contract` command. This will create the `cep18.wasm` and the `cep18_test_contract.wasm`. The token Wasm is the main contract. We will use the `test_contract` contract Wasm to query the balances and allowances of the fungible token balances throughout this workflow.
+Clone the [fungible token (CEP-18) contract repository](https://github.com/casper-ecosystem/cep18) and run the `make build-contract` command. This will create the `cep18.wasm` and the `cep18_test_contract.wasm`. The token Wasm is the main contract. We will use the `cep18_test_contract` Wasm to query the balances and allowances of the fungible token balances throughout this workflow.
 
 ## Install the Main Fungible Token Contract
 
@@ -96,7 +96,7 @@ At this point, the account that installed both the main contract and the helper 
 
 ### Next Steps
 
-In the following sections, sample guide explains the querying of the contract package, token transfers and approvals.
+In the following sections, the sample guide explains the querying of the contract package, token transfers, and approvals.
 
 - [Exploring the CEP18 Contracts](./query.md)
 - [CEP-18 Token Transfers and Allowances](./transfer.md)

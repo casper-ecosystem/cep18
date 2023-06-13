@@ -51,10 +51,10 @@ These constants refer to the following required information:
 * `NAME`: The name of your Casper fungible token.
 * `SYMBOL`: The symbol used to refer to your token.
 * `PRECISION`: The number of decimal places the token can be fractionalized to.
-* `TOTAL_SUPPLY`: The total supply of your fungible token token.
-* `GAS_LIMIT`: The gas limit in motes that will be used to pay for the deployment.
+* `TOTAL_SUPPLY`: The total supply of your fungible tokens.
+* `GAS_LIMIT`: The maximum payment in motes that will be used to pay for the deploy.
 * `WASM_PATH`: The path to the compiled contract.
-* `NODE_ADDRESS`: The validator node used to submit the deploy. The address listed directs to a valid online node, but this may change in the future. If this node does not respond, you can select another online peer from the list [here](https://testnet.cspr.live/tools/peers). Note that you'll need to replace the port with `7777` for most nodes and add `/rpc` to the end of the address.
+* `NODE_ADDRESS`: The validator node used to submit the deploy. The address listed directs to a valid online node, but this may change. If this node does not respond, you can select another [Testnet peer](https://testnet.cspr.live/tools/peers). Note that you'll need to replace the port with `7777` for most nodes and add `/rpc` to the end of the address.
 * `NETWORK_NAME`: The name of the network to which you'll be deploying. By default, we have the Casper Testnet specified as `"casper-test"`. To deploy on the Mainnet, you may change this to `"casper"`.
 
 As long as you generated the keys with the aforementioned command within your project's root folder, the paths to your keys should be the same as already written in the code. Otherwise, you will need to put in the alternate path to your keys in the `KEYS` constant.

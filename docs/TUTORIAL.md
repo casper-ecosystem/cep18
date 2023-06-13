@@ -6,7 +6,7 @@ The [Ethereum Request for Comment (ERC20)](https://eips.ethereum.org/EIPS/eip-20
 
 The Casper Fungible Token standard is the Casper Platform's ERC20 equivalent. It defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
-The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/cep18/blob/master/cep18/src/main.rs) and the [casper_fungible_token](hhttps://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library.
+The following functions implement the rules defined by Casper Fungible Tokens: `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. A portion of this tutorial reviews the [contract](https://github.com/casper-ecosystem/cep18/blob/master/cep18/src/main.rs) and the [casper_fungible_token](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library.
 
 The [Writing Rust Contracts on Casper](https://docs.casper.network/developers/writing-onchain-code/simple-contract/) document outlines many aspects of this tutorial and should be read first.
 

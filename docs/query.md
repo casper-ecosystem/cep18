@@ -8,7 +8,7 @@ This document covers the necessary information that you will need to interact wi
 
 ## Querying the Contract Package
 
-We will need the contract package's `contract_hash` to interact with the recently installed instance of CEP-18. You can find the contract package hash within the installing account's `NamedKeys`, under the name given during the installation process. In this instance, you will be looking for `
+We will need the contract package's `contract_hash` to interact with the recently installed instance of CEP-18. You can find the contract package hash within the installing account's `NamedKeys`, under the name given during the installation process.
 
 ```bash
 casper-client query-global-state -n http://<HOST IP>:<PORT> \
