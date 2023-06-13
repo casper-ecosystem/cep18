@@ -46,8 +46,7 @@ pub enum Cep18Error {
     ///  The mint and burn mode is disabled.
     MintBurnDisabled = 60016,
     CannotTargetSelfUser = 60017,
-    CannotTargetSelfCep18 = 60018,
-    InvalidBurnTarget = 60019,
+    InvalidBurnTarget = 60018,
 }
 
 impl From<Cep18Error> for ApiError {
