@@ -1,16 +1,16 @@
-ALL_CONTRACTS = casper-cep18 cep18-test-contract
+ALL_CONTRACTS = cep18 cep18-test-contract
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 PINNED_TOOLCHAIN := $(shell cat rust-toolchain)
 
 prepare:
 	rustup target add wasm32-unknown-unknown
 	rustup component add clippy --toolchain ${PINNED_TOOLCHAIN}
-	rustup component add rustfmt --toolchain ${PINNED_TOOLCHAIN}
+	rustup component add rustfmt --toolchain ${PINNED_TOOLCHAIN}z
 
 .PHONY:	build-contract
 build-contract:
 	cargo build --release --target wasm32-unknown-unknown $(patsubst %, -p %, $(ALL_CONTRACTS))
-	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm 2>/dev/null | true;)
+	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm ;)
 
 setup-test: build-contract
 	mkdir -p tests/wasm
