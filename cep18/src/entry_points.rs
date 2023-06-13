@@ -209,9 +209,7 @@ pub fn change_security() -> EntryPoint {
 pub fn change_dev() -> EntryPoint {
     EntryPoint::new(
         String::from("change_dev"),
-        vec![
-            Parameter::new("dev", Key::cl_type())
-        ],
+        vec![Parameter::new("dev", Key::cl_type())],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -222,9 +220,7 @@ pub fn change_dev() -> EntryPoint {
 pub fn change_swap_fee() -> EntryPoint {
     EntryPoint::new(
         String::from("change_swap_fee"),
-        vec![
-            Parameter::new("swap_fee", U256::cl_type())
-        ],
+        vec![Parameter::new("swap_fee", U256::cl_type())],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -251,9 +247,7 @@ pub fn request_bridge_back() -> EntryPoint {
 pub fn exchange_from_old_token() -> EntryPoint {
     EntryPoint::new(
         String::from("exchange_from_old_token"),
-        vec![
-            Parameter::new(AMOUNT, U256::cl_type())
-        ],
+        vec![Parameter::new(AMOUNT, U256::cl_type())],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,

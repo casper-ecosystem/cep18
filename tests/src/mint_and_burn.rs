@@ -2,10 +2,9 @@ use crate::utility::{
     constants::{
         ACCOUNT_1_ADDR, ADMIN_LIST, AMOUNT, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
         ARG_SYMBOL, ARG_TOTAL_SUPPLY, BURNER_LIST, CHANGE_SECURITY, ENABLE_MINT_BURN,
-        ERROR_INSUFFICIENT_BALANCE, ERROR_OVERFLOW, METHOD_BURN, METHOD_MINT, MINTER_LIST,
-        MINT_AND_BURN_LIST, NONE_LIST, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_OWNER_ADDRESS_1,
-        TOKEN_OWNER_ADDRESS_2, TOKEN_OWNER_AMOUNT_1, TOKEN_OWNER_AMOUNT_2, TOKEN_SYMBOL,
-        TOKEN_TOTAL_SUPPLY,
+        ERROR_OVERFLOW, METHOD_BURN, METHOD_MINT, MINTER_LIST, MINT_AND_BURN_LIST, NONE_LIST,
+        TOKEN_DECIMALS, TOKEN_NAME, TOKEN_OWNER_ADDRESS_1, TOKEN_OWNER_ADDRESS_2,
+        TOKEN_OWNER_AMOUNT_1, TOKEN_OWNER_AMOUNT_2, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
     },
     installer_request_builders::{
         cep18_check_balance_of, cep18_check_total_supply, setup_with_args, TestContext,
@@ -191,7 +190,7 @@ fn test_should_not_mint_above_limits() {
 
 #[test]
 fn test_should_not_burn_above_balance() {
-    let mint_amount = U256::MAX;
+    let _mint_amount = U256::MAX;
 
     let (mut builder, TestContext { cep18_token, .. }) = setup_with_args(runtime_args! {
         ARG_NAME => TOKEN_NAME,
@@ -249,8 +248,8 @@ fn test_should_not_burn_above_balance() {
 
     // let error = builder.get_error().expect("should have error");
     // assert!(
-    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == ERROR_INSUFFICIENT_BALANCE),
-    //     "{:?}",
+    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if
+    // user_error == ERROR_INSUFFICIENT_BALANCE),     "{:?}",
     //     error
     // );
 }
@@ -304,8 +303,8 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
 
     // let error = builder.get_error().expect("should have error");
     // assert!(
-    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
-    //     "{:?}",
+    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if
+    // user_error == 60018),     "{:?}",
     //     error
     // );
 }
@@ -359,8 +358,8 @@ fn test_security_no_rights() {
 
     // let error = builder.get_error().expect("should have error");
     // assert!(
-    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-    //     "{:?}",
+    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if
+    // user_error == 60010),     "{:?}",
     //     error
     // );
 }
@@ -407,8 +406,8 @@ fn test_security_minter_rights() {
 
     // let error = builder.get_error().expect("should have error");
     // assert!(
-    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-    //     "{:?}",
+    //     matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if
+    // user_error == 60010),     "{:?}",
     //     error
     // );
 }

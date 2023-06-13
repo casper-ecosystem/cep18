@@ -1,8 +1,7 @@
-use core::convert::TryFrom;
-use alloc::{ string::String, vec::Vec };
-use alloc::collections::BTreeMap;
+use alloc::{collections::BTreeMap, string::String, vec::Vec};
 use casper_contract::unwrap_or_revert::UnwrapOrRevert;
 use casper_types::{Key, U256};
+use core::convert::TryFrom;
 
 use crate::{
     constants::EVENTS_MODE,
@@ -19,7 +18,7 @@ pub(crate) struct RequestBridgeBackData {
     pub to_chainid: U256,
     pub from: Key,
     pub to: String,
-    pub amount: U256
+    pub amount: U256,
 }
 
 pub fn record_event_dictionary(event: Event) {

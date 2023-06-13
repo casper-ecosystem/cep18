@@ -1,7 +1,7 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-use alloc::{collections::BTreeMap, vec, vec::Vec, string::String};
+use alloc::{collections::BTreeMap, string::String, vec, vec::Vec};
 use casper_contract::{
     contract_api::{
         self,
@@ -261,6 +261,6 @@ pub fn write_dictionary_value_from_key<T: CLTyped + FromBytes + ToBytes>(
 
 pub fn make_mintid_dictionary_item_key(mintid: &String) -> String {
     let preimage = mintid.as_bytes();
-    let key_bytes = runtime::blake2b(&preimage);
-    hex::encode(&key_bytes)
+    let key_bytes = runtime::blake2b(preimage);
+    hex::encode(key_bytes)
 }

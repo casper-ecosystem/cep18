@@ -317,7 +317,7 @@ pub extern "C" fn request_bridge_back() {
         "request_map",
         &request_index.to_string(),
         events::RequestBridgeBackData {
-            to_chainid: to_chainid,
+            to_chainid,
             from: owner,
             to: receiver_address,
             amount: request_amount_after_fee,
@@ -399,7 +399,7 @@ pub extern "C" fn exchange_from_old_token() {
     write_total_supply_to(total_supply_uref, new_total_supply);
     events::record_event_dictionary(Event::Mint(Mint {
         recipient: caller,
-        amount: amount,
+        amount,
     }));
 }
 
@@ -662,7 +662,8 @@ pub fn install_contract() {
         );
         let package_hash = runtime::get_key(&hash_key_name).unwrap_or_revert();
 
-        // Store contract_hash and contract_version under the keys CONTRACT_NAME and CONTRACT_VERSION
+        // Store contract_hash and contract_version under the keys CONTRACT_NAME and
+        // CONTRACT_VERSION
         runtime::put_key(
             &format!("{CONTRACT_NAME_PREFIX}{name}"),
             contract_hash.into(),

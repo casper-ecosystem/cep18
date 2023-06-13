@@ -62,7 +62,7 @@ pub enum Cep18Error {
     RequestAmountTooLow,
     /// request id
     RequestIdIllFormatted,
-    InvalidOldToken
+    InvalidOldToken,
 }
 
 impl From<Cep18Error> for ApiError {
