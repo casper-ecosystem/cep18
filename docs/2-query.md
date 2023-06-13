@@ -147,3 +147,7 @@ Which will return the full `cep18_test_contract` information. The following snip
 }
 
 ```
+
+## Next Steps
+
+- [CEP-18 Token Transfers and Allowances](./3-transfer.md)

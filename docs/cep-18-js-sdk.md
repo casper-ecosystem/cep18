@@ -1,6 +1,6 @@
 # Deploying a CEP-18 Compliant Token with the JS SDK
 
-On Casper networks, CEP18 compliant tokens emulate the features available from ERC20 tokens on the Ethereum network. These tokens feature all the capabilities of traditional ERC20 tokens and by following this guide, you will be able to create your own CEP-18 token and deploy it to a Casper network.
+On Casper networks, CEP18 compliant tokens emulate the features available from ERC-20 tokens on the Ethereum network. These tokens feature all the capabilities of traditional ERC-20 tokens and by following this guide, you will be able to create your own CEP-18 token and deploy it to a Casper network.
 
 ## Prerequisites
 
@@ -85,7 +85,7 @@ An error message will be provided if a deploy fails. Deploys may fail for a numb
 
 ## Transfer Tokens
 
-You can send ERC20 compliant tokens on Casper networks as per the ERC specification. We use the same  `erc20iface` script to execute the transfer deploy.
+You can send ERC-20 compliant tokens on Casper networks as per the ERC specification. We use the same  `erc20iface` script to execute the transfer deploy.
 
 You will need an amount and a destination to execute a transfer. The amount corresponds to the number of tokens you want to transfer, and the destination is the hexadecimal public key of the receiving account. Your command should look like this:
 

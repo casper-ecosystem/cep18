@@ -42,6 +42,8 @@ A [JavaScript client SDK](https://github.com/casper-ecosystem/erc20/tree/master/
 
 For more information, visit the below guides:
 
-- [Casper Fungible Token Tutorial](/docs/TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract.
-- [Casper Fungible Token How-To Guide](/docs/Sample-Guide.md) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an fungible token contract.
-- [Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - A quick guide on how to deploy the Casper fungible token to the Casper Network.
+- [Casper Fungible Token Tutorial](/docs/full-tutorial.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract.
+- [Casper Fungible Token How-To Guide](/docs/1-quickstart-guide.md) - An example driven quick start guide for launching a CEP-18 token on a Casper network using the Casper CLI client.
+- [Exploring the CEP18 Contracts](/docs/2-query.md) - A guide for finding the necessary values to interact with a CEP-18 instance after installation in global state.
+- [CEP-18 Token Transfers and Allowances](/docs/3-transfer.md) - A guide to transferring CEP-18 tokens and approving allowances.
+- [Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - A quick guide on how to deploy the Casper fungible token to a Casper network using the JS SDK.

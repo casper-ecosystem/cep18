@@ -3,7 +3,7 @@
 
 This quick start guide introduces you to the Casper client commands and Wasm files necessary to deploy a CEP-18 Casper Fungible Token contract to a [Casper network](https://cspr.live).
 
-The [Ethereum Request for Comment (ERC20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed. These fungible tokens are blockchain-based assets that have value and can be transferred or recorded.
+The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed. These fungible tokens are blockchain-based assets that have value and can be transferred or recorded.
 
 To execute transactions on a Casper network (involving fungible tokens), you will need some CSPR tokens to pay for the transactions.
 
@@ -98,5 +98,5 @@ At this point, the account that installed both the main contract and the helper 
 
 In the following sections, the sample guide explains the querying of the contract package, token transfers, and approvals.
 
-- [Exploring the CEP18 Contracts](./query.md)
-- [CEP-18 Token Transfers and Allowances](./transfer.md)
+- [Exploring the CEP18 Contracts](./2-query.md)
+- [CEP-18 Token Transfers and Allowances](./3-transfer.md)
