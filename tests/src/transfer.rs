@@ -305,7 +305,7 @@ fn should_not_be_able_to_own_transfer() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
         "{:?}",
         error
     );
@@ -330,7 +330,7 @@ fn should_not_be_able_to_own_transfer_from() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
         "{:?}",
         error
     );
@@ -359,7 +359,7 @@ fn should_not_be_able_to_own_transfer_from() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60019),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
         "{:?}",
         error
     );
@@ -558,7 +558,7 @@ fn should_not_transfer_to_self_cep18() {
     builder.exec(token_transfer_request_1).commit();
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60020),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
         "{:?}",
         error
     );

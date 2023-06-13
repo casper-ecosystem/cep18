@@ -153,9 +153,7 @@ pub fn get_named_arg_with_user_errors<T: FromBytes>(
 pub enum SecurityBadge {
     Admin = 0,
     Minter = 1,
-    Burner = 2,
-    MintAndBurn = 3,
-    None = 4,
+    None = 2,
 }
 
 impl CLTyped for SecurityBadge {
@@ -180,9 +178,7 @@ impl FromBytes for SecurityBadge {
             match bytes[0] {
                 0 => SecurityBadge::Admin,
                 1 => SecurityBadge::Minter,
-                2 => SecurityBadge::Burner,
-                3 => SecurityBadge::MintAndBurn,
-                4 => SecurityBadge::None,
+                2 => SecurityBadge::None,
                 _ => return Err(bytesrepr::Error::LeftOverBytes),
             },
             &[],

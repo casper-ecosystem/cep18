@@ -4,9 +4,9 @@ use casper_types::{runtime_args, ApiError, Key, RuntimeArgs, U256};
 use crate::utility::{
     constants::{
         ACCOUNT_1_ADDR, ADMIN_LIST, AMOUNT, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER,
-        ARG_SYMBOL, ARG_TOTAL_SUPPLY, BURNER_LIST, CHANGE_SECURITY, ENABLE_MINT_BURN,
+        ARG_SYMBOL, ARG_TOTAL_SUPPLY, CHANGE_SECURITY, ENABLE_MINT_BURN,
         ERROR_INSUFFICIENT_BALANCE, ERROR_OVERFLOW, METHOD_BURN, METHOD_MINT, MINTER_LIST,
-        MINT_AND_BURN_LIST, NONE_LIST, OWNER, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_OWNER_ADDRESS_1,
+        NONE_LIST, OWNER, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_OWNER_ADDRESS_1,
         TOKEN_OWNER_ADDRESS_2, TOKEN_OWNER_AMOUNT_1, TOKEN_OWNER_AMOUNT_2, TOKEN_SYMBOL,
         TOKEN_TOTAL_SUPPLY,
     },
@@ -239,7 +239,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60016),
         "{:?}",
         error
     );
@@ -259,7 +259,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60018),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60016),
         "{:?}",
         error
     );
@@ -297,6 +297,22 @@ fn test_security_no_rights() {
         error
     );
 
+    let passing_admin_mint_request = ExecuteRequestBuilder::contract_call_by_hash(
+        *DEFAULT_ACCOUNT_ADDR,
+        cep18_token,
+        METHOD_MINT,
+        runtime_args! {
+            ARG_OWNER => Key::Account(*ACCOUNT_1_ADDR),
+            ARG_AMOUNT => mint_amount,
+        },
+    )
+    .build();
+
+    builder
+        .exec(passing_admin_mint_request)
+        .expect_success()
+        .commit();
+
     let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
         *ACCOUNT_1_ADDR,
         cep18_token,
@@ -308,14 +324,7 @@ fn test_security_no_rights() {
     )
     .build();
 
-    builder.exec(burn_request).commit();
-
-    let error = builder.get_error().expect("should have error");
-    assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-        "{:?}",
-        error
-    );
+    builder.exec(burn_request).expect_success().commit();
 }
 
 #[test]
@@ -355,7 +364,6 @@ fn test_security_burner_rights() {
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
         ENABLE_MINT_BURN => true,
-        BURNER_LIST => vec![Key::Account(*ACCOUNT_1_ADDR)]
     });
 
     let mint_request = ExecuteRequestBuilder::contract_call_by_hash(
@@ -392,52 +400,13 @@ fn test_security_burner_rights() {
 
     builder.exec(working_mint_request).commit().expect_success();
 
+    // any user can burn
     let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         cep18_token,
         METHOD_BURN,
         runtime_args! {
             ARG_OWNER => Key::Account(*DEFAULT_ACCOUNT_ADDR),
-            ARG_AMOUNT => mint_amount,
-        },
-    )
-    .build();
-
-    builder.exec(burn_request).commit().expect_success();
-}
-
-#[test]
-fn test_security_mint_and_burn_rights() {
-    let mint_amount = U256::one();
-
-    let (mut builder, TestContext { cep18_token, .. }) = setup_with_args(runtime_args! {
-        ARG_NAME => TOKEN_NAME,
-        ARG_SYMBOL => TOKEN_SYMBOL,
-        ARG_DECIMALS => TOKEN_DECIMALS,
-        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ENABLE_MINT_BURN => true,
-        MINT_AND_BURN_LIST => vec![Key::Account(*ACCOUNT_1_ADDR)]
-    });
-
-    let mint_request = ExecuteRequestBuilder::contract_call_by_hash(
-        *ACCOUNT_1_ADDR,
-        cep18_token,
-        METHOD_MINT,
-        runtime_args! {
-            ARG_OWNER => Key::Account(*ACCOUNT_1_ADDR),
-            ARG_AMOUNT => mint_amount,
-        },
-    )
-    .build();
-
-    builder.exec(mint_request).commit().expect_success();
-
-    let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
-        *ACCOUNT_1_ADDR,
-        cep18_token,
-        METHOD_BURN,
-        runtime_args! {
-            ARG_OWNER => Key::Account(*ACCOUNT_1_ADDR),
             ARG_AMOUNT => mint_amount,
         },
     )
