@@ -149,9 +149,6 @@ pub extern "C" fn increase_allowance() {
 pub extern "C" fn transfer() {
     let sender = utils::get_immediate_caller_address().unwrap_or_revert();
     let recipient: Key = runtime::get_named_arg(RECIPIENT);
-    if recipient == utils::get_contract_self_address() {
-        revert(Cep18Error::CannotTargetSelfCep18);
-    }
     if sender == recipient {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -170,10 +167,6 @@ pub extern "C" fn transfer_from() {
     let spender = utils::get_immediate_caller_address().unwrap_or_revert();
     let recipient: Key = runtime::get_named_arg(RECIPIENT);
     let owner: Key = runtime::get_named_arg(OWNER);
-
-    if recipient == utils::get_contract_self_address() {
-        revert(Cep18Error::CannotTargetSelfCep18);
-    }
     if owner == recipient {
         revert(Cep18Error::CannotTargetSelfUser);
     }
