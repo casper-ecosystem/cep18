@@ -36,10 +36,10 @@ use casper_types::{
 };
 
 use constants::{
-    ACCESS_KEY_NAME_PREFIX, ADDRESS, ADMIN_LIST, ALLOWANCES, AMOUNT, BALANCES, BURNER_LIST,
+    ACCESS_KEY_NAME_PREFIX, ADDRESS, ADMIN_LIST, ALLOWANCES, AMOUNT, BALANCES,
     CONTRACT_NAME_PREFIX, CONTRACT_VERSION_PREFIX, DECIMALS, ENABLE_MINT_BURN, EVENTS_MODE,
-    HASH_KEY_NAME_PREFIX, INIT_ENTRY_POINT_NAME, MINTER_LIST, MINT_AND_BURN_LIST, NAME, NONE_LIST,
-    OWNER, PACKAGE_HASH, RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
+    HASH_KEY_NAME_PREFIX, INIT_ENTRY_POINT_NAME, MINTER_LIST, NAME, NONE_LIST, OWNER, PACKAGE_HASH,
+    RECIPIENT, SECURITY_BADGES, SPENDER, SYMBOL, TOTAL_SUPPLY,
 };
 pub use error::Cep18Error;
 use events::{
@@ -81,8 +81,8 @@ pub extern "C" fn balance_of() {
 
 #[no_mangle]
 pub extern "C" fn allowance() {
-    let owner: Key = runtime::get_named_arg(OWNER);
     let spender: Key = runtime::get_named_arg(SPENDER);
+    let owner: Key = runtime::get_named_arg(OWNER);
     let allowances_uref = get_allowances_uref();
     let val: U256 = read_allowance_from(allowances_uref, owner, spender);
     runtime::ret(CLValue::from_t(val).unwrap_or_revert());
@@ -90,9 +90,12 @@ pub extern "C" fn allowance() {
 
 #[no_mangle]
 pub extern "C" fn approve() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     write_allowance_to(allowances_uref, owner, spender, amount);
     events::record_event_dictionary(Event::SetAllowance(SetAllowance {
@@ -104,9 +107,12 @@ pub extern "C" fn approve() {
 
 #[no_mangle]
 pub extern "C" fn decrease_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_sub(amount);
@@ -121,9 +127,12 @@ pub extern "C" fn decrease_allowance() {
 
 #[no_mangle]
 pub extern "C" fn increase_allowance() {
-    let spender: Key = runtime::get_named_arg(SPENDER);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let owner = utils::get_immediate_caller_address().unwrap_or_revert();
+    let spender: Key = runtime::get_named_arg(SPENDER);
+    if spender == owner {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let allowances_uref = get_allowances_uref();
     let current_allowance = read_allowance_from(allowances_uref, owner, spender);
     let new_allowance = current_allowance.saturating_add(amount);
@@ -138,10 +147,12 @@ pub extern "C" fn increase_allowance() {
 
 #[no_mangle]
 pub extern "C" fn transfer() {
-    let recipient: Key = runtime::get_named_arg(RECIPIENT);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
-
     let sender = utils::get_immediate_caller_address().unwrap_or_revert();
+    let recipient: Key = runtime::get_named_arg(RECIPIENT);
+    if sender == recipient {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
 
     transfer_balance(sender, recipient, amount).unwrap_or_revert();
     events::record_event_dictionary(Event::Transfer(Transfer {
@@ -153,10 +164,13 @@ pub extern "C" fn transfer() {
 
 #[no_mangle]
 pub extern "C" fn transfer_from() {
-    let owner: Key = runtime::get_named_arg(OWNER);
-    let recipient: Key = runtime::get_named_arg(RECIPIENT);
-    let amount: U256 = runtime::get_named_arg(AMOUNT);
     let spender = utils::get_immediate_caller_address().unwrap_or_revert();
+    let recipient: Key = runtime::get_named_arg(RECIPIENT);
+    let owner: Key = runtime::get_named_arg(OWNER);
+    if owner == recipient {
+        revert(Cep18Error::CannotTargetSelfUser);
+    }
+    let amount: U256 = runtime::get_named_arg(AMOUNT);
     if amount.is_zero() {
         return;
     }
@@ -183,11 +197,8 @@ pub extern "C" fn mint() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
         revert(Cep18Error::MintBurnDisabled);
     }
-    sec_check(vec![
-        SecurityBadge::Admin,
-        SecurityBadge::Minter,
-        SecurityBadge::MintAndBurn,
-    ]);
+
+    sec_check(vec![SecurityBadge::Admin, SecurityBadge::Minter]);
 
     let owner: Key = runtime::get_named_arg(OWNER);
     let amount: U256 = runtime::get_named_arg(AMOUNT);
@@ -221,13 +232,13 @@ pub extern "C" fn burn() {
     if 0 == read_from::<u8>(ENABLE_MINT_BURN) {
         revert(Cep18Error::MintBurnDisabled);
     }
-    sec_check(vec![
-        SecurityBadge::Admin,
-        SecurityBadge::Burner,
-        SecurityBadge::MintAndBurn,
-    ]);
 
     let owner: Key = runtime::get_named_arg(OWNER);
+
+    if owner != get_immediate_caller_address().unwrap_or_revert() {
+        revert(Cep18Error::InvalidBurnTarget);
+    }
+
     let amount: U256 = runtime::get_named_arg(AMOUNT);
     let balances_uref = get_balances_uref();
     let total_supply_uref = get_total_supply_uref();
@@ -276,12 +287,6 @@ pub extern "C" fn init() {
         utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
     let minter_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
-    let burner_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
-    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
-        MINT_AND_BURN_LIST,
-        Cep18Error::InvalidMintAndBurnList,
-    );
 
     init_events();
 
@@ -291,24 +296,6 @@ pub extern "C" fn init() {
                 security_badges_dict,
                 &base64::encode(minter.to_bytes().unwrap_or_revert()),
                 SecurityBadge::Minter,
-            );
-        }
-    }
-    if let Some(burner_list) = burner_list {
-        for burner in burner_list {
-            dictionary_put(
-                security_badges_dict,
-                &base64::encode(burner.to_bytes().unwrap_or_revert()),
-                SecurityBadge::Burner,
-            );
-        }
-    }
-    if let Some(mint_and_burn_list) = mint_and_burn_list {
-        for mint_and_burn in mint_and_burn_list {
-            dictionary_put(
-                security_badges_dict,
-                &base64::encode(mint_and_burn.to_bytes().unwrap_or_revert()),
-                SecurityBadge::MintAndBurn,
             );
         }
     }
@@ -325,7 +312,7 @@ pub extern "C" fn init() {
 
 /// Admin EntryPoint to manipulate the security access granted to users.
 /// One user can only possess one access group badge.
-/// Change strength: None > Admin > MintAndBurn > Burner > Minter
+/// Change strength: None > Admin > Minter
 /// Change strength meaning by example: If user is added to both Minter and Admin they will be an
 /// Admin, also if a user is added to Admin and None then they will be removed from having rights.
 /// Beware: do not remove the last Admin because that will lock out all admin functionality.
@@ -339,12 +326,6 @@ pub extern "C" fn change_security() {
         utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
     let minter_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
-    let burner_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
-    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
-        MINT_AND_BURN_LIST,
-        Cep18Error::InvalidMintAndBurnList,
-    );
     let none_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(NONE_LIST, Cep18Error::InvalidNoneList);
 
@@ -352,16 +333,6 @@ pub extern "C" fn change_security() {
     if let Some(minter_list) = minter_list {
         for account_key in minter_list {
             badge_map.insert(account_key, SecurityBadge::Minter);
-        }
-    }
-    if let Some(burner_list) = burner_list {
-        for account_key in burner_list {
-            badge_map.insert(account_key, SecurityBadge::Burner);
-        }
-    }
-    if let Some(mint_and_burn_list) = mint_and_burn_list {
-        for account_key in mint_and_burn_list {
-            badge_map.insert(account_key, SecurityBadge::MintAndBurn);
         }
     }
     if let Some(admin_list) = admin_list {
@@ -374,6 +345,9 @@ pub extern "C" fn change_security() {
             badge_map.insert(account_key, SecurityBadge::None);
         }
     }
+
+    let caller = get_immediate_caller_address().unwrap_or_revert();
+    badge_map.remove(&caller);
 
     utils::change_sec_badge(&badge_map);
     events::record_event_dictionary(Event::ChangeSecurity(ChangeSecurity {
@@ -398,12 +372,6 @@ pub fn install_contract() {
         utils::get_optional_named_arg_with_user_errors(ADMIN_LIST, Cep18Error::InvalidAdminList);
     let minter_list: Option<Vec<Key>> =
         utils::get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
-    let burner_list: Option<Vec<Key>> =
-        utils::get_optional_named_arg_with_user_errors(BURNER_LIST, Cep18Error::InvalidBurnerList);
-    let mint_and_burn_list: Option<Vec<Key>> = utils::get_optional_named_arg_with_user_errors(
-        MINT_AND_BURN_LIST,
-        Cep18Error::InvalidMintAndBurnList,
-    );
 
     let enable_mint_burn: u8 = utils::get_optional_named_arg_with_user_errors(
         ENABLE_MINT_BURN,
@@ -457,16 +425,6 @@ pub fn install_contract() {
     if let Some(minter_list) = minter_list {
         init_args
             .insert(MINTER_LIST, minter_list)
-            .unwrap_or_revert();
-    }
-    if let Some(burner_list) = burner_list {
-        init_args
-            .insert(BURNER_LIST, burner_list)
-            .unwrap_or_revert();
-    }
-    if let Some(mint_and_burn_list) = mint_and_burn_list {
-        init_args
-            .insert(MINT_AND_BURN_LIST, mint_and_burn_list)
             .unwrap_or_revert();
     }
 

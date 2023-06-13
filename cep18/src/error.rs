@@ -37,18 +37,16 @@ pub enum Cep18Error {
     InvalidAdminList = 60011,
     /// The list of accounts that can mint tokens is invalid.
     InvalidMinterList = 60012,
-    ///  The list of accounts that can burn tokens is invalid.
-    InvalidBurnerList = 60013,
-    /// The list of accounts that can mint and burn is invalid.
-    InvalidMintAndBurnList = 60014,
     /// The list of accounts with no access rights is invalid.
-    InvalidNoneList = 60015,
+    InvalidNoneList = 60013,
     /// The flag to enable the mint and burn mode is invalid.
-    InvalidEnableMBFlag = 60016,
+    InvalidEnableMBFlag = 60014,
     /// This contract instance cannot be initialized again.
-    AlreadyInitialized = 60017,
+    AlreadyInitialized = 60015,
     ///  The mint and burn mode is disabled.
-    MintBurnDisabled = 60018,
+    MintBurnDisabled = 60016,
+    CannotTargetSelfUser = 60017,
+    InvalidBurnTarget = 60018,
 }
 
 impl From<Cep18Error> for ApiError {
