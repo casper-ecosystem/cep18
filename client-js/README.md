@@ -7,10 +7,10 @@ This JavaScript client gives you an easy way to install and interact with the Ca
 Run this command to install the client:
 
 ```bash
-npm install casper-js-sdk casper-cep18-js-client
+npm install casper-js-sdk @make-software/ces-js-parser casper-cep18-js-client
 ```
 
-The `casper-cep18-js-client` requires `casper-js-sdk` as a peer dependency.
+The `casper-cep18-js-client` requires `casper-js-sdk` and `@make-software/ces-js-parser` as a peer dependency.
 
 ## Usage Examples
 
