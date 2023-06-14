@@ -26,3 +26,8 @@ export const EVENT_STREAM_ADDRESS =
   process.env.EVENT_STREAM_ADDRESS || 'http://localhost:18101/events/main';
 
 export const NETWORK_NAME = process.env.NETWORK_NAME || 'casper-net-1';
+
+export const DEPLOY_TIMEOUT = parseInt(
+  process.env.DEPLOY_TIMEOUT || '1200000',
+  10
+);

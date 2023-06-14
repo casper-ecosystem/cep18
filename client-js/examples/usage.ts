@@ -1,12 +1,9 @@
 import { CasperServiceByJsonRPC } from 'casper-js-sdk';
 
 import { CEP18Client, InstallArgs } from '../src';
+import { findKeyFromAccountNamedKeys, getAccountInfo } from '../tests/utils';
 import {
-  expectDeployResultToSuccess,
-  findKeyFromAccountNamedKeys,
-  getAccountInfo
-} from '../tests/utils';
-import {
+  DEPLOY_TIMEOUT,
   FAUCET_KEY,
   NETWORK_NAME,
   NODE_URL,
@@ -37,7 +34,7 @@ const run = async () => {
 
   const contractPackageHash = findKeyFromAccountNamedKeys(
     accountInfo,
-    `cep18_contract_package_hash_${tokenInfo.name}`
+    `cep18_contract_package_${tokenInfo.name}`
   ) as `hash-${string}`;
 
   console.log(`... Contract Hash: ${contractHash}`);
@@ -66,14 +63,13 @@ const run = async () => {
   const transferDeployHash = await transferDeploy.send(NODE_URL);
   console.log(`... Token transfer deploy hash: ${transferDeployHash}`);
 
-  const transferResult = await client.waitForDeploy(transferDeploy);
-  expectDeployResultToSuccess(transferResult);
+  await client.waitForDeploy(transferDeploy, DEPLOY_TIMEOUT);
 
   const aliBalance = await cep18.balanceOf(ali.publicKey);
   console.log(`Ali's balance: ${aliBalance.toString()}`);
 
   // Approve tokens
-  const deploy = cep18.approve(
+  const approveDeploy = cep18.approve(
     {
       spender: ali.publicKey,
       amount: 50_000_000_000
@@ -83,10 +79,9 @@ const run = async () => {
     NETWORK_NAME,
     [owner]
   );
-  const approveDeployHash = await deploy.send(NODE_URL);
+  const approveDeployHash = await approveDeploy.send(NODE_URL);
   console.log(`... Token approve deploy hash: ${approveDeployHash}`);
-  const approveResult = await client.waitForDeploy(deploy);
-  expectDeployResultToSuccess(approveResult);
+  await client.waitForDeploy(approveDeploy, DEPLOY_TIMEOUT);
 
   // Get allowances
   const allowances = await cep18.allowances(owner.publicKey, ali.publicKey);
@@ -109,8 +104,7 @@ const run = async () => {
 
   const transferFromDeployHash = await transferFromDeploy.send(NODE_URL);
   console.log(`... Token transferFrom deploy hash: ${transferFromDeployHash}`);
-  const result = await client.waitForDeploy(deploy);
-  expectDeployResultToSuccess(result);
+  await client.waitForDeploy(transferFromDeploy, DEPLOY_TIMEOUT);
 
   const bobBalance = await cep18.balanceOf(bob.publicKey);
   console.log(`...Bob's balance: ${bobBalance.toString()}`);

@@ -1,12 +1,8 @@
 import { CasperServiceByJsonRPC } from 'casper-js-sdk';
 
 import { CEP18Client, ContractWASM, InstallArgs } from '../src';
-import {
-  expectDeployResultToSuccess,
-  findKeyFromAccountNamedKeys,
-  getAccountInfo
-} from '../tests/utils';
-import { FAUCET_KEY, NETWORK_NAME, NODE_URL } from './common';
+import { findKeyFromAccountNamedKeys, getAccountInfo } from '../tests/utils';
+import { DEPLOY_TIMEOUT, FAUCET_KEY, NETWORK_NAME, NODE_URL } from './common';
 
 const install = async () => {
   const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
@@ -34,9 +30,7 @@ const install = async () => {
 
   console.log(`... Contract installation deployHash: ${deployHash}`);
 
-  const result = await client.waitForDeploy(deploy);
-
-  expectDeployResultToSuccess(result);
+  await client.waitForDeploy(deploy, DEPLOY_TIMEOUT);
 
   console.log(`... Contract installed successfully.`);
 
@@ -49,7 +43,7 @@ const install = async () => {
 
   const contractPackageHash = findKeyFromAccountNamedKeys(
     accountInfo,
-    `cep18_contract_package_hash_${tokenInfo.name}`
+    `cep18_contract_package_${tokenInfo.name}`
   ) as `hash-${string}`;
 
   console.log(`... Contract Hash: ${contractHash}`);
