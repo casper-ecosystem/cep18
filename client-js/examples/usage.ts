@@ -1,20 +1,26 @@
 import { CasperServiceByJsonRPC } from 'casper-js-sdk';
 
 import { CEP18Client, InstallArgs } from '../src';
-import { NETWORK_NAME, NODE_URL, users } from '../tests/config';
 import {
   expectDeployResultToSuccess,
   findKeyFromAccountNamedKeys,
   getAccountInfo
 } from '../tests/utils';
+import {
+  FAUCET_KEY,
+  NETWORK_NAME,
+  NODE_URL,
+  USER1_KEY,
+  USER2_KEY
+} from './common';
 
 const run = async () => {
   const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
   const client = new CasperServiceByJsonRPC(NODE_URL);
 
-  const owner = users[0];
-  const ali = users[1];
-  const bob = users[2];
+  const owner = FAUCET_KEY;
+  const ali = USER1_KEY;
+  const bob = USER2_KEY;
 
   const tokenInfo: InstallArgs = {
     name: 'TEST CEP18',

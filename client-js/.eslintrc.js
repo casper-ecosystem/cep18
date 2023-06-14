@@ -76,7 +76,8 @@ module.exports = {
         {
           files: ['examples/*.ts'],
           rules: {
-            'no-console': 'off'
+            'no-console': 'off',
+            'import/no-extraneous-dependencies': 'off'
           }
         }
       ]
