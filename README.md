@@ -34,6 +34,7 @@ A [JavaScript client SDK](https://github.com/casper-ecosystem/cep18/tree/master/
 
 For more information, visit the links below:
 
-- [The Casper Fungible Token Developer Tutorial](/docs/TUTORIAL.md) - How to implement, deploy, and test a fungible token contract.
-- [The Casper Fungible Token Usage Guide](/docs/Sample-Guide.md) - An example-driven guide on how to set up, query, transfer, approve, and check the balance of a fungible token contract.
-- [The Casper Fungible Token Quick Deploying Guide](/docs/Deploy-Token.md) - How to deploy the Casper fungible token to a Casper network.
+- [Casper Fungible Token Tutorial](/docs/full-tutorial.md) - An illustrated guide on how to implement, deploy, and test an fungible token contract.
+- [Casper Fungible Token How-To Guide](/docs/1-quickstart-guide.md) - An example driven quick start guide for launching a CEP-18 token on a Casper network using the Casper CLI client.
+- [Exploring the CEP18 Contracts](/docs/2-query.md) - A guide for finding the necessary values to interact with a CEP-18 instance after installation in global state.
+- [CEP-18 Token Transfers and Allowances](/docs/3-transfer.md) - A guide to transferring CEP-18 tokens and approving allowances.
