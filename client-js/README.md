@@ -157,6 +157,12 @@ const deploy = cep18.decreaseAllowance(
 );
 ```
 
+> The `mint`, `burn`, and `changeSecurity` deploy maybe failed if mint and burn is disabled in the contract. **You can only enable mint and burn when install contract.** You can check mint and burn is enabled by running
+>
+> ```ts
+> const isMintAndBurnEnabled = await cep18.isMintAndBurnEnabled();
+> ```
+
 **Minting Tokens**
 
 Mint tokens and assign them to a recipient:

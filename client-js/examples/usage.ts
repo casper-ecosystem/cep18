@@ -11,6 +11,8 @@ import {
   USER2_KEY
 } from './common';
 
+// Here you can check examples how to check balance, approve tokens, transfer tokens, and transfer tokens by allowance
+
 const run = async () => {
   const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
   const client = new CasperServiceByJsonRPC(NODE_URL);
