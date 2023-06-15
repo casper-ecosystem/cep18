@@ -1,6 +1,6 @@
 # CEP-18 Token Transfers and Allowances
 
-This document describes how to transfer CEP-18 tokens on a Casper network using the Casper client. The [Exploring the CEP18 Contracts](./query.md) documentation contains more in depth explanations on how to find the various hashes and URefs referenced throughout this document.
+This document describes how to transfer CEP-18 tokens on a Casper network using the Casper client. The [Exploring the CEP18 Contracts](./2-query.md) documentation contains more in depth explanations on how to find the various hashes and URefs referenced throughout this document.
 
 ## Transferring CEP-18 Tokens to Another Account
 
