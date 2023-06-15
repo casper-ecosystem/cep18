@@ -2,7 +2,7 @@ use casper_types::{account::AccountHash, Key, PublicKey, SecretKey};
 use once_cell::sync::Lazy;
 
 pub const CEP18_CONTRACT_WASM: &str = "cep18.wasm";
-pub const CEP18_TEST_CONTARCT_WASM: &str = "cep18_test_contract.wasm";
+pub const CEP18_TEST_CONTRACT_WASM: &str = "cep18_test_contract.wasm";
 pub const NAME_KEY: &str = "name";
 pub const SYMBOL_KEY: &str = "symbol";
 pub const CEP18_TOKEN_CONTRACT_KEY: &str = "cep18_contract_hash_CasperTest";
