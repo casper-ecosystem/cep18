@@ -1,17 +1,17 @@
-//! Error handling on the casper platform.
+//! Error handling on the Casper platform.
 use casper_types::ApiError;
 
-/// Errors which can be returned by the library.
+/// Errors that the contract can return.
 ///
 /// When an `Error` is returned from a smart contract, it is converted to an [`ApiError::User`].
 ///
-/// Where a smart contract consuming this library needs to define further error variants, it can
+/// While the code consuming this contract needs to define further error variants, it can
 /// return those via the [`Error::User`] variant or equivalently via the [`ApiError::User`]
 /// variant.
 #[repr(u16)]
 #[derive(Clone, Copy)]
 pub enum Cep18Error {
-    /// CEP18 contract called from within an invalid context.
+    /// CEP-18 contract called from within an invalid context.
     InvalidContext = 60000,
     /// Spender does not have enough balance.
     InsufficientBalance = 60001,
@@ -19,21 +19,34 @@ pub enum Cep18Error {
     InsufficientAllowance = 60002,
     /// Operation would cause an integer overflow.
     Overflow = 60003,
+    /// A required package hash was not specified.
     PackageHashMissing = 60004,
+    /// The package hash specified does not represent a package.
     PackageHashNotPackage = 60005,
+    /// An invalid event mode was specified.
     InvalidEventsMode = 60006,
+    /// The event mode required was not specified.
     MissingEventsMode = 60007,
+    /// An unknown error occurred.
     Phantom = 60008,
+    /// Failed to read the runtime arguments provided.
     FailedToGetArgBytes = 60009,
+    /// The caller does not have sufficient security access.
     InsufficientRights = 60010,
+    /// The list of Admin accounts provided is invalid.
     InvalidAdminList = 60011,
+    /// The list of accounts that can mint tokens is invalid.
     InvalidMinterList = 60012,
-    InvalidBurnerList = 60013,
-    InvalidMintAndBurnList = 60014,
-    InvalidNoneList = 60015,
-    InvalidEnableMBFlag = 60016,
-    AlreadyInitialized = 60017,
-    MintBurnDisabled = 60018,
+    /// The list of accounts with no access rights is invalid.
+    InvalidNoneList = 60013,
+    /// The flag to enable the mint and burn mode is invalid.
+    InvalidEnableMBFlag = 60014,
+    /// This contract instance cannot be initialized again.
+    AlreadyInitialized = 60015,
+    ///  The mint and burn mode is disabled.
+    MintBurnDisabled = 60016,
+    CannotTargetSelfUser = 60017,
+    InvalidBurnTarget = 60018,
 }
 
 impl From<Cep18Error> for ApiError {
