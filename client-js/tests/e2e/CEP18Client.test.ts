@@ -71,11 +71,11 @@ describe('CEP18Client', () => {
 
     const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
 
-    const contarctHash = findKeyFromAccountNamedKeys(
+    const contractHash = findKeyFromAccountNamedKeys(
       accountInfo,
       `cep18_contract_hash_${tokenInfo.name}`
     ) as `hash-${string}`;
-    cep18.setContractHash(contarctHash);
+    cep18.setContractHash(contractHash);
 
     expectDeployResultToSuccess(result);
   });

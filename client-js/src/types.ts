@@ -6,20 +6,19 @@ export enum EVENTS_MODE {
   CES = 1
 }
 
-/**
- * Arguments required for install CEP18
- * @param name token name
- * @param symbol token symbol
- * @param decimals token decimals
- * @param totalSupply token total supply
- */
 export interface InstallArgs {
   /** token name */
   name: string;
+  /** token symbol */
   symbol: string;
+  /** token decimals */
   decimals: BigNumberish;
+  /** token total supply */
   totalSupply: BigNumberish;
+  /** events mode, disabled by default */
   eventsMode?: EVENTS_MODE;
+  /** flag for mint and burn, false by default */
+  enableMintAndBurn?: boolean;
 }
 
 export interface TransferableArgs {

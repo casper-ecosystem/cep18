@@ -116,10 +116,12 @@ export default class EventEnabledContract {
     // @ts-ignore
     const results = this.parser.parseExecutionResult(result);
 
-    return results.map(r => ({
-      ...r.event,
-      contractHash: `hash-${encodeBase16(r.event.contractHash)}`,
-      contractPackageHash: `hash-${encodeBase16(r.event.contractPackageHash)}`
-    })) as CEP18Event[];
+    return results
+      .filter(r => r.error !== null)
+      .map(r => ({
+        ...r.event,
+        contractHash: `hash-${encodeBase16(r.event.contractHash)}`,
+        contractPackageHash: `hash-${encodeBase16(r.event.contractPackageHash)}`
+      })) as CEP18Event[];
   }
 }

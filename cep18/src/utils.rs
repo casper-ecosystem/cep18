@@ -50,7 +50,7 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Key {
         CallStackElement::Session { account_hash } => Key::from(account_hash),
         CallStackElement::StoredSession { account_hash, .. } => {
             // Stored session code acts in account's context, so if stored session wants to interact
-            // with an CEP18 token caller's address will be used.
+            // with an CEP-18 token caller's address will be used.
             Key::from(account_hash)
         }
         CallStackElement::StoredContract {
@@ -148,9 +148,7 @@ pub fn get_named_arg_with_user_errors<T: FromBytes>(
 pub enum SecurityBadge {
     Admin = 0,
     Minter = 1,
-    Burner = 2,
-    MintAndBurn = 3,
-    None = 4,
+    None = 2,
 }
 
 impl CLTyped for SecurityBadge {
@@ -175,9 +173,7 @@ impl FromBytes for SecurityBadge {
             match bytes[0] {
                 0 => SecurityBadge::Admin,
                 1 => SecurityBadge::Minter,
-                2 => SecurityBadge::Burner,
-                3 => SecurityBadge::MintAndBurn,
-                4 => SecurityBadge::None,
+                2 => SecurityBadge::None,
                 _ => return Err(bytesrepr::Error::LeftOverBytes),
             },
             &[],

@@ -2,7 +2,7 @@ use casper_types::{account::AccountHash, Key, PublicKey, SecretKey};
 use once_cell::sync::Lazy;
 
 pub const CEP18_CONTRACT_WASM: &str = "cep18.wasm";
-pub const CEP18_TEST_CONTARCT_WASM: &str = "cep18_test_contract.wasm";
+pub const CEP18_TEST_CONTRACT_WASM: &str = "cep18_test_contract.wasm";
 pub const NAME_KEY: &str = "name";
 pub const SYMBOL_KEY: &str = "symbol";
 pub const CEP18_TOKEN_CONTRACT_KEY: &str = "cep18_contract_hash_CasperTest";
@@ -79,7 +79,5 @@ pub const INCREASE_ALLOWANCE: &str = "increase_allowance";
 pub const ENABLE_MINT_BURN: &str = "enable_mint_burn";
 pub const ADMIN_LIST: &str = "admin_list";
 pub const MINTER_LIST: &str = "minter_list";
-pub const BURNER_LIST: &str = "burner_list";
-pub const NONE_LIST: &str = "burner_list";
-pub const MINT_AND_BURN_LIST: &str = "mint_and_burn_list";
+pub const NONE_LIST: &str = "none_list";
 pub const CHANGE_SECURITY: &str = "change_security";
