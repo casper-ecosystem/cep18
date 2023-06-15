@@ -66,7 +66,14 @@ export default class CEP18Client extends TypedContract {
     networkName?: string,
     signingKeys?: Keys.AsymmetricKey[]
   ): DeployUtil.Deploy {
-    const { name, symbol, decimals, totalSupply, eventsMode } = args;
+    const {
+      name,
+      symbol,
+      decimals,
+      totalSupply,
+      eventsMode,
+      enableMintAndBurn
+    } = args;
     const runtimeArgs = RuntimeArgs.fromMap({
       name: CLValueBuilder.string(name),
       symbol: CLValueBuilder.string(symbol),
@@ -76,6 +83,12 @@ export default class CEP18Client extends TypedContract {
 
     if (eventsMode !== undefined) {
       runtimeArgs.insert('events_mode', CLValueBuilder.u8(eventsMode));
+    }
+    if (enableMintAndBurn !== undefined) {
+      runtimeArgs.insert(
+        'enable_mint_burn',
+        CLValueBuilder.u8(enableMintAndBurn ? 1 : 0)
+      );
     }
 
     return this.contractClient.install(
@@ -486,6 +499,17 @@ export default class CEP18Client extends TypedContract {
     ])) as BigNumber;
     const u8res = internalValue.toNumber();
     return EVENTS_MODE[u8res] as keyof typeof EVENTS_MODE;
+  }
+
+  /**
+   * Returns `true` if mint and burn is enabled
+   */
+  public async isMintAndBurnEnabled(): Promise<boolean> {
+    const internalValue = (await this.contractClient.queryContractData([
+      'enable_mint_burn'
+    ])) as BigNumber;
+    const u8res = internalValue.toNumber();
+    return u8res !== 0;
   }
 
   /**

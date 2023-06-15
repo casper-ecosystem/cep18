@@ -7,10 +7,10 @@ This JavaScript client gives you an easy way to install and interact with the Ca
 Run this command to install the client:
 
 ```bash
-npm install casper-js-sdk casper-cep18-js-client
+npm install casper-js-sdk @make-software/ces-js-parser casper-cep18-js-client
 ```
 
-The `casper-cep18-js-client` requires `casper-js-sdk` as a peer dependency.
+The `casper-cep18-js-client` requires `casper-js-sdk` and `@make-software/ces-js-parser` as a peer dependency.
 
 ## Usage Examples
 
@@ -41,7 +41,7 @@ const deploy = cep18.install(
   NETWORK_NAME,
   [owner]
 );
-  ```
+```
 
 Set the contract hash (a unique identifier for the network):
 
@@ -133,29 +133,35 @@ To increase or decrease the spender's allowance, use the following methods:
 
 ```ts
 const deploy = cep18.increaseAllowance(
-      {
-        spender,
-        amount
-      },
-      5_000_000_000,
-      owner.publicKey,
-      NETWORK_NAME,
-      [owner]
-    );
+  {
+    spender,
+    amount
+  },
+  5_000_000_000,
+  owner.publicKey,
+  NETWORK_NAME,
+  [owner]
+);
 ```
 
 ```ts
 const deploy = cep18.decreaseAllowance(
-      {
-        spender,
-        amount
-      },
-      5_000_000_000,
-      owner.publicKey,
-      NETWORK_NAME,
-      [owner]
-    );
+  {
+    spender,
+    amount
+  },
+  5_000_000_000,
+  owner.publicKey,
+  NETWORK_NAME,
+  [owner]
+);
 ```
+
+> The `mint`, `burn`, and `changeSecurity` deploy maybe failed if mint and burn is disabled in the contract. **You can only enable mint and burn when install contract.** You can check mint and burn is enabled by running
+>
+> ```ts
+> const isMintAndBurnEnabled = await cep18.isMintAndBurnEnabled();
+> ```
 
 **Minting Tokens**
 
@@ -163,15 +169,15 @@ Mint tokens and assign them to a recipient:
 
 ```ts
 const deploy = cep18.mint(
-      {
-        owner: recipient,
-        amount
-      },
-      5_000_000_000,
-      owner.publicKey,
-      NETWORK_NAME,
-      [owner]
-    );
+  {
+    owner: recipient,
+    amount
+  },
+  5_000_000_000,
+  owner.publicKey,
+  NETWORK_NAME,
+  [owner]
+);
 ```
 
 **Burning Tokens**
@@ -180,15 +186,15 @@ Burn tokens and reduce them from the owner's account:
 
 ```ts
 const deploy = cep18.burn(
-      {
-        owner: recipient,
-        amount
-      },
-      5_000_000_000,
-      owner.publicKey,
-      NETWORK_NAME,
-      [owner]
-    );
+  {
+    owner: recipient,
+    amount
+  },
+  5_000_000_000,
+  owner.publicKey,
+  NETWORK_NAME,
+  [owner]
+);
 ```
 
 **Changing User Security**
@@ -208,7 +214,6 @@ const deploy = cep18.changeSecurity(
   [owner]
 );
 ```
-
 
 ## Event Handling
 
@@ -257,7 +262,7 @@ cep18.off('Burn', listener);
 
 ## More examples
 
-Additional examples are in available in the [tests](./tests/) directory.
+Additional examples are in available in the [examples](https://github.com/casper-ecosystem/cep18/tree/dev/client-js/examples), and [tests](https://github.com/casper-ecosystem/cep18/tree/dev/client-js/tests) directory.
 
 ## Development
 
