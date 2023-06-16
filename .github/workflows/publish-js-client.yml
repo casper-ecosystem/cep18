@@ -40,6 +40,10 @@ jobs:
         working-directory: ./client-js
         run: npm install
 
+      - name: Generate WASMS
+        working-directory: ./client-js
+        run: npm run generate:wasm
+
       - name: build
         working-directory: ./client-js
         run: npm run build
