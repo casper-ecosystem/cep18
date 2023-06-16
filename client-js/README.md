@@ -297,7 +297,7 @@ cd client-js
 Intall the node modules using the following:
 
 ```bash
-npm install && npm generate:wasm
+npm install && npm run generate:wasm
 ```
 
 Run unit tests:
