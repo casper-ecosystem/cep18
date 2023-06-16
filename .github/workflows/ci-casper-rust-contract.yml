@@ -43,14 +43,21 @@ jobs:
         with:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: "https://registry.npmjs.org"
+
       - name: Install
         working-directory: client-js
         run: npm install
+
+      - name: Generate WASMS
+        working-directory: ./client-js
+        run: npm run generate:wasm
+
       - name: test
         working-directory: client-js
         run: npm run test:unit
