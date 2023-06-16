@@ -1,0 +1,32 @@
+---
+name: publish-cep-18-contracts
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish-contract-tarball:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
+      - uses: Swatinem/rust-cache@cb2cf0cc7c5198d3364b9630e2c3d457f160790c #v1.4.0
+
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y build-essential wabt
+
+      - name: Setup
+        run: make prepare
+
+      - name: Build wasm contracts
+        run: make build-contract
+
+      - name: Create tarball
+        run: ./ci/package_wasm.sh
+
+      - name: Upload tarball to release
+        uses: svenstaro/upload-release-action@133984371c30d34e38222a64855679a414cb7575 #v2.3.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /tmp/ci_package_wasm_${{ github.ref_name }}/cep-18-wasm.tar.gz

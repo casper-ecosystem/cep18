@@ -1,5 +1,3 @@
-ALL_CONTRACTS = cep18 cep18-test-contract
-CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 PINNED_TOOLCHAIN := $(shell cat rust-toolchain)
 
 prepare:
@@ -9,8 +7,10 @@ prepare:
 
 .PHONY:	build-contract
 build-contract:
-	cargo build --release --target wasm32-unknown-unknown $(patsubst %, -p %, $(ALL_CONTRACTS))
-	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm ;)
+	cargo build --release --target wasm32-unknown-unknown -p cep18
+	cargo build --release --target wasm32-unknown-unknown -p cep18-test-contract
+	wasm-strip target/wasm32-unknown-unknown/release/cep18.wasm
+	wasm-strip target/wasm32-unknown-unknown/release/cep18_test_contract.wasm
 
 setup-test: build-contract
 	mkdir -p tests/wasm
