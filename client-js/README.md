@@ -275,7 +275,7 @@ make build-contracts
 After generating the Wasm file, you can install the node modules, and the Wasm will be automatically bundled.
 
 ```bash
-npm install
+npm install && npm run generate:wasm
 ```
 
 ## Testing
@@ -297,7 +297,7 @@ cd client-js
 Intall the node modules using the following:
 
 ```bash
-npm install
+npm install && npm run generate:wasm
 ```
 
 Run unit tests:
