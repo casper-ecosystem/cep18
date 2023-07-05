@@ -100,3 +100,4 @@ In the following sections, the sample guide explains the querying of the contrac
 
 - [Exploring the CEP18 Contracts](./2-query.md)
 - [CEP-18 Token Transfers and Allowances](./3-transfer.md)
+- [Testing Framework for CEP-18](./4-tests.md)
