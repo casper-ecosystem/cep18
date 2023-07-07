@@ -269,3 +269,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --payment-amount "10000000000"
 ```
 </details>
+
+### Next Steps
+
+- [Testing Framework for CEP-18](./4-tests.md)
