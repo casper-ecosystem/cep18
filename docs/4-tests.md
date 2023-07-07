@@ -2,7 +2,7 @@
 
 The testing framework in this tutorial uses the [Casper engine test support](https://crates.io/crates/casper-engine-test-support) crate for testing the contract implementation against the Casper execution environment.
 
-The following section reviews the [GitHub testing folder](https://github.com/casper-ecosystem/cep18/tree/master/tests), which create a testing framework for the Casper [Fungible Token](https://github.com/casper-ecosystem/cep18) project:
+The following section reviews the [GitHub testing folder](https://github.com/casper-ecosystem/cep18/tree/master/tests), which creates a testing framework for the Casper [Fungible Token](https://github.com/casper-ecosystem/cep18) project. You can find more details about testing Casper contracts [here](https://docs.casper.network/developers/writing-onchain-code/testing-contracts/).
 
 The following is an example of a complete test:
 
