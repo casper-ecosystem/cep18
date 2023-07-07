@@ -31,7 +31,7 @@ make test
 
 The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob/dev/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/cep18/tree/master/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
 
-## Configuring the Test Package {#configuring-the-test-package}
+## Configuring the Test Package
 
 In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/cep18/blob/dev/tests/Cargo.toml) file.
 
@@ -52,7 +52,7 @@ name = "tests"
 ...
 ```
 
-## Testing Logic {#testing-logic}
+## Testing Logic
 
 In Github, you will find an [example](https://github.com/casper-ecosystem/cep18/tree/dev/cep18) containing a Casper Fungible Token [contract](https://github.com/casper-ecosystem/cep18/blob/dev/cep18/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src). The tests follow this sequence:
 
@@ -62,11 +62,15 @@ In Github, you will find an [example](https://github.com/casper-ecosystem/cep18/
 
 The [TestFixture](https://github.com/casper-ecosystem/cep18/blob/master/example/cep18-tests/src/test_fixture/test_fixture.rs) accomplishes these steps by simulating a real-world deploy that stores the contract on the blockchain and then invoking the contract's entrypoints.
 
-### Setting up the Testing Context {#setting-up-the-testing-context}
+### Setting up the Testing Context
 
 The code in the [utility directory](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src/utility) initializes the blockchain's [global state](https://docs.casper.network/concepts/glossary/G/#global-state) with all the data and entrypoints the smart contract needs.
 
-Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/cep18).
+Expand the example below to see a subset of the required constants for this project. The testing framework defines constants via the [`constants.rs`](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/constants.rs) file within the `utility` directory. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/cep18).
+
+
+<details>
+<summary>Example of required constants</summary>
 
 ```rust
 // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
@@ -89,9 +93,10 @@ use super::constants::{
 };
 ```
 
-The testing framework defines constants via the [`constants.rs`](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/constants.rs) file within the `utility` directory.
+</details>
 
-### Installing the Contract {#deploying-the-contract}
+
+### Installing the Contract
 
 The next step is to define a struct that has its own virtual machine (VM) instance and implements the Fungible Token entrypoints. This struct holds a `TestContext` of its own. The _contract_hash_ and the _session_code_ won’t change after the contract is deployed, so it is good to keep them handy.
 
@@ -100,6 +105,9 @@ This code snippet builds the context and includes the compiled contract _.wasm_ 
 **Note**: These accounts have a positive initial balance.
 
 The full and most recent code implementation is available on [GitHub](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs).
+
+<details>
+<summary>Example of a CEP-18 token in a test</summary>
 
 ```rust
 // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
@@ -190,17 +198,22 @@ pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBui
 }
 ```
 
-### Creating Test Functions {#creating-test-functions}
+</details>
 
-The previous step has simulated sending a real deploy on the network. The next code snippet in `installer_request_builders.rs` defines functions that will be used throughout the testing framework:
+### Creating Helper Functions
+
+The previous step has simulated sending a real deploy on the network. The next code snippet in `installer_request_builders.rs` defines helper functions that will be used throughout the testing framework:
 
 - `cep18_check_total_supply` - A function for testing the total supply of the CEP-18 contract instance.
 - `cep18_check_balance_of` - A function for checking an account's balance of CEP-18 tokens.
 - `cep18_check_allowance_of` - A function for checking an account's spending allowance from another account's balance.
 
-These are followed by functions that will test specific aspects of the CEP-18 contract. These include `test_cep18_transfer`, `make_cep18_approve_request` and `test_approve_for`.
+These are followed by functions that check specific aspects of the CEP-18 contract. These include `test_cep18_transfer`, `make_cep18_approve_request` and `test_approve_for`.
 
-The following code snippet is an example that tests the ability to transfer CEP-18 tokens from the default address to the two other addresses established in [contract installation](#installing-the-contract-deploying-the-contract):
+The following code snippet is an example function that tests the ability to transfer CEP-18 tokens from the default address to the two other addresses established in [contract installation](#installing-the-contract-deploying-the-contract):
+
+<details>
+<summary>Example helper function</summary>
 
 ```rust
 pub(crate) fn test_cep18_transfer(
@@ -278,11 +291,16 @@ pub(crate) fn test_cep18_transfer(
 }
 ```
 
-## Creating Unit Tests {#creating-unit-tests}
+</details>
+
+## Creating Unit Tests
 
 Within this testing context, the [`tests` directory](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src) includes a variety of unit tests, which verify the contract code by invoking the functions defined in the [installer_request_builders.rs](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs) file.
 
-The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src) to find all the available tests.
+The example below shows one of the tests. Visit [GitHub](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src) to find all the available tests.
+
+<details>
+<summary>Example test querying token properties</summary>
 
 ```rust
 // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/install.rs
@@ -334,7 +352,9 @@ fn should_have_queryable_properties() {
 }
 ```
 
-## Running the Tests {#running-the-tests}
+</details>
+
+## Running the Tests
 
 The [lib.rs](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
 
