@@ -7,29 +7,26 @@ The following section reviews the [GitHub testing folder](https://github.com/cas
 The following is an example of a complete test:
 
 ```rust
+#[should_panic(expected = "ApiError::User(65534) [131070]")]
+#[test]
+fn should_not_transfer_with_insufficient_balance() {
+    let mut fixture = TestFixture::install_contract();
 
-    #[should_panic(expected = "ApiError::User(65534) [131070]")]
-    #[test]
-    fn should_not_transfer_with_insufficient_balance() {
-        let mut fixture = TestFixture::install_contract();
+    let initial_ali_balance = fixture.balance_of(Key::from(fixture.ali)).unwrap();
+    assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
 
-        let initial_ali_balance = fixture.balance_of(Key::from(fixture.ali)).unwrap();
-        assert_eq!(fixture.balance_of(Key::from(fixture.bob)), None);
-
-        fixture.transfer(
-            Key::from(fixture.bob),
-            initial_ali_balance + U256::one(),
-            fixture.ali,
-        );
-    }
+    fixture.transfer(
+        Key::from(fixture.bob),
+        initial_ali_balance + U256::one(),
+        fixture.ali,
+    );
+}
 ```
 
 To run the tests, issue the following command in the project folder, [cep18](https://github.com/casper-ecosystem/cep18):
 
 ```bash
-
-    make test
-
+make test
 ```
 
 The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob/dev/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/cep18/tree/master/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
@@ -39,22 +36,20 @@ The project contains a [Makefile](https://github.com/casper-ecosystem/cep18/blob
 In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/cep18/blob/dev/tests/Cargo.toml) file.
 
 ```bash
+[package]
+name = "tests"
+version = "1.0.0"
+...
 
-    [package]
-    name = "tests"
-    version = "1.0.0"
-    ...
+[dependencies]
+casper-types = "2.0.0"
+casper-engine-test-support = "4.0.0"
+casper-execution-engine = "4.0.0"
+once_cell = "1.16.0"
 
-    [dependencies]
-    casper-types = "2.0.0"
-    casper-engine-test-support = "4.0.0"
-    casper-execution-engine = "4.0.0"
-    once_cell = "1.16.0"
-
-    [lib]
-    name = "tests"
-    ...
-
+[lib]
+name = "tests"
+...
 ```
 
 ## Testing Logic {#testing-logic}
@@ -74,26 +69,24 @@ The code in the [Utility directory](https://github.com/casper-ecosystem/cep18/tr
 Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/cep18).
 
 ```rust
+// File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
 
-    // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
+use casper_engine_test_support::{
+    ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
+    MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
+};
+use casper_execution_engine::core::engine_state::ExecuteRequest;
+use casper_types::{
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped, ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
+};
 
-    use casper_engine_test_support::{
-      ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
-      MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
-    };
-    use casper_execution_engine::core::engine_state::ExecuteRequest;
-    use casper_types::{
-      account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped, ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
-    };
+use crate::utility::constants::{
+    ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, TOTAL_SUPPLY_KEY, TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2,
+};
 
-    use crate::utility::constants::{
-      ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, TOTAL_SUPPLY_KEY, TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2,
-    };
-
-    use super::constants::{
-      ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER, ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY, CEP18_CONTRACT_WASM, CEP18_TEST_CONTRACT_KEY, CEP18_TEST_CONTRACT_WASM, CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT, CHECK_BALANCE_OF_ENTRYPOINT,CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT,METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
-    };
-
+use super::constants::{
+    ACCOUNT_1_ADDR, ACCOUNT_2_ADDR, ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_NAME, ARG_OWNER, ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOKEN_CONTRACT, ARG_TOTAL_SUPPLY, CEP18_CONTRACT_WASM, CEP18_TEST_CONTRACT_KEY, CEP18_TEST_CONTRACT_WASM, CEP18_TOKEN_CONTRACT_KEY, CHECK_ALLOWANCE_OF_ENTRYPOINT, CHECK_BALANCE_OF_ENTRYPOINT,CHECK_TOTAL_SUPPLY_ENTRYPOINT, METHOD_APPROVE, METHOD_APPROVE_AS_STORED_CONTRACT,METHOD_TRANSFER, METHOD_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
+};
 ```
 
 The testing framework defines constants via the [`constants.rs`](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/constants.rs) file within the `Utility` directory.
@@ -109,26 +102,25 @@ This code snippet builds the context and includes the compiled contract _.wasm_ 
 The full and most recent code implementation is available on [GitHub](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs).
 
 ```rust
-
-    // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
+// File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
 
 // Creating the `TestContext` struct.
 
-    pub(crate) struct TestContext {
-    pub(crate) cep18_token: ContractHash,
-    pub(crate) cep18_test_contract_package: ContractPackageHash,
-    }
+pub(crate) struct TestContext {
+pub(crate) cep18_token: ContractHash,
+pub(crate) cep18_test_contract_package: ContractPackageHash,
+}
 
 // Setting up the test instance of CEP-18.
 
-    pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
-      setup_with_args(runtime_args! {
-          ARG_NAME => TOKEN_NAME,
-          ARG_SYMBOL => TOKEN_SYMBOL,
-          ARG_DECIMALS => TOKEN_DECIMALS,
-          ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-      })
-    }
+pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
+    setup_with_args(runtime_args! {
+        ARG_NAME => TOKEN_NAME,
+        ARG_SYMBOL => TOKEN_SYMBOL,
+        ARG_DECIMALS => TOKEN_DECIMALS,
+        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
+    })
+}
 
 // Establishing test accounts.
 
@@ -153,7 +145,7 @@ pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBui
     let transfer_request_2 =
         ExecuteRequestBuilder::transfer(*DEFAULT_ACCOUNT_ADDR, transfer_2_args).build();
 
-// Installing the test version of CEP-18 with the default account.
+    // Installing the test version of CEP-18 with the default account.
 
     let install_request_1 =
         ExecuteRequestBuilder::standard(*DEFAULT_ACCOUNT_ADDR, CEP18_CONTRACT_WASM, install_args)
@@ -213,23 +205,21 @@ These are followed by functions that will test specific aspects of the CEP18 con
 The following code snippet is an example that tests the ability to transfer CEP18 tokens from the default address to the two other addresses established in [contract installation](#installing-the-contract-deploying-the-contract):
 
 ```rust
-
 pub(crate) fn test_cep18_transfer(
     builder: &mut InMemoryWasmTestBuilder,
     test_context: &TestContext,
     sender1: Key,
     recipient1: Key,
     sender2: Key,
-    recipient2: Key,
-) {
+    recipient2: Key) {
     let TestContext { cep18_token, .. } = test_context;
 
-// Defining the amount to be transferred to each account.
+    // Defining the amount to be transferred to each account.
 
     let transfer_amount_1 = U256::from(TRANSFER_AMOUNT_1);
     let transfer_amount_2 = U256::from(TRANSFER_AMOUNT_2);
 
-// Checking the pre-existing balances of the default address and the two receiving addresses.
+    // Checking the pre-existing balances of the default address and the two receiving addresses.
 
     let sender_balance_before = cep18_check_balance_of(builder, cep18_token, sender1);
     assert_ne!(sender_balance_before, U256::zero());
@@ -240,7 +230,7 @@ pub(crate) fn test_cep18_transfer(
     let account_2_balance_before = cep18_check_balance_of(builder, cep18_token, recipient1);
     assert_eq!(account_2_balance_before, U256::zero());
 
-// Creating the first transfer request.
+    // Creating the first transfer request.
 
     let token_transfer_request_1 =
         make_cep18_transfer_request(sender1, cep18_token, recipient1, transfer_amount_1);
@@ -250,7 +240,7 @@ pub(crate) fn test_cep18_transfer(
         .expect_success()
         .commit();
 
-// Checking the prior balance against the new balance to ensure the transfer occurred correctly.
+    // Checking the prior balance against the new balance to ensure the transfer occurred correctly.
 
     let account_1_balance_after = cep18_check_balance_of(builder, cep18_token, recipient1);
     assert_eq!(account_1_balance_after, transfer_amount_1);
@@ -263,7 +253,7 @@ pub(crate) fn test_cep18_transfer(
     );
     let sender_balance_before = sender_balance_after;
 
-// Creating the second transfer request.
+    // Creating the second transfer request.
 
     let token_transfer_request_2 =
         make_cep18_transfer_request(sender2, cep18_token, recipient2, transfer_amount_2);
@@ -273,7 +263,7 @@ pub(crate) fn test_cep18_transfer(
         .expect_success()
         .commit();
 
-// Checking prior balances against new balances.
+    // Checking prior balances against new balances.
 
     let sender_balance_after = cep18_check_balance_of(builder, cep18_token, sender1);
     assert_eq!(sender_balance_after, sender_balance_before);
@@ -288,7 +278,6 @@ pub(crate) fn test_cep18_transfer(
     let account_2_balance_after = cep18_check_balance_of(builder, cep18_token, recipient2);
     assert_eq!(account_2_balance_after, transfer_amount_2);
 }
-
 ```
 
 ## Creating Unit Tests {#creating-unit-tests}
@@ -298,8 +287,7 @@ Within this testing context, the [`Test` directory](https://github.com/casper-ec
 The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/cep18/tree/dev/tests/src) to find all the available tests.
 
 ```rust
-
-    // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/install.rs
+// File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/install.rs
 
 use casper_engine_test_support::DEFAULT_ACCOUNT_ADDR;
 use casper_types::{Key, U256};
@@ -353,25 +341,22 @@ fn should_have_queryable_properties() {
 The [lib.rs](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/lib.rs) file is configured to run the example integration tests via the `make test` command:
 
 ```rust
-
-  #[cfg(test)]
-  mod allowance;
-  #[cfg(test)]
-  mod install;
-  #[cfg(test)]
-  mod mint_and_burn;
-  #[cfg(test)]
-  mod transfer;
-  #[cfg(test)]
-  mod utility;
+#[cfg(test)]
+mod allowance;
+#[cfg(test)]
+mod install;
+#[cfg(test)]
+mod mint_and_burn;
+#[cfg(test)]
+mod transfer;
+#[cfg(test)]
+mod utility;
 ```
 
 To run the tests, navigate to the parent [cep18 directory](https://github.com/casper-ecosystem/cep18) and run the command:
 
 ```bash
-
-    make test
-
+make test
 ```
 
 This example uses `bash`. If you are using a Rust IDE, you need to configure it to run the tests.
