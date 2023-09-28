@@ -270,6 +270,177 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 ```
 </details>
 
+### Increasing and Decreasing an Allowance
+
+#### Increasing an Allowance
+
+The following command increases the designated `allowance` for the provided account.
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "increase_allowance" \
+// This is the account hash of the previously authorized allowance account.
+--session-arg "spender:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+// This is the additional number of CEP-18 tokens that the authorized account may spend.
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+<details>
+<summary><b>Casper client command without comments</b></summary>
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "increase_allowance" \
+--session-arg "spender:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+</details>
+
+#### Decreasing an Allowance
+
+The following command decreases the designated allowance for the provided account.
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "decrease_allowance" \
+// This is the account hash of the previously authorized allowance account.
+--session-arg "spender:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+// This is the additional number of CEP-18 tokens that the authorized account may spend.
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+<details>
+<summary><b>Casper client command without comments</b></summary>
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "decrease_allowance" \
+--session-arg "spender:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+</details>
+
+### Minting and Burning Additional CEP-18 Tokens
+
+#### Minting Additional Tokens
+
+If the contract allows for minting, the following command will mint a number of CEP-18 tokens directly to the provided account. This increases the total supply of the token in question.
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "mint" \
+// This is the account that will receive the newly minted CEP-18 tokens.
+--session-arg "owner:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+// This is the number of additional CEP-18 tokens to add to the total supply.
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+<details>
+<summary><b>Casper client command without comments</b></summary>
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "mint" \
+--session-arg "owner:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+</details>
+
+#### Burning Tokens
+
+If the contract allows for burning, the following command will burn a number of CEP-18 tokens directly from the provided account. This decreases the total supply of the token in question.
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "burn" \
+// This is the account that the tokens will be burned from.
+--session-arg "owner:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+// This is the number of CEP-18 tokens to remove from the total supply.
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+<details>
+<summary><b>Casper client command without comments</b></summary>
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "burn" \
+// This is the account that the tokens will be burned from.
+--session-arg "owner:key='account-hash-683f53f56926f54ef9584b07585b025c68415dc05f7b2e56749153574b83d5cd'" \
+// This is the number of CEP-18 tokens to remove from the total supply.
+--session-arg "amount:U256='10'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
+</details>
+
+### Changing Account Security Permissions
+
+The `change_security` entrypoint can be used by an account with `admin` access to alter the security level of other accounts.
+
+There are five security levels, with the strongest level taking precedence over any other assigned levels. In order of highest strength to lowest:
+
+1. `None` - `None` overrides other security levels and removes all admin, minting and burning access of an account.
+
+2. `Admin` - Allows the account full access and control over the CEP-18 contract.
+
+3. `MintAndBurn` - Allows the account to mint new tokens and burn existing tokens.
+
+4. `Burner` - The account can burn tokens.
+
+5. `Minter` - The account can mint new tokens.
+
+**Be aware that removing all admin accounts will lock out all admin functionality.**
+
+```bash
+casper-client put-deploy -n http://<NODE IP>:<PORT> \
+--secret-key ~/casper/demo/user_a/secret_key.pem \
+--session-package-name "cep18_contract_package_CEP18" \
+--session-entry-point "change_security" \
+/// The following arguments are all optional and each consists of a Vec<Key> of the account hashes to be added to the list specified.
+--session-arg "none_list:Vec<Key>:'<List of account hashes>'" \
+--session-arg "admin_list:Vec<Key>:'<List of account hashes>'" \
+--session-arg "mint_and_burn_list:Vec<Key>:'<List of account hashes>'" \
+--session-arg "burner_list:Vec<Key>:'<List of account hashes>'" \
+--session-arg "none_list:Vec<Key>:'<List of account hashes>'" \
+--chain-name <CHAIN NAME> \
+--payment-amount 1000000000
+```
+
 ### Next Steps
 
 - [Testing Framework for CEP-18](./4-tests.md)
