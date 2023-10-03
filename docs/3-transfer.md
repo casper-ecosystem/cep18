@@ -424,18 +424,26 @@ There are five security levels, with the strongest level taking precedence over 
 
 5. `Minter` - The account can mint new tokens.
 
+Here is an example of a `session-arg` that provides a list of account hashes to be included on the `mint_and_burn_list`:
+
+```bash
+--session-arg "mint_and_burn_list:string='account-hash-1ed5a1c39bea93c105f2d22c965a84b205b36734a377d05dbb103b6bfaa595a7,account-hash-0ea7998b2822afe5b62b08a21d54c941ad791279b089f3f7ede0d72b477eca34,account-hash-e70dbca48c2d31bc2d754e51860ceaa8a1a49dc627b20320b0ecee1b6d9ce655'"
+```
+
 **Be aware that removing all admin accounts will lock out all admin functionality.**
+
+The following command can be supplied with any of the optional arguments above:
 
 ```bash
 casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "change_security" \
-/// The following arguments are all optional and each consists of a Vec<Key> of the account hashes to be added to the list specified.
---session-arg "none_list:Vec<Key>:'<List of account hashes>'" \
---session-arg "admin_list:Vec<Key>:'<List of account hashes>'" \
---session-arg "mint_and_burn_list:Vec<Key>:'<List of account hashes>'" \
---session-arg "burner_list:Vec<Key>:'<List of account hashes>'" \
+/// The following arguments are all optional and each consists of a string of the account hashes to be added to the list specified, separated by commas.
+--session-arg "none_list:string:'<List of account hashes>'" \
+--session-arg "admin_list:string:'<List of account hashes>'" \
+--session-arg "mint_and_burn_list:string:'<List of account hashes>'" \
+--session-arg "burner_list:string:'<List of account hashes>'" \
 --chain-name <CHAIN NAME> \
 --payment-amount 1000000000
 ```
