@@ -410,7 +410,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 
 ### Changing Account Security Permissions
 
-The `change_security` entrypoint can be used by an account with `admin` access to alter the security level of other accounts.
+The `change_security` entrypoint can be used by an account with `admin` access to alter the security level of other accounts as described [here](../cep18/README.md#changing-security-access).
 
 There are five security levels, with the strongest level taking precedence over any other assigned levels. In order of highest strength to lowest:
 
@@ -436,7 +436,6 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --session-arg "admin_list:Vec<Key>:'<List of account hashes>'" \
 --session-arg "mint_and_burn_list:Vec<Key>:'<List of account hashes>'" \
 --session-arg "burner_list:Vec<Key>:'<List of account hashes>'" \
---session-arg "none_list:Vec<Key>:'<List of account hashes>'" \
 --chain-name <CHAIN NAME> \
 --payment-amount 1000000000
 ```
