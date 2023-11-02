@@ -67,4 +67,4 @@ jobs:
         run: npx casper-node-launcher-js node --daemon && npm run test:e2e && npx casper-node-launcher-js stop
         env:
           NODE_URL: http://127.0.0.1:7777/rpc
-          EVENT_STREAM_ADDRESS: http://127.0.0.1:9999
+          EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
