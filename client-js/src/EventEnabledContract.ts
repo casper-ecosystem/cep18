@@ -117,7 +117,7 @@ export default class EventEnabledContract {
     const results = this.parser.parseExecutionResult(result);
 
     return results
-      .filter(r => r.error !== null)
+      .filter(r => r.error === null)
       .map(r => ({
         ...r.event,
         contractHash: `hash-${encodeBase16(r.event.contractHash)}`,
