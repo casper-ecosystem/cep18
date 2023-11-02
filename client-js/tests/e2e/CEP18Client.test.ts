@@ -103,6 +103,10 @@ describe('CEP18Client', () => {
     });
   });
 
+  afterAll(() => {
+    eventStream.stop();
+  });
+
   it('should deploy contract', () => {
     const contracHash = cep18.contractHash;
 

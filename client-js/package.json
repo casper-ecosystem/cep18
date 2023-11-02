@@ -8,7 +8,7 @@
     "lint": "eslint src/ --max-warnings=0",
     "lint:write": "eslint src/ --fix",
     "test:unit": "cross-env NODE_ENV=test jest \"/tests/unit\"",
-    "test:e2e": "cross-env NODE_ENV=test jest -i --detectOpenHandles \"tests/e2e\"",
+    "test:e2e": "cross-env NODE_ENV=test jest -i --detectOpenHandles --forceExit \"tests/e2e\"",
     "test": "npm run test:unit && npm run test:e2e",
     "example:install": "ts-node examples/install.ts",
     "example:usage": "ts-node examples/usage.ts",
