@@ -58,6 +58,9 @@ jobs:
         working-directory: ./client-js
         run: npm run generate:wasm
 
-      - name: test
+      - name: Unit test
         working-directory: client-js
         run: npm run test:unit
+      - name: Integration test
+        working-directory: client-js
+        run: npx casper-node-launcher-js node --daemon && npm run test:e2e && npx casper-node-launcher-js stop
