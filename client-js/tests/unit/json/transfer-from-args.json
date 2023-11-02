@@ -2,14 +2,14 @@
   [
     "owner",
     {
-      "bytes": "0056befc13a6fd62e18f361700a5e08f966901c34df8041b36ec97d54d605c23de",
+      "bytes": "0031dfd6356d4be001607bd2d6b163c9b23967873a849a96813781674cf5e4d96b",
       "cl_type": "Key"
     }
   ],
   [
     "recipient",
     {
-      "bytes": "00ffaa73331421de42fd71a28824e1606a1ca7fa754f91f501f0cf56015f7284cd",
+      "bytes": "00c7d4ae581e159882f9ec13bed23854a945ca648af9542bde6941123a78f4aca4",
       "cl_type": "Key"
     }
   ],
