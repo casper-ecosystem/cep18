@@ -1,12 +1,13 @@
-import { Contracts, EventStream } from 'casper-js-sdk';
+import { Contracts, EventStream, ExecutionResult } from 'casper-js-sdk';
 
 import EventEnabledContract from './EventEnabledContract';
-import { EventsMap } from './events';
+import { CEP18Event, EventsMap } from './events';
 
 interface ITypedContract {
   contractClient: Contracts.Contract;
 
   setupEventStream(eventStream: EventStream): Promise<void>;
+  parseExecutionResult(result: ExecutionResult): CEP18Event[];
 
   on<K extends keyof EventsMap>(
     type: K,
