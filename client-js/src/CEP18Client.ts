@@ -406,7 +406,7 @@ export default class CEP18Client extends TypedContract {
     } catch (error) {
       if (
         error instanceof Error &&
-        error.toString().startsWith('Error: state query failed: ValueNotFound')
+        error.toString().includes('Error: Query failed')
       ) {
         console.warn(`Not found balance for ${encodeBase16(account.data)}`);
       } else throw error;
@@ -450,7 +450,7 @@ export default class CEP18Client extends TypedContract {
     } catch (error) {
       if (
         error instanceof Error &&
-        error.toString().startsWith('Error: state query failed: ValueNotFound')
+        error.toString().includes('Error: Query failed')
       ) {
         console.warn(`Not found allowances for ${encodeBase16(owner.data)}`);
       } else throw error;

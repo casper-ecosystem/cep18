@@ -1,12 +1,21 @@
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable no-console */
 import { BigNumber, type BigNumberish } from '@ethersproject/bignumber';
 import {
   CasperServiceByJsonRPC,
   type CLPublicKey,
-  encodeBase16
+  encodeBase16,
+  EventStream
 } from 'casper-js-sdk';
 
-import { CEP18Client, ContractWASM, InstallArgs } from '../../src';
-import { DEPLOY_TIMEOUT, NETWORK_NAME, NODE_URL, users } from '../config';
+import { CEP18Client, ContractWASM, EVENTS_MODE, InstallArgs } from '../../src';
+import {
+  DEPLOY_TIMEOUT,
+  EVENT_STREAM_ADDRESS,
+  NETWORK_NAME,
+  NODE_URL,
+  users
+} from '../config';
 import {
   expectDeployResultToSuccess,
   findKeyFromAccountNamedKeys,
@@ -16,6 +25,7 @@ import {
 describe('CEP18Client', () => {
   const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
   const client = new CasperServiceByJsonRPC(NODE_URL);
+  const eventStream = new EventStream(EVENT_STREAM_ADDRESS);
   const owner = users[0];
   const ali = users[1];
   const bob = users[2];
@@ -48,6 +58,13 @@ describe('CEP18Client', () => {
 
     expectDeployResultToSuccess(result);
 
+    // check events are parsed properly
+    const events = cep18.parseExecutionResult(
+      result.execution_results[0].result
+    );
+    expect(events.length).toEqual(1);
+    expect(events[0].name).toEqual('SetAllowance');
+
     const allowances = await cep18.allowances(owner.publicKey, ali.publicKey);
 
     expect(allowances.eq(amount));
@@ -56,7 +73,7 @@ describe('CEP18Client', () => {
   beforeAll(async () => {
     const deploy = cep18.install(
       ContractWASM,
-      tokenInfo,
+      { ...tokenInfo, eventsMode: EVENTS_MODE.CES },
       150_000_000_000,
       owner.publicKey,
       NETWORK_NAME,
@@ -78,6 +95,16 @@ describe('CEP18Client', () => {
     cep18.setContractHash(contractHash);
 
     expectDeployResultToSuccess(result);
+
+    await cep18.setupEventStream(eventStream);
+
+    cep18.on('SetAllowance', event => {
+      expect(event.name).toEqual('SetAllowance');
+    });
+  });
+
+  afterAll(() => {
+    eventStream.stop();
   });
 
   it('should deploy contract', () => {
