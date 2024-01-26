@@ -308,6 +308,11 @@ pub extern "C" fn init() {
             );
         }
     }
+    events::record_event_dictionary(Event::Transfer(Transfer {
+        sender: caller.into(),
+        recipient: caller.into(),
+        amount: initial_supply,
+    }))
 }
 
 /// Admin EntryPoint to manipulate the security access granted to users.
