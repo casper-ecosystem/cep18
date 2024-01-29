@@ -308,8 +308,7 @@ pub extern "C" fn init() {
             );
         }
     }
-    events::record_event_dictionary(Event::Transfer(Transfer {
-        sender: caller.into(),
+    events::record_event_dictionary(Event::Mint(Mint {
         recipient: caller.into(),
         amount: initial_supply,
     }))
