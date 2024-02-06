@@ -12,7 +12,7 @@ use crate::utility::{
 
 #[test]
 fn should_have_queryable_properties() {
-    let (mut builder, TestContext { cep18_token, .. }) = setup();
+    let (mut builder, TestContext { cep18_token : _ , .. }) = setup();
     let pre_account = builder
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
