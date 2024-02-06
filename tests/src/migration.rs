@@ -3,16 +3,15 @@ use casper_types::{runtime_args, ContractHash, RuntimeArgs, U256};
 
 use crate::utility::{
     constants::{
-        ARG_DECIMALS, ARG_NAME, ARG_SYMBOL, ARG_TOTAL_SUPPLY, CEP18_CONTRACT_WASM,
-        TOKEN_DECIMALS, TOKEN_NAME,
-        TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY, 
+        ARG_DECIMALS, ARG_NAME, ARG_SYMBOL, ARG_TOTAL_SUPPLY, CEP18_CONTRACT_WASM, TOKEN_DECIMALS,
+        TOKEN_NAME, TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY, 
     },
     installer_request_builders::{setup, TestContext},
 };
 
 #[test]
 fn should_have_queryable_properties() {
-    let (mut builder, TestContext { cep18_token : _ , .. }) = setup();
+    let (mut builder, TestContext { cep18_token: _ , .. }) = setup();
     let pre_account = builder
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
