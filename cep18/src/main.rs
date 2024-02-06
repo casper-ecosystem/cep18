@@ -32,7 +32,7 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, U256,
+    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, ContractHash, ContractPackageHash, Key, RuntimeArgs, U256
 };
 
 use constants::{
