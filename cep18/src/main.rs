@@ -367,7 +367,7 @@ pub extern "C" fn migrate(name: &str) {
     let contract_package_hash = runtime::get_key(&format!("{HASH_KEY_NAME_PREFIX}{name}")).unwrap_or_revert()
     .into_hash()
     .map(ContractPackageHash::new)
-    .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);;
+    .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);
 
     let previous_contract_version = runtime::get_key(&format!("{HASH_KEY_NAME_PREFIX}{name}")).unwrap_or_revert()
     .into_hash()
