@@ -378,7 +378,8 @@ pub fn upgrade(name: &str) {
     let (contract_hash, contract_version) =
         storage::add_contract_version(contract_package_hash, entry_points, NamedKeys::new());
 
-    storage::disable_contract_version(contract_package_hash, previous_contract_version).unwrap_or_revert();
+    storage::disable_contract_version(contract_package_hash, previous_contract_version)
+        .unwrap_or_revert();
     runtime::put_key(
         &format!("{CONTRACT_NAME_PREFIX}{name}"),
         contract_hash.into(),
