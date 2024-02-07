@@ -1,5 +1,5 @@
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
-use casper_types::{runtime_args, ContractHash, RuntimeArgs, U256};
+use casper_types::{runtime_args, Key, RuntimeArgs, U256};
 
 use crate::utility::{
     constants::{
@@ -10,18 +10,21 @@ use crate::utility::{
 };
 
 #[test]
-fn should_have_queryable_properties() {
+fn should_upgrade_contract_version() {
     let (mut builder, TestContext { cep18_token: _, .. }) = setup();
-    let pre_account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
 
-    let version_0 = pre_account
-        .named_keys()
-        .get("cep18_contract_version_CasperTest")
-        .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
-        .expect("should have contract hash");
+    let version_0: u32 = builder
+        .query(
+            None,
+            Key::Account(*DEFAULT_ACCOUNT_ADDR),
+            &["cep18_contract_version_CasperTest".to_string()],
+        )
+        .unwrap()
+        .as_cl_value()
+        .unwrap()
+        .clone()
+        .into_t()
+        .unwrap();
 
     let install_request_1 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
@@ -37,16 +40,18 @@ fn should_have_queryable_properties() {
 
     builder.exec(install_request_1).expect_success().commit();
 
-    let post_account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
-
-    let version_1 = post_account
-        .named_keys()
-        .get("cep18_contract_version_CasperTest")
-        .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
-        .expect("should have contract hash");
+    let version_1: u32 = builder
+        .query(
+            None,
+            Key::Account(*DEFAULT_ACCOUNT_ADDR),
+            &["cep18_contract_version_CasperTest".to_string()],
+        )
+        .unwrap()
+        .as_cl_value()
+        .unwrap()
+        .clone()
+        .into_t()
+        .unwrap();
 
     assert!(version_0 < version_1);
 }

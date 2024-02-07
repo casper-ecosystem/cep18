@@ -369,7 +369,7 @@ pub fn upgrade(name: &str) {
         .map(ContractPackageHash::new)
         .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);
 
-    let previous_contract_version = runtime::get_key(&format!("{HASH_KEY_NAME_PREFIX}{name}"))
+    let previous_contract_version = runtime::get_key(&format!("{CONTRACT_NAME_PREFIX}{name}"))
         .unwrap_or_revert()
         .into_hash()
         .map(ContractHash::new)
