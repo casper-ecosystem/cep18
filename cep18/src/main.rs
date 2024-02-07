@@ -32,7 +32,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, U256,
+    bytesrepr::ToBytes, contracts::NamedKeys, runtime_args, CLValue, ContractHash,
+    ContractPackageHash, Key, RuntimeArgs, U256,
 };
 
 use constants::{
@@ -359,12 +360,37 @@ pub extern "C" fn change_security() {
         sec_change_map: badge_map,
     }));
 }
+pub fn upgrade(name: &str) {
+    let entry_points = generate_entry_points();
 
-#[no_mangle]
-pub extern "C" fn migrate() {}
+    let contract_package_hash = runtime::get_key(&format!("{HASH_KEY_NAME_PREFIX}{name}"))
+        .unwrap_or_revert()
+        .into_hash()
+        .map(ContractPackageHash::new)
+        .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);
 
-pub fn install_contract() {
-    let name: String = runtime::get_named_arg(NAME);
+    let previous_contract_version = runtime::get_key(&format!("{CONTRACT_NAME_PREFIX}{name}"))
+        .unwrap_or_revert()
+        .into_hash()
+        .map(ContractHash::new)
+        .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);
+
+    let (contract_hash, contract_version) =
+        storage::add_contract_version(contract_package_hash, entry_points, NamedKeys::new());
+
+    storage::disable_contract_version(contract_package_hash, previous_contract_version)
+        .unwrap_or_revert();
+    runtime::put_key(
+        &format!("{CONTRACT_NAME_PREFIX}{name}"),
+        contract_hash.into(),
+    );
+    runtime::put_key(
+        &format!("{CONTRACT_VERSION_PREFIX}{name}"),
+        storage::new_uref(contract_version).into(),
+    );
+}
+
+pub fn install_contract(name: &str) {
     let symbol: String = runtime::get_named_arg(SYMBOL);
     let decimals: u8 = runtime::get_named_arg(DECIMALS);
     let total_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY);
@@ -384,7 +410,7 @@ pub fn install_contract() {
     .unwrap_or(0);
 
     let mut named_keys = NamedKeys::new();
-    named_keys.insert(NAME.to_string(), storage::new_uref(name.clone()).into());
+    named_keys.insert(NAME.to_string(), storage::new_uref(name).into());
     named_keys.insert(SYMBOL.to_string(), storage::new_uref(symbol).into());
     named_keys.insert(DECIMALS.to_string(), storage::new_uref(decimals).into());
     named_keys.insert(
@@ -437,5 +463,13 @@ pub fn install_contract() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    install_contract()
+    let name: String = runtime::get_named_arg(NAME);
+    match runtime::get_key(&format!("{ACCESS_KEY_NAME_PREFIX}{name}")) {
+        Some(_) => {
+            upgrade(&name);
+        }
+        None => {
+            install_contract(&name);
+        }
+    }
 }

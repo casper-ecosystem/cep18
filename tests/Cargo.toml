@@ -1,6 +1,6 @@
 [package]
 name = "tests"
-version = "1.0.3"
+version = "1.1.0"
 edition = "2018"
 authors = ["Michał Papierski <michal@casperlabs.io>"]
 
