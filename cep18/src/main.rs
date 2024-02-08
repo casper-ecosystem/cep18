@@ -369,7 +369,7 @@ pub fn upgrade(name: &str) {
         .map(ContractPackageHash::new)
         .unwrap_or_revert_with(Cep18Error::MissingPackageHashForUpgrade);
 
-    let previous_contract_version = runtime::get_key(&format!("{CONTRACT_NAME_PREFIX}{name}"))
+    let previous_contract_hash = runtime::get_key(&format!("{CONTRACT_NAME_PREFIX}{name}"))
         .unwrap_or_revert()
         .into_hash()
         .map(ContractHash::new)
@@ -378,7 +378,7 @@ pub fn upgrade(name: &str) {
     let (contract_hash, contract_version) =
         storage::add_contract_version(contract_package_hash, entry_points, NamedKeys::new());
 
-    storage::disable_contract_version(contract_package_hash, previous_contract_version)
+    storage::disable_contract_version(contract_package_hash, previous_contract_hash)
         .unwrap_or_revert();
     runtime::put_key(
         &format!("{CONTRACT_NAME_PREFIX}{name}"),

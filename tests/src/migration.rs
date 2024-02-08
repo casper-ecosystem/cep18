@@ -26,7 +26,7 @@ fn should_upgrade_contract_version() {
         .into_t()
         .unwrap();
 
-    let install_request_1 = ExecuteRequestBuilder::standard(
+    let upgrade_request = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
         CEP18_CONTRACT_WASM,
         runtime_args! {
@@ -38,7 +38,7 @@ fn should_upgrade_contract_version() {
     )
     .build();
 
-    builder.exec(install_request_1).expect_success().commit();
+    builder.exec(upgrade_request).expect_success().commit();
 
     let version_1: u32 = builder
         .query(
