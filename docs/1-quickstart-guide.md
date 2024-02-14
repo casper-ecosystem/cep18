@@ -13,15 +13,14 @@ For greater detail into the creation and mechanics of the Casper fungible token 
 
 Before using this guide, ensure you meet the following requirements:
 
--   Set up your machine as per the [prerequisites](https://docs.casper.network/developers/prerequisites/)
--   Use the [Casper command-line client]
--   Get a valid [`node-address`](https://cspr.live/tools/peers)
--   Know how to deploy a [smart contract](https://docs.casper.network/developers/dapps/sending-deploys/) to a Casper network
--   Hold enough CSPR tokens to pay for transactions
+- Set up the [development prerequisites](https://docs.casper.network/developers/prerequisites/), including the [Casper client](https://docs.casper.network/developers/prerequisites/#install-casper-client)
+- Get a valid [node address](https://docs.casper.network/developers/prerequisites/#acquire-node-address-from-network-peers)
+- Know how to install a [smart contract](https://docs.casper.network/developers/cli/sending-deploys/) on a Casper network
+- Hold enough CSPR tokens to pay for transactions
 
 # Setup
 
-Clone the [fungible token (CEP-18) contract repository](https://github.com/casper-ecosystem/cep18) and run the `make build-contract` command. This will create the `cep18.wasm` and the `cep18_test_contract.wasm`. The token Wasm is the main contract. We will use the `cep18_test_contract` Wasm to query the balances and allowances of the fungible token balances throughout this workflow.
+Clone the [fungible token (CEP-18) contract repository](https://github.com/casper-ecosystem/cep18) and run the `make test` command. This will create the `cep18.wasm` and the `cep18_test_contract.wasm`. The token Wasm is the main contract. We will use the `cep18_test_contract` Wasm to query token balances and allowances throughout this workflow.
 
 ## Install the Main Fungible Token Contract
 
