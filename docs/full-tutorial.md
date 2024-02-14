@@ -132,7 +132,7 @@ This section briefly explains the contract methods used in the Casper Fungible T
 
 To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/cep18/blob/master/cep18/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20-crate/latest/casper_erc20_crate/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
 
-Also, for further unresolved issues please contact the Casper support team via the [Discord channel](https://discord.com/invite/Q38s3Vh).
+Also, for further unresolved issues please contact the Casper support team via the [Discord channel](https://discord.com/invite/casperblockchain).
 
 Contract methods are:
 
@@ -153,7 +153,7 @@ Contract methods are:
 
 # Installing the Contract
 
-After customizing your instance of the CEP-18 token contract, it's time to install it in global state. Installing the Fungible Token contract is similar to installing other smart contracts, while only the Wasm files and parameters will differ. Refer to the [Sending Deploys to a Casper network using the Rust Client](https://docs.casper.network/developers/dapps/sending-deploys/) section to learn more about install contracts.
+After customizing your instance of the CEP-18 token contract, it's time to install it in global state. Installing the Fungible Token contract is similar to installing other smart contracts, while only the Wasm files and parameters will differ. Refer to the [Sending Deploys to a Casper network using the Rust Client](https://docs.casper.network/developers/cli/sending-deploys/) section to learn more about install contracts.
 
 ## Deploy Prerequisites {#deploy-prerequisites}
 
@@ -243,7 +243,7 @@ casper-client query-global-state \
 
 Now you can install the contract to the network and check how it behaves.
 
-If you are sending the deploy on Mainnet, try several put deploys on the Testnet to understand the exact gas amount required for that deploy. Refer to the [note about gas price](https://docs.casper.network/developers/dapps/sending-deploys/#a-note-about-gas-price) to understand more about payment amounts and gas price adjustments.
+If you are sending the deploy on Mainnet, try several put deploys on the Testnet to understand the exact gas amount required for that deploy. Refer to the [note about gas price](https://docs.casper.network/developers/cli/sending-deploys/#a-note-about-gas-price) to understand more about payment amounts and gas price adjustments.
 
 **The Casper platform currently does not refund any tokens as part of sending a deploy.** For example, if you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the remaining 9 CSPR. Refer to the [Gas and the Casper Blockchain](https://docs.casper.network/concepts/economics/gas-concepts/) documentation for further details.
 
@@ -255,7 +255,7 @@ casper-client put-deploy \
     --chain-name [NETWORK_NAME]] \
     --secret-key [PATH_TO_YOUR_KEY]/secret_key.pem \
     --payment-amount [AMOUNT] \
-    --session-path [WASM_FILE_PATH]/[File_Name].wasm
+    --session-path [WASM_FILE_PATH]/[File_Name].wasm \
     --session-arg <"NAME:TYPE='VALUE'" OR "NAME:TYPE=null">
 ```
 
@@ -272,7 +272,7 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm"
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
@@ -376,7 +376,7 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm"
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
