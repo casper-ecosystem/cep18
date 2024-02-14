@@ -225,7 +225,7 @@ casper-client get-state-root-hash --node-address http://<HOST:PORT>
 Run the following command and supply the path to your public key in hexadecimal format to get the account hash.
 
 ```bash
-casper-client account-address --public-key "[PATH_TO_YOUR_KEY]/public_key_hex"
+casper-client account-address --public-key "[PATH_TO_PUBLIC_KEY_HEX]"
 ```
 
 **Querying global state**
@@ -252,27 +252,27 @@ Use the following command template to deploy the contract:
 ```bash
 casper-client put-deploy \
     --node-address http://<HOST:PORT> \
-    --chain-name [NETWORK_NAME]] \
-    --secret-key [PATH_TO_YOUR_KEY]/secret_key.pem \
+    --chain-name [NETWORK_NAME] \
+    --secret-key [PATH_TO_SECRET_KEY] \
     --payment-amount [AMOUNT] \
-    --session-path [WASM_FILE_PATH]/[File_Name].wasm \
+    --session-path [WASM_FILE_PATH] \
     --session-arg <"NAME:TYPE='VALUE'" OR "NAME:TYPE=null">
 ```
 
-- `NETWORK_NAME`: Use the relevant network name. Here we use '_casper-test_'
-- `PATH_TO_YOUR_KEY`: Replace this with the actual path of your secret key
-- `PAYMENT_AMOUNT`: Gas amount in tokens needed for contract execution. If there are no adequate tokens, the deploy will not execute and will return an error
-- `WASM FILE PATH`: The session-path argument should point to the location of your compiled Fungible Token Wasm file
+- `NETWORK_NAME`: The relevant network name
+- `PATH_TO_YOUR_KEY`: The path to your secret key
+- `PAYMENT_AMOUNT`: Gas amount in motes needed for deploy execution
+- `WASM FILE PATH`: The location of your compiled fungible token Wasm file
 
 Here is a sample _put-deploy_ command:
 
 ```bash
 casper-client put-deploy \
---node-address http://95.216.24.237:7777 \
+--node-address https://rpc.testnet.casperlabs.io/ \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
+--session-path "target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
@@ -323,7 +323,7 @@ Here is the command to query the state of the network:
 
 ```bash
 casper-client query-global-state \
---key account-hash-<account-address> \
+--key account-hash-<HASH> \
 --node-address http://<HOST:PORT> \
 --state-root-hash E5B679BD1562fE6257257F5f969A79482E8DCEBBD501501BfA6d5844b61cBE3f
 ```
@@ -344,18 +344,18 @@ This result contains the network state before the deploy. You can see the `named
     "merkle_proof": "[25564 hex chars]",
     "stored_value": {
       "Account": {
-        "account_hash": "account-hash-<account-address> ",
+        "account_hash": "account-hash-<HASH> ",
         "action_thresholds": {
           "deployment": 1,
           "key_management": 1
         },
         "associated_keys": [
           {
-            "account_hash": "account-hash-<account-address> ",
+            "account_hash": "account-hash-<HASH> ",
             "weight": 1
           }
         ],
-        "main_purse": "uref-<hash>",
+        "main_purse": "uref-<HASH>",
         "named_keys": []
       }
     }
@@ -372,11 +372,11 @@ Send the Deploy containing your contract with this command:
 
 ```bash
 casper-client put-deploy \
---node-address http://<HOST:PORT>  \
+--node-address https://rpc.testnet.casperlabs.io/ \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
+--session-path "target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
 ```
 
