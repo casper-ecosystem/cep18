@@ -256,13 +256,14 @@ casper-client put-deploy \
     --secret-key [PATH_TO_SECRET_KEY] \
     --payment-amount [AMOUNT] \
     --session-path [WASM_FILE_PATH] \
-    --session-arg <"NAME:TYPE='VALUE'" OR "NAME:TYPE=null">
+    --session-arg <"NAME:TYPE='VALUE'">
 ```
 
 - `NETWORK_NAME`: The relevant network name
-- `PATH_TO_YOUR_KEY`: The path to your secret key
-- `PAYMENT_AMOUNT`: Gas amount in motes needed for deploy execution
-- `WASM FILE PATH`: The location of your compiled fungible token Wasm file
+- `PATH_TO_SECRET_KEY`: The path to your secret key
+- `AMOUNT`: Gas amount in motes needed for deploy execution
+- `WASM_FILE_PATH`: The location of your compiled fungible token Wasm file
+- `NAME:TYPE='VALUE'`: The required and optional arguments for installing the contract
 
 Here is a sample _put-deploy_ command:
 
