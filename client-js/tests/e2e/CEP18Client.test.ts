@@ -74,7 +74,7 @@ describe('CEP18Client', () => {
     const deploy = cep18.install(
       ContractWASM,
       { ...tokenInfo, eventsMode: EVENTS_MODE.CES },
-      150_000_000_000,
+      250_000_000_000,
       owner.publicKey,
       NETWORK_NAME,
       [owner]
