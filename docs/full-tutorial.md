@@ -245,8 +245,6 @@ Now you can install the contract to the network and check how it behaves.
 
 If you are sending the deploy on Mainnet, try several put deploys on the Testnet to understand the exact gas amount required for that deploy. Refer to the [note about gas price](https://docs.casper.network/developers/dapps/sending-deploys/#a-note-about-gas-price) to understand more about payment amounts and gas price adjustments.
 
-**The Casper platform currently does not refund any tokens as part of sending a deploy.** For example, if you spend 10 CSPR for the deployment and it only costs 1 CSPR, you will not receive the remaining 9 CSPR. Refer to the [Gas and the Casper Blockchain](https://docs.casper.network/concepts/economics/gas-concepts/) documentation for further details.
-
 Use the following command template to deploy the contract:
 
 ```bash
