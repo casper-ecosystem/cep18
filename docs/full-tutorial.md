@@ -245,6 +245,8 @@ Now you can install the contract to the network and check how it behaves.
 
 If you are sending the deploy on Mainnet, try several put deploys on the Testnet to understand the exact gas amount required for that deploy. Refer to the [note about gas price](https://docs.casper.network/developers/dapps/sending-deploys/#a-note-about-gas-price) to understand more about payment amounts and gas price adjustments.
 
+Casper's Peregrine update introduced a refund system. In the event of overpay, 99% of unspent funds will be refunded. The refund only takes into account overpay after the actual gas cost of the Deploy in question.
+
 Use the following command template to deploy the contract:
 
 ```bash
