@@ -25,7 +25,7 @@ const install = async () => {
   const deploy = cep18.install(
     ContractWASM,
     tokenInfo,
-    150_000_000_000,
+    250_000_000_000,
     owner.publicKey,
     NETWORK_NAME,
     [owner]
