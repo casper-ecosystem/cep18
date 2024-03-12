@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-        node-version: [20.x]
+        node-version: [16.x, 20.x]
 
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: "https://registry.npmjs.org"
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install
         working-directory: ./client-js
