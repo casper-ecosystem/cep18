@@ -12,5 +12,5 @@ doctest = false
 test = false
 
 [dependencies]
-casper-contract = "2.0.0"
-casper-types = "2.0.0"
+casper-contract = "3.0.0"
+casper-types = "3.0.0"
