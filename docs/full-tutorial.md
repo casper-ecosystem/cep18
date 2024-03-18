@@ -271,9 +271,12 @@ casper-client put-deploy \
 --node-address http://95.216.24.237:7777 \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
---payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm"
---session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
+--payment-amount 300000000000 \
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
+--session-arg "name:string='Token test'" \
+--session-arg "symbol:string='TEST'" \
+--session-arg "total_supply:u256='1000'" \
+--session-arg "decimals:u8='10'"
 ```
 
 ## Querying the Network Status {#querying-the-network-status}
@@ -376,8 +379,11 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm"
---session-arg "name='Token test', symbol='TEST', decimals:u8=10, total_supply:u256=1000"
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \ 
+--session-arg "name:string='Token test'" \
+--session-arg "symbol:string='TEST'" \
+--session-arg "total_supply:u256='1000'" \
+--session-arg "decimals:u8='10'"
 ```
 
 **Result**:

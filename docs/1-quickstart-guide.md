@@ -53,7 +53,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-path ~/casper/demo/cep18_test_contract.wasm \
---payment-amount 50000000000
+--payment-amount 55000000000
 ```
 
 At this point, the account that installed both the main contract and the helper contract will look like this.
