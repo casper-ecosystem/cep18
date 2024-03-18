@@ -271,7 +271,7 @@ casper-client put-deploy \
 --node-address http://95.216.24.237:7777 \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
---payment-amount 1000000 \
+--payment-amount 300000000000 \
 --session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name:string='Token test'" \
 --session-arg "symbol:string='TEST'" \
