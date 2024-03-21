@@ -279,6 +279,9 @@ casper-client put-deploy \
 --session-arg "decimals:u8='10'"
 ```
 
+**_Note:_**
+Please be advised that the deployment cost is subject to change periodically. Before installing the contract on the main network, we strongly recommend verifying the payment amount.
+
 ## Querying the Network Status {#querying-the-network-status}
 
 You will need the newest state root hash to view the network status, as it changed with the deploy. The account hash remains the same since you are using the same account. Follow the [viewing the network state](#viewing-the-network-status) section to execute this step with the new state root hash.
@@ -385,6 +388,9 @@ casper-client put-deploy \
 --session-arg "total_supply:u256='1000'" \
 --session-arg "decimals:u8='10'"
 ```
+
+**_Note:_**
+Please be advised that the deployment cost is subject to change periodically. Before installing the contract on the main network, we strongly recommend verifying the payment amount.
 
 **Result**:
 
