@@ -108,7 +108,8 @@ pub fn get_optional_named_arg_with_user_errors<T: FromBytes>(
 ) -> Option<T> {
     match get_named_arg_with_user_errors::<T>(name, Cep18Error::Phantom, invalid) {
         Ok(val) => Some(val),
-        Err(_) => None,
+        Err(Cep18Error::Phantom) => None,
+        Err(_) => runtime::revert(invalid),
     }
 }
 
