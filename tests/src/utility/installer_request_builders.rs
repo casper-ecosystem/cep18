@@ -154,8 +154,7 @@ pub(crate) fn get_test_result<T: FromBytes + CLTyped>(
     let enabled_versions = contract_package.enabled_versions();
     let (_version, contract_hash) = enabled_versions
         .iter()
-        .rev()
-        .next()
+        .next_back()
         .expect("should have latest version");
 
     builder.get_value(*contract_hash, RESULT_KEY)
