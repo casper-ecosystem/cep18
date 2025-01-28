@@ -51,19 +51,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install
-        working-directory: client-js
-        run: npm install
-
-      - name: Generate WASMS
-        working-directory: ./client-js
-        run: npm run generate:wasm
-
-      - name: Unit test
-        working-directory: client-js
-        run: npm run test:unit
-
-      - name: Launch casper-node-launcher-js
+      - name: Casper node launcher js
         run: |
           git clone --branch dist_folder https://github.com/casper-network/casper-node-launcher-js.git
           cd casper-node-launcher-js
@@ -73,6 +61,14 @@ jobs:
         env:
           NODE_URL: http://127.0.0.1:7777/rpc
           EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
+
+      - name: Install
+        working-directory: client-js
+        run: npm install
+
+      - name: Generate WASMS
+        working-directory: client-js
+        run: npm run generate:wasm
 
       - name: Integration test
         working-directory: client-js
