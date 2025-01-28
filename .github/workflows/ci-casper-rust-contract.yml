@@ -31,11 +31,14 @@ jobs:
 
   ci-js-client:
     needs: ci-smart-contract
-    runs-on: ubuntu-22.04
     strategy:
       matrix:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         node-version: [20.x, 22.x]
+    runs-on: ubuntu-22.04
+    env:
+      NODE_URL: http://127.0.0.1:7777/rpc
+      EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
 
     steps:
       - name: Checkout
@@ -58,9 +61,6 @@ jobs:
           npm install
           npm run build
           npx casper-node-launcher-js node --daemon
-        env:
-          NODE_URL: http://127.0.0.1:7777/rpc
-          EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
 
       - name: Install
         working-directory: client-js
