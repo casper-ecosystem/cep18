@@ -3,16 +3,17 @@ use alloc::{string::String, vec, vec::Vec};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use casper_contract::{
     contract_api::{
-        self,
-        runtime::{get_key, revert},
+        self, alloc_bytes,
+        runtime::{get_key, revert, PROTOCOL_VERSION_FIELD_IDX, PROTOCOL_VERSION_LENGTH},
         storage::{dictionary_get, dictionary_put, read, write},
     },
-    ext_ffi,
+    ext_ffi::{self, casper_get_block_info},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
     api_error,
     bytesrepr::{self, FromBytes, ToBytes},
+    contracts::{ContractVersionKey, ProtocolVersionMajor},
     system::CallStackElement,
     ApiError, CLTyped, Key, URef, U256,
 };
@@ -82,6 +83,17 @@ pub fn get_immediate_caller() -> Key {
             contract_package_hash,
             contract_hash: _,
         } => contract_package_hash.into(),
+    }
+}
+
+pub fn get_contract_version_key(contract_version: u32) -> ContractVersionKey {
+    let dest_ptr = alloc_bytes(PROTOCOL_VERSION_LENGTH as usize);
+    unsafe {
+        casper_get_block_info(PROTOCOL_VERSION_FIELD_IDX, dest_ptr.as_ptr());
+        let protocol_version_major = ProtocolVersionMajor::from(u32::from_ne_bytes(
+            core::ptr::read_unaligned(dest_ptr.as_ptr() as *const [u8; 4]),
+        ));
+        ContractVersionKey::new(protocol_version_major, contract_version)
     }
 }
 

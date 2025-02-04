@@ -1,6 +1,4 @@
 //! Constants used by the CEP-18 contract.
-
-pub const PROTOCOL_VERSION: u32 = 2u32;
 pub const PREFIX_CEP18: &str = "cep18";
 
 pub const PREFIX_ACCESS_KEY_NAME: &str = "contract_package_access";

@@ -19,10 +19,8 @@ use casper_contract::{
 };
 use casper_event_standard::EVENTS_DICT;
 use casper_types::{
-    bytesrepr::ToBytes,
-    contract_messages::MessageTopicOperation,
-    contracts::{ContractVersionKey, ProtocolVersionMajor},
-    runtime_args, AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, PackageHash, U256,
+    bytesrepr::ToBytes, contract_messages::MessageTopicOperation, runtime_args,
+    AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, PackageHash, U256,
 };
 use cep18::{
     allowances::{read_allowance_from, write_allowance_to},
@@ -33,7 +31,7 @@ use cep18::{
         ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, DICT_ALLOWANCES, DICT_BALANCES,
         DICT_SECURITY_BADGES, ENTRY_POINT_CHANGE_EVENTS_MODE, ENTRY_POINT_INIT, MINTER_LIST,
         NONE_LIST, PREFIX_ACCESS_KEY_NAME, PREFIX_CEP18, PREFIX_CONTRACT_NAME,
-        PREFIX_CONTRACT_PACKAGE_NAME, PREFIX_CONTRACT_VERSION, PROTOCOL_VERSION,
+        PREFIX_CONTRACT_PACKAGE_NAME, PREFIX_CONTRACT_VERSION,
     },
     entry_points::generate_entry_points,
     error::Cep18Error,
@@ -44,8 +42,8 @@ use cep18::{
     modalities::EventsMode,
     security::{change_sec_badge, sec_check, SecurityBadge},
     utils::{
-        base64_encode, get_immediate_caller, get_optional_named_arg_with_user_errors,
-        get_stored_value, write_total_supply_to,
+        base64_encode, get_contract_version_key, get_immediate_caller,
+        get_optional_named_arg_with_user_errors, get_stored_value, write_total_supply_to,
     },
 };
 
@@ -487,14 +485,9 @@ pub fn upgrade(name: &str) {
         Key::contract_entity_key(contract_hash.into()),
     );
 
-    let contract_version_key = ContractVersionKey::new(
-        ProtocolVersionMajor::from(PROTOCOL_VERSION),
-        contract_version,
-    );
-
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_VERSION}_{name}"),
-        storage::new_uref(contract_version_key.to_string()).into(),
+        storage::new_uref(get_contract_version_key(contract_version).to_string()).into(),
     );
 
     if let Some(events_mode_u8) = events_mode {
@@ -574,14 +567,9 @@ pub fn install_contract(name: &str) {
         contract_hash_key,
     );
 
-    let contract_version_key = ContractVersionKey::new(
-        ProtocolVersionMajor::from(PROTOCOL_VERSION),
-        contract_version,
-    );
-
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_VERSION}_{name}"),
-        storage::new_uref(contract_version_key.to_string()).into(),
+        storage::new_uref(get_contract_version_key(contract_version).to_string()).into(),
     );
 
     // Call contract to initialize it
