@@ -48,7 +48,7 @@ jobs:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release
 
-      // Disable client-js testing
+      #  Disable client-js testing
       # - name: Use Node.js ${{ matrix.node-version }}
       #   uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
       #   with:

@@ -22,7 +22,7 @@ jobs:
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
-                  toolchain: stable
+          toolchain: stable
           profile: minimal
           components: rustfmt, clippy
       # Needed for gcc install
