@@ -24,7 +24,7 @@ jobs:
       - run: make prepare
       - run: make check-lint
       - run: make test
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release/cep18.wasm
