@@ -29,48 +29,48 @@ jobs:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release/cep18.wasm
 
-  ci-js-client:
-    needs: ci-smart-contract
-    strategy:
-      matrix:
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-        node-version: [20.x, 22.x]
-    runs-on: ubuntu-22.04
-    env:
-      NODE_URL: http://127.0.0.1:7777/rpc
-      EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
+  # ci-js-client:
+  #   needs: ci-smart-contract
+  #   strategy:
+  #     matrix:
+  #       # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+  #       node-version: [20.x, 22.x]
+  #   runs-on: ubuntu-22.04
+  #   env:
+  #     NODE_URL: http://127.0.0.1:7777/rpc
+  #     EVENT_STREAM_ADDRESS: http://127.0.0.1:9999/events/main
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
-      - uses: actions/download-artifact@v3
-        with:
-          name: cep18.wasm
-          path: target/wasm32-unknown-unknown/release
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: cep18.wasm
+  #         path: target/wasm32-unknown-unknown/release
 
-      #  Disable client-js testing
-      # - name: Use Node.js ${{ matrix.node-version }}
-      #   uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
-      #   with:
-      #     node-version: ${{ matrix.node-version }}
-      #     registry-url: 'https://registry.npmjs.org'
+  #  Disable client-js testing
+  # - name: Use Node.js ${{ matrix.node-version }}
+  #   uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
+  #   with:
+  #     node-version: ${{ matrix.node-version }}
+  #     registry-url: 'https://registry.npmjs.org'
 
-      # - name: Casper node launcher js
-      #   run: |
-      #     git clone --branch dist_folder https://github.com/casper-network/casper-node-launcher-js.git
-      #     cd casper-node-launcher-js
-      #     npm install
-      #     npm run build
-      #     npx casper-node-launcher-js node --daemon
+  # - name: Casper node launcher js
+  #   run: |
+  #     git clone --branch dist_folder https://github.com/casper-network/casper-node-launcher-js.git
+  #     cd casper-node-launcher-js
+  #     npm install
+  #     npm run build
+  #     npx casper-node-launcher-js node --daemon
 
-      # - name: Install
-      #   working-directory: client-js
-      #   run: npm install
+  # - name: Install
+  #   working-directory: client-js
+  #   run: npm install
 
-      # - name: Generate WASMS
-      #   working-directory: client-js
-      #   run: npm run generate:wasm
+  # - name: Generate WASMS
+  #   working-directory: client-js
+  #   run: npm run generate:wasm
 
-      # - name: Integration test
-      #   working-directory: client-js
-      #   run: npm run test:e2e && npx casper-node-launcher-js stop
+  # - name: Integration test
+  #   working-directory: client-js
+  #   run: npm run test:e2e && npx casper-node-launcher-js stop
