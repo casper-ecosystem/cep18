@@ -5,12 +5,15 @@ use casper_contract::{
     contract_api::{
         self,
         runtime::{
-            get_immediate_caller as casper_get_immediate_caller, get_key, get_protocol_version,
-            revert,
+            blake2b, get_immediate_caller as casper_get_immediate_caller, get_key,
+            get_protocol_version, revert,
         },
         storage::{dictionary_get, dictionary_put, read, write},
     },
-    ext_ffi::{self},
+    ext_ffi::{
+        casper_get_key, casper_get_named_arg, casper_get_named_arg_size, casper_read_host_buffer,
+        casper_read_value,
+    },
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
@@ -21,33 +24,6 @@ use casper_types::{
     ApiError, CLTyped, EntityAddr, Key, PackageHash, URef, U256,
 };
 use core::{convert::TryInto, mem::MaybeUninit};
-
-// TODO CHECK *runtime::get_call_stack()
-/// ! TODO GR
-fn read_host_buffer(size: usize) -> Result<Vec<u8>, ApiError> {
-    let mut dest: Vec<u8> = if size == 0 {
-        Vec::new()
-    } else {
-        let bytes_non_null_ptr = contract_api::alloc_bytes(size);
-        unsafe { Vec::from_raw_parts(bytes_non_null_ptr.as_ptr(), size, size) }
-    };
-    read_host_buffer_into(&mut dest)?;
-    Ok(dest)
-}
-
-// TODO CHECK *runtime::get_call_stack()
-/// ! TODO GR
-fn read_host_buffer_into(dest: &mut [u8]) -> Result<usize, ApiError> {
-    let mut bytes_written = MaybeUninit::uninit();
-    let ret = unsafe {
-        ext_ffi::casper_read_host_buffer(dest.as_mut_ptr(), dest.len(), bytes_written.as_mut_ptr())
-    };
-    // NOTE: When rewriting below expression as `result_from(ret).map(|_| unsafe { ... })`, and the
-    // caller ignores the return value, execution of the contract becomes unstable and ultimately
-    // leads to `Unreachable` error.
-    api_error::result_from(ret)?;
-    Ok(unsafe { bytes_written.assume_init() })
-}
 
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
@@ -139,7 +115,7 @@ pub fn get_named_arg_with_user_errors<T: FromBytes>(
         let res = {
             let data_non_null_ptr = contract_api::alloc_bytes(arg_size);
             let ret = unsafe {
-                ext_ffi::casper_get_named_arg(
+                casper_get_named_arg(
                     name.as_bytes().as_ptr(),
                     name.len(),
                     data_non_null_ptr.as_ptr(),
@@ -184,8 +160,6 @@ pub fn make_dictionary_item_key<T: CLTyped + ToBytes, V: CLTyped + ToBytes>(
     key: &T,
     value: &V,
 ) -> String {
-    use casper_contract::contract_api::runtime::blake2b;
-
     let mut bytes_a = key
         .to_bytes()
         .unwrap_or_revert_with(Cep18Error::FailedToConvertBytes);
@@ -248,7 +222,7 @@ fn get_key_with_user_errors(name: &str, missing: Cep18Error, invalid: Cep18Error
     let mut key_bytes = vec![0u8; Key::max_serialized_length()];
     let mut total_bytes: usize = 0;
     let ret = unsafe {
-        ext_ffi::casper_get_key(
+        casper_get_key(
             name_ptr,
             name_size,
             key_bytes.as_mut_ptr(),
@@ -274,9 +248,10 @@ fn read_with_user_errors<T: CLTyped + FromBytes>(
     let key: Key = uref.into();
     let (key_ptr, key_size, _bytes) = to_ptr(key);
 
+    // Get the size of the value
     let value_size = {
         let mut value_size = MaybeUninit::uninit();
-        let ret = unsafe { ext_ffi::casper_read_value(key_ptr, key_size, value_size.as_mut_ptr()) };
+        let ret = unsafe { casper_read_value(key_ptr, key_size, value_size.as_mut_ptr()) };
         match api_error::result_from(ret) {
             Ok(_) => unsafe { value_size.assume_init() },
             Err(ApiError::ValueNotFound) => revert(missing),
@@ -284,9 +259,29 @@ fn read_with_user_errors<T: CLTyped + FromBytes>(
         }
     };
 
-    let value_bytes = read_host_buffer(value_size).unwrap_or_revert();
+    // Allocate a buffer to store the value
+    let mut buffer = vec![0u8; value_size];
+    let mut bytes_written = 0usize;
 
-    bytesrepr::deserialize(value_bytes).unwrap_or_revert_with(invalid)
+    let ret = unsafe {
+        casper_read_host_buffer(
+            buffer.as_mut_ptr(),
+            value_size,
+            &mut bytes_written as *mut usize,
+        )
+    };
+
+    // Check for errors
+    match api_error::result_from(ret) {
+        Ok(_) => {}
+        Err(e) => revert(e),
+    }
+
+    if bytes_written != value_size {
+        revert(ApiError::UnexpectedKeyVariant);
+    }
+
+    bytesrepr::deserialize(buffer).unwrap_or_revert_with(invalid)
 }
 
 fn to_ptr<T: ToBytes>(t: T) -> (*const u8, usize, Vec<u8>) {
@@ -299,7 +294,7 @@ fn to_ptr<T: ToBytes>(t: T) -> (*const u8, usize, Vec<u8>) {
 pub fn get_named_arg_size(name: &str) -> Option<usize> {
     let mut arg_size: usize = 0;
     let ret = unsafe {
-        ext_ffi::casper_get_named_arg_size(
+        casper_get_named_arg_size(
             name.as_bytes().as_ptr(),
             name.len(),
             &mut arg_size as *mut usize,
