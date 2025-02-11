@@ -10,8 +10,8 @@ use casper_engine_test_support::{
     DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_ADDR,
 };
 use casper_types::{
-    account::AccountHash, addressable_entity::EntityKindTag, bytesrepr::FromBytes, runtime_args,
-    AddressableEntityHash, CLTyped, EntityAddr, Key, PackageHash, PublicKey, RuntimeArgs, U256,
+    account::AccountHash, bytesrepr::FromBytes, runtime_args, AddressableEntityHash, CLTyped,
+    EntityAddr, Key, PackageHash, PublicKey, RuntimeArgs, U256,
 };
 use cep18::constants::{
     ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ARG_RECIPIENT,
@@ -142,7 +142,7 @@ pub(crate) fn cep18_check_total_supply(
         .expect("should have test contract hash");
 
     let check_total_supply_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
     };
 
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
@@ -191,7 +191,7 @@ pub(crate) fn cep18_check_balance_of(
         .expect("should have test contract package hash");
 
     let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
         ARG_ADDRESS => address,
     };
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
@@ -227,7 +227,7 @@ pub(crate) fn cep18_check_allowance_of(
         .expect("should have test contract hash");
 
     let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::contract_entity_key(cep18_contract_hash),
         ARG_OWNER => owner,
         ARG_SPENDER => spender,
     };
@@ -334,38 +334,36 @@ pub(crate) fn make_cep18_transfer_request(
             None,
             ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
                 ARG_AMOUNT => amount,
                 ARG_RECIPIENT => recipient,
             },
         )
         .build(),
-        Key::AddressableEntity(entity_addr)=>{
-            match entity_addr {
-                EntityAddr::System(_) => panic!("Not a use case"),
-                EntityAddr::Account(account_addr) => ExecuteRequestBuilder::contract_call_by_hash(
-                    AccountHash::new(account_addr),
-                    AddressableEntityHash::new(cep18_contract_hash.value()),
-                    ENTRY_POINT_TRANSFER,
-                    runtime_args! {
-                        ARG_AMOUNT => amount,
-                        ARG_RECIPIENT => recipient,
-                    },
-                )
-                .build(),
-                EntityAddr::SmartContract(_contract_hash) => panic!("invalid variant"),
-            }
-        }
+        Key::AddressableEntity(entity_addr) => match entity_addr {
+            EntityAddr::System(_) => panic!("Not a use case"),
+            EntityAddr::Account(account_addr) => ExecuteRequestBuilder::contract_call_by_hash(
+                AccountHash::new(account_addr),
+                AddressableEntityHash::new(cep18_contract_hash.value()),
+                ENTRY_POINT_TRANSFER,
+                runtime_args! {
+                    ARG_AMOUNT => amount,
+                    ARG_RECIPIENT => recipient,
+                },
+            )
+            .build(),
+            EntityAddr::SmartContract(_contract_hash) => panic!("invalid variant"),
+        },
         Key::SmartContract(package_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
             PackageHash::new(package_hash),
             None,
             ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
                 ARG_AMOUNT => amount,
                 ARG_RECIPIENT => recipient,
-            }
+            },
         )
         .build(),
         _ => panic!("Unknown variant"),
@@ -395,40 +393,40 @@ pub(crate) fn make_cep18_approve_request(
             None,
             ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
                 ARG_SPENDER => spender,
                 ARG_AMOUNT => amount,
             },
         )
         .build(),
-        Key::AddressableEntity(entity_addr)=>{
-            match entity_addr {
-                EntityAddr::System(_) => panic!("Not a use case"),
-                EntityAddr::Account(account_addr) => ExecuteRequestBuilder::contract_call_by_hash(
-                    AccountHash::new(account_addr),
-                    AddressableEntityHash::new(cep18_contract_hash.value()),
-                    ENTRY_POINT_APPROVE,
-                    runtime_args! {
-                        ARG_SPENDER => spender,
-                        ARG_AMOUNT => amount,
-                    },
-                )
-                .build(),
-                EntityAddr::SmartContract(_contract_hash) => panic!("Invalid variant")
-            }
+        Key::AddressableEntity(entity_addr) => match entity_addr {
+            EntityAddr::System(_) => panic!("Not a use case"),
+            EntityAddr::Account(account_addr) => ExecuteRequestBuilder::contract_call_by_hash(
+                AccountHash::new(account_addr),
+                AddressableEntityHash::new(cep18_contract_hash.value()),
+                ENTRY_POINT_APPROVE,
+                runtime_args! {
+                    ARG_SPENDER => spender,
+                    ARG_AMOUNT => amount,
+                },
+            )
+            .build(),
+            EntityAddr::SmartContract(_contract_hash) => panic!("Invalid variant"),
         },
-        Key::SmartContract(contract_package_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
-            *DEFAULT_ACCOUNT_ADDR,
-            PackageHash::new(contract_package_hash),
-            None,
-            ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
-            runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, *cep18_contract_hash),
-                ARG_SPENDER => spender,
-                ARG_AMOUNT => amount,
-            },
-        )
-        .build(),
+        Key::SmartContract(contract_package_hash) => {
+            ExecuteRequestBuilder::versioned_contract_call_by_hash(
+                *DEFAULT_ACCOUNT_ADDR,
+                PackageHash::new(contract_package_hash),
+                None,
+                ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
+                runtime_args! {
+                    ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+                    ARG_SPENDER => spender,
+                    ARG_AMOUNT => amount,
+                },
+            )
+            .build()
+        }
         _ => panic!("Unknown variant"),
     }
 }

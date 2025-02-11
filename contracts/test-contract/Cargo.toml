@@ -13,7 +13,7 @@ test = false
 [dependencies]
 cep18 = { path = "../contract" }
 casper-types.workspace = true
-casper-contract = { workspace = true }
+casper-contract.workspace = true
 
 [features]
 default = ["cep18/contract-support"]

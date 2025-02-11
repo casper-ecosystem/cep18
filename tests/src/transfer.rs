@@ -8,10 +8,7 @@ use crate::utility::{
 };
 use casper_engine_test_support::ExecuteRequestBuilder;
 use casper_execution_engine::{engine_state::Error as CoreError, execution::ExecError};
-use casper_types::{
-    addressable_entity::EntityKindTag, runtime_args, AddressableEntityHash, ApiError, EntityAddr,
-    Key, U256,
-};
+use casper_types::{runtime_args, AddressableEntityHash, ApiError, EntityAddr, Key, U256};
 use cep18::{
     constants::{
         ARG_AMOUNT, ARG_OWNER, ARG_RECIPIENT, ARG_SPENDER, ARG_TOTAL_SUPPLY, ENTRY_POINT_APPROVE,
@@ -263,7 +260,7 @@ fn should_transfer_from_account_by_contract() {
         ARG_AMOUNT => allowance_amount_1,
     };
     let cep18_transfer_from_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::addressable_entity_key(EntityKindTag::SmartContract, cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::contract_entity_key(cep18_contract_hash),
         ARG_OWNER => default_account_user_key,
         ARG_RECIPIENT => recipient,
         ARG_AMOUNT => transfer_from_amount_1,
