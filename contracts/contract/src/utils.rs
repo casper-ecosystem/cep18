@@ -4,18 +4,21 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use casper_contract::{
     contract_api::{
         self,
-        runtime::{get_key, get_protocol_version, revert},
+        runtime::{
+            get_immediate_caller as casper_get_immediate_caller, get_key, get_protocol_version,
+            revert,
+        },
         storage::{dictionary_get, dictionary_put, read, write},
     },
     ext_ffi::{self},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
+    account::AccountHash,
     api_error,
     bytesrepr::{self, FromBytes, ToBytes},
-    contracts::ContractVersionKey,
-    system::CallStackElement,
-    ApiError, CLTyped, Key, URef, U256,
+    contracts::{ContractPackageHash, ContractVersionKey},
+    ApiError, CLTyped, EntityAddr, Key, PackageHash, URef, U256,
 };
 use core::{convert::TryInto, mem::MaybeUninit};
 
@@ -46,43 +49,67 @@ fn read_host_buffer_into(dest: &mut [u8]) -> Result<usize, ApiError> {
     Ok(unsafe { bytes_written.assume_init() })
 }
 
-// TODO CHECK *runtime::get_call_stack()
-/// ! TODO GR
-pub fn get_call_stack() -> Vec<CallStackElement> {
-    let (call_stack_len, result_size) = {
-        let mut call_stack_len: usize = 0;
-        let mut result_size: usize = 0;
-        let ret = unsafe {
-            #[allow(deprecated)]
-            ext_ffi::casper_load_call_stack(
-                &mut call_stack_len as *mut usize,
-                &mut result_size as *mut usize,
-            )
-        };
-        api_error::result_from(ret).unwrap_or_revert();
-        (call_stack_len, result_size)
-    };
-    if call_stack_len == 0 {
-        return Vec::new();
-    }
-    let bytes = read_host_buffer(result_size).unwrap_or_revert();
-    bytesrepr::deserialize(bytes).unwrap_or_revert()
-}
-
-// CHECK *runtime::get_call_stack() // get_immediate_caller() CallerInfo into Key (Caller ?)
-/// ! TODO GR
 pub fn get_immediate_caller() -> Key {
-    match *get_call_stack().iter().nth_back(1).unwrap_or_revert() {
-        CallStackElement::Session { account_hash } => Key::from(account_hash),
-        CallStackElement::StoredSession {
-            account_hash: _, // Caller is contract
-            contract_package_hash,
-            contract_hash: _,
-        } => contract_package_hash.into(),
-        CallStackElement::StoredContract {
-            contract_package_hash,
-            contract_hash: _,
-        } => contract_package_hash.into(),
+    const ACCOUNT: u8 = 0;
+    const PACKAGE: u8 = 1;
+    const CONTRACT_PACKAGE: u8 = 2;
+    const ENTITY: u8 = 3;
+    const CONTRACT: u8 = 4;
+
+    let caller_info = casper_get_immediate_caller().unwrap_or_revert();
+
+    match caller_info.kind() {
+        ACCOUNT => {
+            if let Some(account_hash) = caller_info
+                .get_field_by_index(ACCOUNT)
+                .unwrap()
+                .to_t::<Option<AccountHash>>()
+                .unwrap_or_revert()
+            {
+                Key::from(account_hash)
+            } else {
+                revert(Cep18Error::InvalidContext);
+            }
+        }
+        PACKAGE => {
+            if let Some(package_hash) = caller_info
+                .get_field_by_index(PACKAGE)
+                .unwrap()
+                .to_t::<Option<PackageHash>>()
+                .unwrap_or_revert()
+            {
+                Key::from(package_hash)
+            } else {
+                revert(Cep18Error::InvalidContext);
+            }
+        }
+        // Specific to CEP-18, contracts calling are identified by their package, dictionnaries rely
+        // on packages key
+        CONTRACT_PACKAGE | CONTRACT => {
+            if let Some(contract_package_hash) = caller_info
+                .get_field_by_index(CONTRACT_PACKAGE)
+                .unwrap()
+                .to_t::<Option<ContractPackageHash>>()
+                .unwrap_or_revert()
+            {
+                Key::from(contract_package_hash)
+            } else {
+                revert(Cep18Error::InvalidContext);
+            }
+        }
+        ENTITY => {
+            if let Some(entity_addr) = caller_info
+                .get_field_by_index(ENTITY)
+                .unwrap()
+                .to_t::<Option<EntityAddr>>()
+                .unwrap_or_revert()
+            {
+                Key::from(entity_addr)
+            } else {
+                revert(Cep18Error::InvalidContext);
+            }
+        }
+        _ => revert(Cep18Error::InvalidContext),
     }
 }
 
