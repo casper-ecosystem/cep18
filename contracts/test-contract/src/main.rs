@@ -16,8 +16,9 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::ToBytes, runtime_args, AddressableEntityHash, ApiError, CLTyped, EntryPoint,
-    EntryPointAccess, EntryPointType, EntryPoints, Key, Parameter, RuntimeArgs, U256,
+    bytesrepr::ToBytes, runtime_args, AddressableEntityHash, ApiError, CLTyped,
+    EntityEntryPoint as EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Key, Parameter,
+    RuntimeArgs, U256,
 };
 use cep18::constants::{
     ARG_ADDRESS, ARG_AMOUNT, ARG_OWNER, ARG_RECIPIENT, ARG_SPENDER, ENTRY_POINT_ALLOWANCE,

@@ -1,8 +1,8 @@
 //! Contains definition of the entry points.
 use alloc::{string::String, vec, vec::Vec};
 use casper_types::{
-    CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Key, Parameter,
-    U256,
+    CLType, CLTyped, EntityEntryPoint as EntryPoint, EntryPointAccess, EntryPointType, EntryPoints,
+    Key, Parameter, U256,
 };
 
 use crate::constants::{
