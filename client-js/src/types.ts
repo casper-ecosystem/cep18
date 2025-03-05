@@ -1,5 +1,9 @@
-import { type BigNumberish } from '@ethersproject/bignumber';
-import { type CLKeyParameters } from 'casper-js-sdk';
+import {
+  ExecutionResult,
+  PrivateKey,
+  PublicKey,
+  PutTransactionResult
+} from 'casper-js-sdk';
 
 export enum EVENTS_MODE {
   NoEvents = 0,
@@ -12,9 +16,9 @@ export interface InstallArgs {
   /** token symbol */
   symbol: string;
   /** token decimals */
-  decimals: BigNumberish;
+  decimals: number;
   /** token total supply */
-  totalSupply: BigNumberish;
+  totalSupply: string;
   /** events mode, disabled by default */
   eventsMode?: EVENTS_MODE;
   /** flag for mint and burn, false by default */
@@ -22,33 +26,50 @@ export interface InstallArgs {
 }
 
 export interface TransferableArgs {
-  amount: BigNumberish;
+  amount: string;
 }
 
-export interface TransferArgs extends TransferableArgs {
-  recipient: CLKeyParameters;
+export interface HasOwner {
+  owner: PublicKey;
 }
 
-export interface TransferFromArgs extends TransferArgs {
-  owner: CLKeyParameters;
+export interface HasRecipient {
+  recipient: PublicKey;
 }
 
-export interface ApproveArgs extends TransferableArgs {
-  spender: CLKeyParameters;
+export interface HasSpender {
+  spender: PublicKey;
 }
 
-export interface MintArgs extends TransferableArgs {
-  owner: CLKeyParameters;
-}
-
-export interface BurnArgs extends TransferableArgs {
-  owner: CLKeyParameters;
-}
+export type TransferArgs = TransferableArgs & HasRecipient;
+export type TransferFromArgs = TransferArgs & HasOwner;
+export type ApproveArgs = TransferableArgs & HasSpender;
+export type MintArgs = TransferableArgs & HasOwner;
+export type BurnArgs = TransferableArgs & HasOwner;
 
 export interface ChangeSecurityArgs {
-  adminList?: CLKeyParameters[];
-  minterList?: CLKeyParameters[];
-  burnerList?: CLKeyParameters[];
-  mintAndBurnList?: CLKeyParameters[];
-  noneList?: CLKeyParameters[];
+  adminList?: PublicKey[];
+  minterList?: PublicKey[];
+  burnerList?: PublicKey[];
+  mintAndBurnList?: PublicKey[];
+  noneList?: PublicKey[];
+}
+
+export interface InstallParams {
+  wasm: Uint8Array;
+  paymentAmount: string;
+  sender: PublicKey;
+  signingKeys?: PrivateKey[];
+  chainName?: string;
+}
+
+export interface InstallPayload {
+  params: InstallParams;
+  args: InstallArgs;
+  waitForTransactionProcessed?: boolean;
+}
+
+export interface InstallResult {
+  transactionResult: PutTransactionResult;
+  executionResult?: ExecutionResult;
 }

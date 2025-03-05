@@ -1,13 +1,17 @@
-import { Contracts, EventStream, ExecutionResult } from 'casper-js-sdk';
-
+import { Parser } from '@make-software/ces-js-parser';
+import { ExecutionResult, Hash, RpcClient, SseClient } from 'casper-js-sdk';
 import EventEnabledContract from './EventEnabledContract';
 import { CEP18Event, EventsMap } from './events';
 
 interface ITypedContract {
-  contractClient: Contracts.Contract;
+  rpcClient: RpcClient;
+  sseClient?: SseClient;
+  parser?: Parser;
+  chainName?: string;
 
-  setupEventStream(eventStream: EventStream): Promise<void>;
-  parseExecutionResult(result: ExecutionResult): CEP18Event[];
+  //setupEventStream(eventStream: EventStream): Promise<void>;
+  setContractHash(contractHash: Hash, contractPackageHash?: Hash): void;
+  parseExecutionResult(result: ExecutionResult): CEP18Event[] | undefined;
 
   on<K extends keyof EventsMap>(
     type: K,
@@ -31,7 +35,7 @@ interface ITypedContract {
 }
 
 interface TypedContractConstructor {
-  new(nodeAddress: string, networkName: string): ITypedContract;
+  new (rpcUrl: string, ssUrl?: string, chainName?: string): ITypedContract;
   prototype: ITypedContract;
 }
 

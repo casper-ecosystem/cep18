@@ -1,3 +1,4 @@
+// !TODO GR Check
 export enum ERROR_CODES {
   /// CEP-18 contract called from within an invalid context.
   InvalidContext = 60000,
@@ -38,7 +39,7 @@ export enum ERROR_CODES {
   /// Tried to burn the tokens of someone else.
   InvalidBurnTarget = 60018,
   /// There is an AccessToken but no valid ContractPackageHash. Try to query the account for NamedKeys to find it.
-  MissingPackageHashForUpgrade = 60019,
+  MissingPackageHashForUpgrade = 60019
 }
 
 export class ContractError extends Error {

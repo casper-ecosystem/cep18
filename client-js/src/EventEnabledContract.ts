@@ -1,77 +1,94 @@
-//  since `deployProcessed` is any type in L49 the eslint gives error for this line
-/* eslint-disable eslint-comments/disable-enable-pair */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Parser } from '@make-software/ces-js-parser';
 import {
-  CasperClient,
-  Contracts,
-  encodeBase16,
-  EventName,
-  EventStream,
-  ExecutionResult
+  // EventName,
+  ExecutionResult,
+  Hash,
+  HttpHandler,
+  RpcClient,
+  SseClient
 } from 'casper-js-sdk';
 
 import { CEP18Event, CEP18EventWithDeployInfo, WithDeployInfo } from './events';
 
-const { Contract } = Contracts;
-
 export default class EventEnabledContract {
-  public contractClient: Contracts.Contract;
+  private _rpcClient: RpcClient;
+  private _sseClient!: SseClient;
+  private _parser!: Parser;
+  private _chainName!: string;
 
-  casperClient: CasperClient;
-
-  eventStream?: EventStream;
-
-  parser?: Parser;
+  private contractHash?: Hash;
+  private contractPackageHash?: Hash;
 
   private readonly events: Record<
     string,
     ((event: WithDeployInfo<CEP18Event>) => void)[]
   > = {};
 
-  constructor(public nodeAddress: string, public networkName: string) {
-    this.casperClient = new CasperClient(nodeAddress);
-    this.contractClient = new Contract(this.casperClient);
+  constructor(rpcUrl: string, sseUrl?: string, chainName?: string) {
+    const rpcHandler: HttpHandler = new HttpHandler(rpcUrl);
+    this._rpcClient = new RpcClient(rpcHandler);
+    chainName && (this._chainName = chainName);
+    sseUrl && (this._sseClient = new SseClient(sseUrl));
   }
 
-  async setupEventStream(eventStream: EventStream) {
-    this.eventStream = eventStream;
-
-    if (!this.parser) {
-      this.parser = await Parser.create(this.casperClient.nodeClient, [
-        this.contractClient.contractHash.slice(5)
-      ]);
-    }
-
-    this.eventStream.start();
-
-    this.eventStream.subscribe(EventName.DeployProcessed, deployProcessed => {
-      const {
-        execution_result,
-        timestamp,
-        deploy_hash: deployHash
-      } = deployProcessed.body.DeployProcessed;
-
-      if (!execution_result.Success || !this.parser) {
-        return;
-      }
-
-      const results = this.parseExecutionResult(
-        execution_result as ExecutionResult
-      );
-
-      results
-        .map(
-          r =>
-          ({
-            ...r,
-            deployInfo: { deployHash, timestamp }
-          } as CEP18EventWithDeployInfo)
-        )
-        .forEach(event => this.emit(event));
-    });
+  get chainName() {
+    return this._chainName;
   }
+
+  get rpcClient() {
+    return this._rpcClient;
+  }
+
+  get sseClient() {
+    return this._sseClient;
+  }
+
+  get parser() {
+    return this._parser;
+  }
+
+  public setContractHash(contractHash: Hash, contractPackageHash?: Hash) {
+    this.contractHash = contractHash;
+    this.contractPackageHash = contractPackageHash;
+  }
+
+  // async setupEventStream(eventStream: EventStream) {
+  //   this.eventStream = eventStream;
+
+  //   if (!this.parser) {
+  //     this.parser = await Parser.create(this.rpcClient, [
+  //       this.contractClient.contractHash.slice(5)
+  //     ]);
+  //   }
+
+  //   this.eventStream.start();
+
+  //   this.eventStream.subscribe(EventName.DeployProcessed, deployProcessed => {
+  //     const {
+  //       execution_result,
+  //       timestamp,
+  //       deploy_hash: deployHash
+  //     } = deployProcessed.body.DeployProcessed;
+
+  //     if (!execution_result.Success || !this.parser) {
+  //       return;
+  //     }
+
+  //     const results = this.parseExecutionResult(
+  //       execution_result as ExecutionResult
+  //     );
+
+  //     results
+  //       .map(
+  //         r =>
+  //           ({
+  //             ...r,
+  //             deployInfo: { deployHash, timestamp }
+  //           }) as CEP18EventWithDeployInfo
+  //       )
+  //       .forEach(event => this.emit(event));
+  //   });
+  // }
 
   on(name: string, listener: (event: CEP18EventWithDeployInfo) => void) {
     this.addEventListener(name, listener);
@@ -96,7 +113,7 @@ export default class EventEnabledContract {
   ) {
     if (!this.events[name]) {
       throw new Error(
-        `Can't remove a listener. Event "${name}" doesn't exits.`
+        `Can't remove a listener. Event "${name}" doesn't exist.`
       );
     }
 
@@ -111,17 +128,18 @@ export default class EventEnabledContract {
     this.events[event.name]?.forEach(cb => cb(event));
   }
 
-  parseExecutionResult(result: ExecutionResult): CEP18Event[] {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const results = this.parser.parseExecutionResult(result);
+  parseExecutionResult(result: ExecutionResult): CEP18Event[] | undefined {
+    const results = this.parser?.parseExecutionResult(result);
 
-    return results
-      .filter(r => r.error === null)
-      .map(r => ({
-        ...r.event,
-        contractHash: `hash-${encodeBase16(r.event.contractHash)}`,
-        contractPackageHash: `hash-${encodeBase16(r.event.contractPackageHash)}`
-      })) as CEP18Event[];
+    return (
+      results &&
+      (results
+        .filter(r => r.error === null)
+        .map(r => ({
+          ...r.event,
+          contractHash: `hash-${r.event.contractHash?.toHex()}`,
+          contractPackageHash: `hash-${r.event.contractPackageHash?.toHex()}`
+        })) as unknown as CEP18Event[])
+    );
   }
 }

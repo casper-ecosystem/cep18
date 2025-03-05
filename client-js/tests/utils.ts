@@ -1,23 +1,26 @@
 import {
-  CasperServiceByJsonRPC,
-  type CLPublicKey,
-  type GetDeployResult,
-  type StoredValue
+  Account,
+  AccountIdentifier,
+  HttpHandler,
+  type PublicKey,
+  type PutTransactionResult,
+  RpcClient
 } from 'casper-js-sdk';
 
-type Defined<Value> = Exclude<Value, null | undefined>;
-type Account = Defined<StoredValue['Account']>;
-
 export const getAccountInfo = async (
-  nodeAddress: string,
-  publicKey: CLPublicKey
+  rpcUrl: string,
+  publicKey: PublicKey
 ): Promise<Account> => {
-  const client = new CasperServiceByJsonRPC(nodeAddress);
-  const stateRootHash = await client.getStateRootHash();
-  const accountHash = publicKey.toAccountHashStr();
-  const blockState = await client.getBlockState(stateRootHash, accountHash, []);
-  const account = blockState.Account;
-  if (!account) throw Error('Not found account');
+  // !TODO GR
+  const rpcHandler = new HttpHandler(rpcUrl);
+  const client = new RpcClient(rpcHandler);
+
+  const accountIdentifier: AccountIdentifier = new AccountIdentifier(
+    undefined,
+    publicKey
+  );
+  const { account } = await client.getAccountInfo(null, accountIdentifier);
+  if (!account) throw Error('Account not found');
   return account;
 };
 
@@ -25,19 +28,86 @@ export const findKeyFromAccountNamedKeys = (
   account: Account,
   name: string
 ): string => {
-  const key = account.namedKeys.find(namedKey => namedKey.name === name)?.key;
+  const key = account.namedKeys.find(name);
 
   if (!key) throw Error(`Not found key: ${name}`);
 
-  return key;
+  return key.toPrefixedString();
 };
 
-export const sleep = async (ms: number): Promise<void> => {
-  // eslint-disable-next-line no-promise-executor-return
-  await new Promise(resolve => setTimeout(resolve, ms));
+export const expectTransactionResultToSuccess = (
+  result: PutTransactionResult
+): void => {
+  // expect(result.execution_results[0].result.Failure).toBeUndefined();
+  // expect(result.execution_results[0].result.Success).toBeDefined();
 };
 
-export const expectDeployResultToSuccess = (result: GetDeployResult): void => {
-  expect(result.execution_results[0].result.Failure).toBeUndefined();
-  expect(result.execution_results[0].result.Success).toBeDefined();
+import { PrivateKey } from 'casper-js-sdk';
+import fs from 'fs';
+
+import { SECRET_KEY_ALGO, SECRET_KEY_NAME } from './config';
+
+/**
+ * Reads a private key from either a file path or a raw string.
+ * Ensures the key has the correct PEM format.
+ *
+ * @param {string} input - File path or raw private key string.
+ * @returns {string} - Formatted PEM private key.
+ */
+export const getPrivateKey = (input: string): string => {
+  if (!input) {
+    return '';
+  }
+  let key = input;
+
+  // If the input is a file path, read the content
+  if (fs.existsSync(input)) {
+    key = fs.readFileSync(input, 'utf8').trim();
+  }
+
+  // Check if it's already in PEM format
+  if (key && key.includes('BEGIN PRIVATE KEY')) {
+    return key;
+  }
+
+  // Format as PEM if it's a raw key string
+  return `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+};
+
+/**
+ * Retrieves a `PrivateKey` instance from either a file path or a raw PEM key string.
+ *
+ * - If the input is a PEM string (contains "BEGIN PRIVATE KEY"), it is used directly.
+ * - If the input is a file path, the function checks if the path exists:
+ *     - If the path ends with `.pem`, it uses that path directly.
+ *     - If the path doesn't end with `.pem`, it appends `SECRET_KEY_NAME` to form the full path.
+ * - If the input is a directory path (or a file path without `.pem`), it appends `SECRET_KEY_NAME` to form the full path before reading the private key from the file.
+ *
+ * The function then reads the private key from the file or uses the PEM string directly, and converts it into a `PrivateKey` instance using the `ED25519` algorithm.
+ *
+ * @param {string} keyPathOrKey - The file path to the private key or a raw PEM private key string.
+ * @returns {Promise<PrivateKey>} - A `PrivateKey` instance derived from the provided key or file.
+ */
+export const getSigningKey = (keyPathOrKey: string): PrivateKey => {
+  if (!keyPathOrKey) {
+    throw new Error('key Path Or Key in getSigningKey is not set.');
+  }
+  let signingKeyPem: string;
+
+  // If it's a PEM string, use it directly
+  if (keyPathOrKey.includes('BEGIN PRIVATE KEY')) {
+    signingKeyPem = keyPathOrKey;
+  } else if (fs.existsSync(keyPathOrKey)) {
+    // If it's a valid file path, check if it ends with .pem or append SECRET_KEY_NAME if needed
+    const formattedPath = keyPathOrKey.endsWith('.pem')
+      ? keyPathOrKey
+      : `${keyPathOrKey.replace(/\/$/, '')}/${SECRET_KEY_NAME}`;
+    signingKeyPem = getPrivateKey(formattedPath);
+  } else {
+    // If it's not a file path, treat it as a raw PEM key
+    signingKeyPem = getPrivateKey(keyPathOrKey);
+  }
+
+  // Convert the PEM string into a PrivateKey instance
+  return PrivateKey.fromPem(signingKeyPem, SECRET_KEY_ALGO) as PrivateKey;
 };

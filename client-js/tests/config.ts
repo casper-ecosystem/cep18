@@ -1,31 +1,31 @@
-import { Keys } from 'casper-js-sdk';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { KeyAlgorithm } from 'casper-js-sdk';
 import { config } from 'dotenv';
 
 config();
 
-export const NODE_URL = process.env.NODE_URL || 'http://localhost:11101/rpc';
-export const EVENT_STREAM_ADDRESS =
-  process.env.EVENT_STREAM_ADDRESS || 'http://localhost:18101/events/main';
+const DEFAULT_RPC_URL = 'http://localhost:11101/rpc';
+const DEFAULT_SSE_URL = 'http://localhost:18101/events';
+const DEFAULT_CHAIN_NAME = 'casper-net-1';
+const DEFAULT_PRIVATE_KEY_NAME = 'secret_key.pem';
+const DEFAULT_PRIVATE_KEY_ALGO: KeyAlgorithm = KeyAlgorithm.ED25519;
+const DEFAULT_TRANSACTION_TIMEOUT = '50000'; // 50s
 
-export const DEPLOY_TIMEOUT = parseInt(
-  process.env.DEPLOY_TIMEOUT || '1200000',
+// Path or base64 value or full .pem key as a string
+export const { FAUCET_PRIVATE_KEY, USER_1_PRIVATE_KEY, USER_2_PRIVATE_KEY } =
+  process.env;
+
+export const SECRET_KEY_NAME: string =
+  process.env.SECRET_KEY_NAME || DEFAULT_PRIVATE_KEY_NAME;
+export const SECRET_KEY_ALGO: KeyAlgorithm =
+  process.env.FAUCET_PRIVATE_KEY === 'SECP256K1'
+    ? KeyAlgorithm.SECP256K1
+    : DEFAULT_PRIVATE_KEY_ALGO;
+
+export const RPC_URL = process.env.RPC_URL || DEFAULT_RPC_URL;
+export const SSE_URL = process.env.SSE_URL || DEFAULT_SSE_URL;
+export const CHAIN_NAME = process.env.CHAIN_NAME || DEFAULT_CHAIN_NAME;
+
+export const TRANSACTION_TIMEOUT = parseInt(
+  process.env.TRANSACTION_TIMEOUT || DEFAULT_TRANSACTION_TIMEOUT,
   10
 );
-
-export enum AVAILABLE_NETWORKS {
-  NCTL = 'casper-net-1',
-  TESTNET = 'casper-net',
-  MAINNET = 'casper'
-}
-
-export type AVALIABLE_NETWORKS_TYPE = keyof typeof AVAILABLE_NETWORKS;
-
-export const NETWORK_NAME = process.env.NETWORK_NAME || AVAILABLE_NETWORKS.NCTL;
-
-export const users = [
-  'MC4CAQAwBQYDK2VwBCIEII8ULlk1CJ12ZQ+bScjBt/IxMAZNggClWqK56D1/7CbI',
-  'MC4CAQAwBQYDK2VwBCIEIJTD9IlUYzuMHbvAiFel/uqd6V7vUtUD19IEQlo6SAFC',
-  'MC4CAQAwBQYDK2VwBCIEILMuHWPyN8puln9EVgsoVidgHW7V+eSKWorDLOABQnz4',
-  'MC4CAQAwBQYDK2VwBCIEIBYTk4Pc0Q6F3okf21hVWWJoGzQhuY86aRXjwdO1kYBK'
-].map(key => Keys.getKeysFromHexPrivKey(key, Keys.SignatureAlgorithm.Ed25519));

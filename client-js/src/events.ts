@@ -1,4 +1,4 @@
-import { CLKey, CLU256, CLValue } from 'casper-js-sdk';
+import { CLValue } from 'casper-js-sdk';
 
 export type Event<E extends Record<string, CLValue>> = {
   name: string;
@@ -36,45 +36,35 @@ export type EventsMap = {
   TransferFrom: Event<TransferFrom>;
 };
 
-export type Mint = {
-  recipient: CLKey;
-  amount: CLU256;
-};
+export type Mint = { recipient: CLValue; amount: CLValue };
 
-export type Burn = {
-  owner: CLKey;
-  amount: CLU256;
-};
+export type Burn = { owner: CLValue; amount: CLValue };
 
 export type SetAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
 };
 
 export type IncreaseAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
-  inc_by: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
+  inc_by: CLValue;
 };
 
 export type DecreaseAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
-  decr_by: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
+  decr_by: CLValue;
 };
 
-export type Transfer = {
-  sender: CLKey;
-  recipient: CLKey;
-  amount: CLU256;
-};
+export type Transfer = { sender: CLValue; recipient: CLValue; amount: CLValue };
 
 export type TransferFrom = {
-  spender: CLKey;
-  owner: CLKey;
-  recipient: CLKey;
-  amount: CLU256;
+  spender: CLValue;
+  owner: CLValue;
+  recipient: CLValue;
+  amount: CLValue;
 };
