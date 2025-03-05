@@ -407,7 +407,7 @@ fn change_events_mode() {
     let old_events_mode: EventsMode = EventsMode::try_from(get_stored_value::<u8>(ARG_EVENTS_MODE))
         .unwrap_or_revert_with(Cep18Error::InvalidEventsMode);
     if events_mode == old_events_mode {
-        revert(Cep18Error::UnchangedEventsMode);
+        return;
     }
     let events_mode_u8 = events_mode as u8;
     put_key(ARG_EVENTS_MODE, storage::new_uref(events_mode_u8).into());
