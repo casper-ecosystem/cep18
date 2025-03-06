@@ -1,51 +1,46 @@
-import { CEP18Client, InstallArgs } from '../src';
-import { findKeyFromAccountNamedKeys, getAccountInfo } from '../tests/utils';
-import { TRANSACTION_TIMEOUT, CHAIN_NAME, RPC_URL } from './config';
+import {
+  type MintArgs,
+  type TransactionParams,
+  CEP18Client,
+  type BurnArgs,
+  CEP18_EVENTS,
+  CEP18EventResult,
+  InfoGetTransactionResult
+} from 'dist';
+import { FAUCET_PRIVATE_KEY, SSE_URL, USER_1_PRIVATE_KEY } from 'tests/config';
+import { CHAIN_NAME, RPC_URL } from '../tests/config';
+import {
+  findKeyFromAccountNamedKeys,
+  getAccountInfo,
+  getSigningKey
+} from '../tests/utils';
 
-// Here you can check examples how to mint and burn tokens
+// Here you can check examples how to mint and burn tokens and listen to event stream
+
+if (!FAUCET_PRIVATE_KEY) {
+  throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
+}
+if (!USER_1_PRIVATE_KEY) {
+  throw new Error('USER_1_PRIVATE_KEY environment variable is not set.');
+}
+
+const name = 'TEST CEP18',
+  owner = getSigningKey(FAUCET_PRIVATE_KEY),
+  ali = getSigningKey(USER_1_PRIVATE_KEY);
 
 const usage = async () => {
-  const cep18 = new CEP18Client(RPC_URL, CHAIN_NAME);
+  const accountInfo = await getAccountInfo(RPC_URL, owner.publicKey),
+    contractPackageHash = findKeyFromAccountNamedKeys(
+      accountInfo,
+      `cep18_contract_package_${name}`
+    );
 
-  const owner = FAUCET_KEY;
-  const ali = USER_1_KEY;
+  const cep18 = await new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME)
+    .setContractHash(undefined, contractPackageHash)
+    .startEventStream();
 
-  const tokenInfo: InstallArgs = {
-    name: 'TEST CEP18',
-    symbol: 'TFT',
-    decimals: 9,
-    totalSupply: String(200_000_000_000)
-  };
-  const accountInfo = await getAccountInfo(RPC_URL, owner.publicKey);
-
-  const contractHash = findKeyFromAccountNamedKeys(
-    accountInfo,
-    `cep18_contract_hash_${tokenInfo.name}`
-  );
-
-  const contractPackageHash = findKeyFromAccountNamedKeys(
-    accountInfo,
-    `cep18_contract_package_${tokenInfo.name}`
-  );
-
-  cep18.setContractHash(contractHash, contractPackageHash);
-  console.log(`... Contract Hash: ${contractHash}`);
-  console.log(`... Contract Package Hash: ${contractPackageHash}`);
-
-  // Mint tokens
-  const mintDeploy = cep18.mint(
-    { owner: ali.publicKey, amount: String(10_000_000_000) },
-    5_000_000_000,
-    owner.publicKey,
-    CHAIN_NAME,
-    [owner]
-  );
-  const mintDeployHash = await mintDeploy.send(RPC_URL);
-  console.log(`...Token mint deploy hash: ${mintDeployHash}`);
-  await client.waitForDeploy(mintDeploy, TRANSACTION_TIMEOUT);
-  const aliBalance = await cep18.balanceOf(ali.publicKey);
-  console.log(
-    `...Token minted Successfully, Ali's balance: ${aliBalance.toString()}`
+  console.info(
+    `Contract Package Hash: ${cep18.contractPackageHash.toPrefixedString()}`
   );
 
   const isMintAndBurnEnabled = await cep18.isMintAndBurnEnabled();
@@ -55,26 +50,110 @@ const usage = async () => {
     return;
   }
 
+  // Mint tokens
+  let params: TransactionParams = {
+    sender: owner.publicKey,
+    paymentAmount: String(5_000_000_000),
+    signingKeys: [owner]
+  };
+
+  const mintArgs: MintArgs = {
+    owner: ali.publicKey,
+    amount: String(10_000_000_000)
+  };
+
+  await cep18.mint({
+    params,
+    args: mintArgs
+  });
+
+  const mintEvent = CEP18_EVENTS.Mint;
+  await new Promise<void>((resolve, reject) => {
+    cep18.on(mintEvent, async eventResult => {
+      try {
+        await eventListener(cep18, mintEvent, eventResult);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+
+  const aliBalance = await cep18.balanceOf(ali.publicKey);
+  console.info(
+    `Token minted Successfully, Ali's balance: ${aliBalance.toString()}`
+  );
+
   // Burn tokens
-  const burnDeploy = cep18.burn(
-    { owner: ali.publicKey, amount: String(10_000_000_000) },
-    String(5_000_000_000),
-    owner.publicKey,
-    [owner],
-    CHAIN_NAME
-  );
-  const burnDeployHash = await burnDeploy.send(RPC_URL);
-  console.log(`...Token burn deploy hash: ${burnDeployHash}`);
-  await client.waitForDeploy(burnDeploy, TRANSACTION_TIMEOUT);
+  params = {
+    sender: ali.publicKey,
+    paymentAmount: String(5_000_000_000),
+    signingKeys: [ali]
+  };
+
+  const burnArgs: BurnArgs = {
+    owner: ali.publicKey,
+    amount: String(10_000_000_000)
+  };
+
+  await cep18.burn({
+    params,
+    args: burnArgs
+  });
+
+  const burnEvent = CEP18_EVENTS.Burn;
+  await new Promise<void>((resolve, reject) => {
+    cep18.on(burnEvent, async eventResult => {
+      try {
+        await eventListener(cep18, burnEvent, eventResult);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+
   const newBalance = await cep18.balanceOf(ali.publicKey);
-  console.log(
-    `...Token burned Successfully, Ali's balance: ${newBalance.toString()}`
+  console.info(
+    `Token burnt Successfully, Ali's balance: ${newBalance.toString()}`
   );
+
+  cep18.stopEventStream();
+};
+
+const eventListener = async (
+  cep18: CEP18Client,
+  eventType: keyof typeof CEP18_EVENTS,
+  eventResult: CEP18EventResult
+) => {
+  const { transactionInfo, executionResult } = await cep18
+    .getTransactionResult(eventResult.transactionInfo.transactionHash)
+    .then((transactionResult: InfoGetTransactionResult) => ({
+      transactionInfo: eventResult.transactionInfo,
+      executionResult: transactionResult.executionInfo?.executionResult
+    }));
+
+  console.info(
+    `Contract ${eventType} transaction hash: ${transactionInfo.transactionHash}`
+  );
+
+  if (executionResult) {
+    if (executionResult?.errorMessage) {
+      throw new Error(
+        `Error during ${eventType}.\n${executionResult?.errorMessage.toString()}`
+      );
+    } else {
+      console.info(
+        `Contract ${eventType} cost consumed: ${executionResult?.consumed}`
+      );
+    }
+  }
+  cep18.removeListenersForEvent(CEP18_EVENTS[eventType]);
 };
 
 usage()
   .then(() => {
-    console.log('Usage completed successfully.');
+    console.info('Usage completed successfully.');
   })
   .catch(error => {
     console.error('Usage failed:', error);

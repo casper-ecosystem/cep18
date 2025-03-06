@@ -10,7 +10,7 @@ export enum EVENTS_MODE {
   CES = 1
 }
 
-export interface InstallArgs {
+export type InstallArgs = {
   /** token name */
   name: string;
   /** token symbol */
@@ -23,53 +23,90 @@ export interface InstallArgs {
   eventsMode?: EVENTS_MODE;
   /** flag for mint and burn, false by default */
   enableMintAndBurn?: boolean;
-}
+};
 
-export interface TransferableArgs {
+type TransferableArgs = {
   amount: string;
-}
+};
 
-export interface HasOwner {
+interface HasOwner {
   owner: PublicKey;
 }
 
-export interface HasRecipient {
+interface HasRecipient {
   recipient: PublicKey;
 }
 
-export interface HasSpender {
+interface HasSpender {
   spender: PublicKey;
 }
 
 export type TransferArgs = TransferableArgs & HasRecipient;
 export type TransferFromArgs = TransferArgs & HasOwner;
 export type ApproveArgs = TransferableArgs & HasSpender;
+export type IncreaseAllowanceArgs = ApproveArgs;
+export type DecreaseAllowanceArgs = ApproveArgs;
 export type MintArgs = TransferableArgs & HasOwner;
 export type BurnArgs = TransferableArgs & HasOwner;
 
-export interface ChangeSecurityArgs {
+export type ChangeSecurityArgs = {
   adminList?: PublicKey[];
   minterList?: PublicKey[];
   burnerList?: PublicKey[];
   mintAndBurnList?: PublicKey[];
   noneList?: PublicKey[];
-}
+};
 
-export interface InstallParams {
-  wasm: Uint8Array;
-  paymentAmount: string;
+export type TransactionParams = {
   sender: PublicKey;
+  paymentAmount: string;
+  wasm?: Uint8Array;
   signingKeys?: PrivateKey[];
   chainName?: string;
-}
+};
 
-export interface InstallPayload {
-  params: InstallParams;
-  args: InstallArgs;
+export type TransactionResult = {
+  transactionInfo: PutTransactionResult;
+  executionResult?: ExecutionResult;
+};
+
+interface BaseParams {
+  params: TransactionParams;
   waitForTransactionProcessed?: boolean;
 }
 
-export interface InstallResult {
-  transactionResult: PutTransactionResult;
-  executionResult?: ExecutionResult;
+export interface InstallParams extends BaseParams {
+  args: InstallArgs;
+}
+
+export interface TransferParams extends BaseParams {
+  args: TransferArgs;
+}
+
+export interface TransferFromParams extends BaseParams {
+  args: TransferFromArgs;
+}
+
+export interface ApproveParams extends BaseParams {
+  args: ApproveArgs;
+}
+
+export interface IncreaseAllowanceParams extends BaseParams {
+  args: IncreaseAllowanceArgs;
+}
+
+export interface DecreaseAllowanceParams extends BaseParams {
+  args: DecreaseAllowanceArgs;
+}
+
+export interface MintParams extends BaseParams {
+  args: MintArgs;
+}
+
+export interface BurnParams extends BaseParams {
+  args: BurnArgs;
+}
+
+export interface ChangeSecurityParams extends BaseParams {
+  args: ChangeSecurityArgs;
 }

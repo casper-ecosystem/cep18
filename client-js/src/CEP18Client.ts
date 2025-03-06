@@ -4,53 +4,71 @@ import {
   Args as RuntimeArgs,
   CLTypeKey,
   CLValue,
-  ContractCallBuilder,
-  type Hash,
-  type InfoGetTransactionResult,
+  ContractHash,
+  ContractPackageHash,
   Key,
   ParamDictionaryIdentifier,
   ParamDictionaryIdentifierContractNamedKey,
-  type PrivateKey,
   type PublicKey,
-  type PutTransactionResult,
-  type QueryGlobalStateResult,
-  SessionBuilder,
-  TransactionProcessedEvent,
-  EventName,
-  RawEvent
+  SessionBuilder
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
-import { ContractError } from './error';
-import TypedContract from './TypedContract';
+import Client from './client';
 import {
-  ApproveArgs,
-  BurnArgs,
-  ChangeSecurityArgs,
   EVENTS_MODE,
-  InstallPayload,
-  InstallResult,
-  MintArgs,
-  TransferArgs,
-  TransferFromArgs
+  type InstallParams,
+  type TransactionResult,
+  type TransferParams,
+  type TransferFromParams,
+  type ApproveParams,
+  type DecreaseAllowanceParams,
+  type MintParams,
+  type BurnParams,
+  type ChangeSecurityParams
 } from './types';
 
-export const DEFAULT_TRANSACTION_TIMEOUT = 120_000;
-
-export default class CEP18Client extends TypedContract {
+export default class CEP18Client extends Client {
   constructor(rpcUrl: string, ssUrl?: string, chainName?: string) {
     super(rpcUrl, ssUrl, chainName);
   }
 
-  public setContractHash(contractHash: Hash, contractPackageHash?: Hash) {
-    this.setContractHash(contractHash, contractPackageHash);
+  public setContractHash(
+    contractHash?: string | ContractHash,
+    contractPackageHash?: string | ContractPackageHash
+  ): CEP18Client {
+    const removePrefix = (str: string | undefined) =>
+      str ? str.replace(/^[^-]+-/, '') : '';
+
+    const hexContractHash =
+        typeof contractHash === 'string' ? removePrefix(contractHash) : '',
+      hexContractPackageHash =
+        typeof contractPackageHash === 'string'
+          ? removePrefix(contractPackageHash)
+          : '',
+      newContractHash = hexContractHash
+        ? ContractHash.newContract(hexContractHash)
+        : undefined,
+      newContractPackageHash = hexContractPackageHash
+        ? ContractPackageHash.newContractPackage(hexContractPackageHash)
+        : undefined;
+
+    if (!newContractHash && !newContractPackageHash) {
+      throw new Error(
+        'Either contract hash or contract package hash must be provided.'
+      );
+    }
+    return super.setContractHash(
+      newContractHash,
+      newContractPackageHash
+    ) as CEP18Client;
   }
 
-  public get contractHash(): Hash {
-    return this.contractHash;
+  public async startEventStream(sseUrl?: string): Promise<CEP18Client> {
+    return super.startEventStream(sseUrl) as Promise<CEP18Client>;
   }
 
-  public get contractPackageHash(): Hash {
-    return this.contractPackageHash;
+  public stopEventStream(): CEP18Client {
+    return super.stopEventStream() as CEP18Client;
   }
 
   /**
@@ -61,9 +79,9 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, sign transaction if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public async install(payload: InstallPayload): Promise<InstallResult> {
+  public async install(params: InstallParams): Promise<TransactionResult> {
     const {
       params: { wasm, paymentAmount, sender, chainName, signingKeys },
       args: {
@@ -74,7 +92,7 @@ export default class CEP18Client extends TypedContract {
         eventsMode,
         enableMintAndBurn
       }
-    } = payload;
+    } = params;
 
     const runtimeArgs = RuntimeArgs.fromMap({
       name: CLValue.newCLString(name),
@@ -92,6 +110,9 @@ export default class CEP18Client extends TypedContract {
         CLValue.newCLUint8(enableMintAndBurn ? 1 : 0)
       );
     }
+    if (!wasm) {
+      throw new Error('Wasm file is missing.');
+    }
     const transaction = new SessionBuilder()
       .installOrUpgrade()
       .wasm(wasm)
@@ -105,22 +126,21 @@ export default class CEP18Client extends TypedContract {
       signingKeys.forEach(key => transaction.sign(key));
     }
     try {
-      const transactionResult =
-        await this.rpcClient.putTransaction(transaction);
+      const transactionInfo = await this.rpcClient.putTransaction(transaction);
       if (
-        payload.waitForTransactionProcessed &&
-        transactionResult.transactionHash
+        params.waitForTransactionProcessed &&
+        transactionInfo.transactionHash
       ) {
         const deployEvent = await this.waitForTransactionProcessed(
-          transactionResult.transactionHash.toString()
+          transactionInfo.transactionHash.toString()
         );
         return {
-          transactionResult,
+          transactionInfo,
           executionResult:
             deployEvent.transactionProcessedPayload.executionResult
         };
       }
-      return { transactionResult };
+      return { transactionInfo };
     } catch (error) {
       throw new Error(`Error during installation.\n${error}`);
     }
@@ -133,20 +153,20 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, sign transaction if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public transfer(
-    args: TransferArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public transfer(params: TransferParams): Promise<TransactionResult> {
+    const {
+      args: { recipient, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
+
     const runtimeArgs = RuntimeArgs.fromMap({
       recipient: CLValue.newCLKey(
-        Key.newKey(args.recipient.accountHash().toPrefixedString())
+        Key.newKey(recipient.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'transfer',
@@ -154,7 +174,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -165,23 +186,23 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public transferFrom(
-    args: TransferFromArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public transferFrom(params: TransferFromParams): Promise<TransactionResult> {
+    const {
+      args: { owner, recipient, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
+
     const runtimeArgs = RuntimeArgs.fromMap({
       owner: CLValue.newCLKey(
-        Key.newKey(args.owner.accountHash().toPrefixedString())
+        Key.newKey(owner.accountHash().toPrefixedString())
       ),
       recipient: CLValue.newCLKey(
-        Key.newKey(args.recipient.accountHash().toPrefixedString())
+        Key.newKey(recipient.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'transfer_from',
@@ -189,7 +210,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -200,20 +222,19 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public approve(
-    args: ApproveArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public approve(params: ApproveParams): Promise<TransactionResult> {
+    const {
+      args: { spender, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
       spender: CLValue.newCLKey(
-        Key.newKey(args.spender.accountHash().toPrefixedString())
+        Key.newKey(spender.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'approve',
@@ -221,7 +242,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -232,20 +254,20 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public increaseAllowance(
-    args: ApproveArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public increaseAllowance(params: ApproveParams): Promise<TransactionResult> {
+    const {
+      args: { spender, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
+
     const runtimeArgs = RuntimeArgs.fromMap({
       spender: CLValue.newCLKey(
-        Key.newKey(args.spender.accountHash().toPrefixedString())
+        Key.newKey(spender.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'increase_allowance',
@@ -253,7 +275,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -264,20 +287,21 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
   public decreaseAllowance(
-    args: ApproveArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+    params: DecreaseAllowanceParams
+  ): Promise<TransactionResult> {
+    const {
+      args: { spender, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
       spender: CLValue.newCLKey(
-        Key.newKey(args.spender.accountHash().toPrefixedString())
+        Key.newKey(spender.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'decrease_allowance',
@@ -285,32 +309,32 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
   /**
-   * Create `args.amount` tokens and assigns them to `args.owner`.
+   * Create `amount` tokens and assigns them to `owner`.
    * Increases the total supply
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public mint(
-    args: MintArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public mint(params: MintParams): Promise<TransactionResult> {
+    const {
+      args: { owner, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
       owner: CLValue.newCLKey(
-        Key.newKey(args.owner.accountHash().toPrefixedString())
+        Key.newKey(owner.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'mint',
@@ -318,31 +342,31 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
   /**
-   * Destroy `args.amount` tokens from `args.owner`. Decreases the total supply
+   * Destroy `amount` tokens from `owner`. Decreases the total supply
    * @param args @see {@link ApproveArgs}
    * @param paymentAmount payment amount required for installing the contract
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
-  public burn(
-    args: BurnArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+  public burn(params: BurnParams): Promise<TransactionResult> {
+    const {
+      args: { owner, amount },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
       owner: CLValue.newCLKey(
-        Key.newKey(args.owner.accountHash().toPrefixedString())
+        Key.newKey(owner.accountHash().toPrefixedString())
       ),
-      amount: CLValue.newCLUInt256(args.amount)
+      amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
       'burn',
@@ -350,7 +374,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -361,67 +386,68 @@ export default class CEP18Client extends TypedContract {
    * @param sender transaction sender
    * @param signingKeys array of signing keys optional, returns signed deploy if keys are provided
    * @param chainName network name which will be deployed to
-   * @returns PutTransactionResult promise
+   * @returns TransactionResult promise
    */
   public changeSecurity(
-    args: ChangeSecurityArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
+    params: ChangeSecurityParams
+  ): Promise<TransactionResult> {
+    const {
+      args: { adminList, minterList, burnerList, mintAndBurnList, noneList },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
     const runtimeArgs = RuntimeArgs.fromMap({});
     // Add optional args
-    if (args.adminList) {
+    if (adminList) {
       runtimeArgs.insert(
         'admin_list',
         CLValue.newCLList(
           CLTypeKey,
-          args.adminList.map(key =>
+          adminList.map(key =>
             CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
           )
         )
       );
     }
-    if (args.minterList) {
+    if (minterList) {
       runtimeArgs.insert(
         'minter_list',
         CLValue.newCLList(
           CLTypeKey,
-          args.minterList.map(key =>
+          minterList.map(key =>
             CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
           )
         )
       );
     }
-    if (args.burnerList) {
+    if (burnerList) {
       runtimeArgs.insert(
         'burner_list',
         CLValue.newCLList(
           CLTypeKey,
-          args.burnerList.map(key =>
+          burnerList.map(key =>
             CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
           )
         )
       );
     }
-    if (args.mintAndBurnList) {
+    if (mintAndBurnList) {
       runtimeArgs.insert(
         'mint_and_burn_list',
         CLValue.newCLList(
           CLTypeKey,
-          args.mintAndBurnList.map(key =>
+          mintAndBurnList.map(key =>
             CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
           )
         )
       );
     }
-    if (args.noneList) {
+    if (noneList) {
       runtimeArgs.insert(
         'none_list',
         CLValue.newCLList(
           CLTypeKey,
-          args.noneList.map(key =>
+          noneList.map(key =>
             CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
           )
         )
@@ -437,7 +463,8 @@ export default class CEP18Client extends TypedContract {
       paymentAmount,
       sender,
       signingKeys,
-      chainName
+      chainName,
+      waitForTransactionProcessed
     );
   }
 
@@ -580,133 +607,5 @@ export default class CEP18Client extends TypedContract {
       'enable_mint_burn'
     ])) as string;
     return internalValue !== '0';
-  }
-
-  TRANSACTION_TIMEOUT = 30_000; // 30 seconds (adjust as needed)
-
-  waitForTransactionProcessed = (
-    transactionHash: string,
-    timeout?: number
-  ): Promise<TransactionProcessedEvent> => {
-    if (!this.sseClient) {
-      throw Error('SSE Client is not set.');
-    }
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(
-        () => {
-          this.sseClient?.stop();
-          reject(new Error('Transaction processing timed out'));
-        },
-        timeout ? timeout : DEFAULT_TRANSACTION_TIMEOUT
-      );
-
-      this.sseClient?.subscribe(
-        EventName.TransactionProcessedEventType,
-        async (rawEvent: RawEvent) => {
-          try {
-            const deployEvent = rawEvent.parseAsTransactionProcessedEvent();
-            if (
-              deployEvent.transactionProcessedPayload.transactionHash.toString() ===
-              transactionHash
-            ) {
-              clearTimeout(timeoutId);
-              this.sseClient?.stop();
-              resolve(deployEvent);
-            }
-          } catch (error) {
-            console.error('Error processing event:', error);
-            clearTimeout(timeoutId);
-            this.sseClient?.stop();
-            reject(error);
-          }
-        }
-      );
-      this.sseClient?.start();
-    });
-  };
-
-  /**
-   * Parse transaction result by given hash.
-   * It the transaction wasn't successful, throws `ContractError` if there was operational error, otherwise `Error` with original error message.
-   * @param transactionHash transaction hash
-   * @returns `InfoGetTransactionResult`
-   */
-  private async parseDeployResult(
-    transactionHash: string
-  ): Promise<InfoGetTransactionResult> {
-    const result: InfoGetTransactionResult =
-      await this.rpcClient.getTransactionByTransactionHash(transactionHash);
-    if (result.executionInfo?.executionResult.errorMessage) {
-      // Parse execution result
-      const { errorMessage } = result.executionInfo.executionResult;
-      const contractErrorMessagePrefix = 'User error: ';
-      if (errorMessage.startsWith(contractErrorMessagePrefix)) {
-        const errorCode = parseInt(
-          errorMessage.substring(
-            contractErrorMessagePrefix.length,
-            errorMessage.length
-          ),
-          10
-        );
-        throw new ContractError(errorCode);
-      } else throw new Error(errorMessage);
-    }
-    return result;
-  }
-
-  /**
-   * Calls a contract entry point with given arguments.
-   * @param entryPoint The name of the contract entry point.
-   * @param runtimeArgs The runtime arguments for the contract call.
-   * @param paymentAmount The payment amount required for execution.
-   * @param sender The transaction sender.
-   * @param signingKeys (Optional) Array of signing keys to sign the transaction.
-   * @param chainName (Optional) Network name where the transaction will be deployed.
-   * @returns PutTransactionResult promise.
-   */
-  private callEntrypoint(
-    entryPoint: string,
-    runtimeArgs: RuntimeArgs,
-    paymentAmount: string,
-    sender: PublicKey,
-    signingKeys?: PrivateKey[],
-    chainName?: string
-  ): Promise<PutTransactionResult> {
-    const transaction = new ContractCallBuilder()
-      .entryPoint(entryPoint)
-      .runtimeArgs(runtimeArgs)
-      .payment(Number(paymentAmount))
-      .from(sender)
-      .chainName(chainName ? chainName : this.chainName || '')
-      .build();
-
-    if (signingKeys) {
-      signingKeys.forEach(key => transaction.sign(key));
-    }
-
-    return this.rpcClient.putTransaction(transaction);
-  }
-
-  /**
-   * Queries contract data from the global state.
-   *
-   * @param path Optional array of strings representing the subkeys or path within the contract storage.
-   *             If no path is provided, it queries the top-level contract data.
-   * @returns A `Promise` resolving to the contract's stored value (`clValue`) or throws an error if the stored value is invalid.
-   * @throws Will throw an error if the contract data does not contain a valid stored value.
-   */
-  private async queryContractData(path: string[] = []): Promise<string> {
-    const contractData: QueryGlobalStateResult =
-      await this.rpcClient.queryGlobalStateByStateHash(
-        null,
-        this.contractHash.toHex(),
-        path
-      );
-
-    const result = contractData.storedValue.clValue?.toString();
-    if (result) {
-      return result;
-    }
-    throw Error('Invalid stored value');
   }
 }

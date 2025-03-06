@@ -32,14 +32,29 @@ export enum ERROR_CODES {
   InvalidEnableMBFlag = 60014,
   /// This contract instance cannot be initialized again.
   AlreadyInitialized = 60015,
-  /// The mint and burn mode is disabled.
+  ///  The mint and burn mode is disabled.
   MintBurnDisabled = 60016,
-  /// User cannot target themselves with allowance features.
   CannotTargetSelfUser = 60017,
-  /// Tried to burn the tokens of someone else.
   InvalidBurnTarget = 60018,
-  /// There is an AccessToken but no valid ContractPackageHash. Try to query the account for NamedKeys to find it.
-  MissingPackageHashForUpgrade = 60019
+  MissingPackageHashForUpgrade = 60019,
+  MissingContractHashForUpgrade = 60020,
+  InvalidKeyType = 60021,
+  FailedToConvertToJson = 60022,
+  FailedToReturnEntryPointResult = 60023,
+  FailedToCreateDictionary = 60024,
+  FailedToConvertBytes = 60025,
+  FailedToChangeTotalSupply = 60026,
+  FailedToReadFromStorage = 60027,
+  FailedToGetKey = 60028,
+  FailedToDisableContractVersion = 60029,
+  FailedToInsertToSecurityList = 60030,
+  UrefNotFound = 6001,
+  FailedToGetOldContractHashKey = 60032,
+  FailedToGetOldPackageKey = 60033,
+  FailedToGetPackageKey = 60034,
+  UnchangedEventsMode = 60035,
+  MissingStorageUref = 60036,
+  InvalidStorageUref = 60037
 }
 
 export class ContractError extends Error {

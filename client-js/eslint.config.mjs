@@ -42,14 +42,23 @@ export default [
         'error',
         {
           groups: [
-            ['builtin', 'external'], // Ensure built-in modules come before external ones
-            ['internal', 'parent', 'sibling'], // Internal imports should be after built-in and external
-            ['index'] // Index files should come last
+            ['builtin', 'external'],
+            ['internal'],
+            ['parent', 'sibling'],
+            ['index']
           ],
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'internal'
+            }
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
           alphabetize: {
-            order: 'asc', // Optionally alphabetize imports within each group
-            caseInsensitive: true // Case-insensitive ordering
-          }
+            order: 'asc',
+            caseInsensitive: true
+          },
+          warnOnUnassignedImports: true
         }
       ]
     },
@@ -58,7 +67,7 @@ export default [
   {
     files: ['examples/*.ts', 'tests/*.ts'], // Apply special rules for examples
     rules: {
-      'no-console': 'off' // Allow console in examples
+      'no-console': ['error', { allow: ['warn', 'error', 'info'] }] // Allow console in examples
     }
   },
   prettier // Use Prettier config to avoid conflicts with ESLint

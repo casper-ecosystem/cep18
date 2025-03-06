@@ -2,9 +2,9 @@ import {
   CEP18Client,
   ContractWASM as wasm,
   EVENTS_MODE,
-  InstallArgs,
-  InstallParams,
-  InstallResult
+  type InstallArgs,
+  type TransactionParams,
+  type TransactionResult
 } from '../dist';
 import {
   CHAIN_NAME,
@@ -22,78 +22,78 @@ if (!FAUCET_PRIVATE_KEY) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
 
-const name = 'TEST CEP18';
-const symbol = 'TFT';
-const decimals = 9;
-const sender = getSigningKey(FAUCET_PRIVATE_KEY);
-
-const install = async (): Promise<InstallResult> => {
-  const params: InstallParams = {
-    wasm,
-    sender: sender.publicKey,
-    paymentAmount: String(350_000_000_000),
-    signingKeys: [sender]
-  };
-
+const name = 'TEST CEP18',
+  symbol = 'TFT',
+  decimals = 9,
+  totalSupply = String(200_000_000_000),
   // The events mode is disabled by default, to enable CES events you should set `eventsMode`.
+  eventsMode = EVENTS_MODE.CES,
   // Mint and burn is also disabled by default, if you need to enable burn and mint you should set `enableMintAndBurn` as true.
-  // You couldn't change this once the token is deployed.
-  const args: InstallArgs = {
-    name,
-    symbol,
-    decimals,
-    totalSupply: String(200_000_000_000),
-    eventsMode: EVENTS_MODE.CES,
-    enableMintAndBurn: true
-  };
+  enableMintAndBurn = true,
+  waitForTransactionProcessed = true,
+  sender = getSigningKey(FAUCET_PRIVATE_KEY),
+  paymentAmount = String(350_000_000_000);
 
-  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
-  const waitForTransactionProcessed = true;
+const install = async () => {
+  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME),
+    params: TransactionParams = {
+      wasm,
+      sender: sender.publicKey,
+      paymentAmount,
+      signingKeys: [sender]
+    },
+    args: InstallArgs = {
+      name,
+      symbol,
+      decimals,
+      totalSupply,
+      eventsMode,
+      enableMintAndBurn
+    },
+    transactionResult: TransactionResult = await cep18.install({
+      params,
+      args,
+      waitForTransactionProcessed
+    });
 
-  const installResult: InstallResult = await cep18.install({
-    params,
-    args,
-    waitForTransactionProcessed
-  });
-
-  if (!installResult.transactionResult.transactionHash) {
+  if (!transactionResult.transactionInfo.transactionHash) {
     throw Error('Invalid transaction hash');
   }
-
-  return installResult;
+  return transactionResult;
 };
 
 install()
-  .then(async installResult => {
+  .then(async transactionResult => {
+    const { transactionInfo, executionResult } = transactionResult;
     console.info(
-      `... Contract installation transaction hash: ${installResult.transactionResult.transactionHash}`
+      `Contract installation transaction hash: ${transactionInfo.transactionHash}`
     );
 
-    if (installResult.executionResult?.errorMessage) {
-      throw new Error(
-        `Error during installation.\n${installResult.executionResult?.errorMessage.toString()}`
-      );
-    } else {
-      console.info(
-        `... Contract installation cost consumed: ${installResult.executionResult?.consumed}`
-      );
+    if (executionResult) {
+      if (executionResult?.errorMessage) {
+        throw new Error(
+          `Error during installation.\n${executionResult?.errorMessage.toString()}`
+        );
+      } else {
+        console.info(
+          `Contract installation cost consumed: ${executionResult?.consumed}`
+        );
+      }
     }
 
-    const account = await getAccountInfo(RPC_URL, sender.publicKey);
+    const account = await getAccountInfo(RPC_URL, sender.publicKey),
+      contractHash = findKeyFromAccountNamedKeys(
+        account,
+        `cep18_contract_hash_${name}`
+      ),
+      contractPackageHash = findKeyFromAccountNamedKeys(
+        account,
+        `cep18_contract_package_${name}`
+      );
 
-    const contractHash = findKeyFromAccountNamedKeys(
-      account,
-      `cep18_contract_hash_${name}`
-    );
-
-    const contractPackageHash = findKeyFromAccountNamedKeys(
-      account,
-      `cep18_contract_package_${name}`
-    );
-
-    console.info(`... Contract Hash: ${contractHash}`);
-    console.info(`... Contract Package Hash: ${contractPackageHash}`);
+    console.info(`Contract Hash: ${contractHash}`);
+    console.info(`Contract Package Hash: ${contractPackageHash}`);
   })
   .catch(error => {
-    console.error('... Installation failed:', error);
+    console.error('Error:', error);
   });
