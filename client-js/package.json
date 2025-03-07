@@ -60,6 +60,6 @@
   },
   "peerDependencies": {
     "@make-software/ces-js-parser": "^2.0.0-beta1",
-    "casper-js-sdk": "^5.0.12-beta2"
+    "casper-js-sdk": "../../casper-js-sdk"
   }
 }

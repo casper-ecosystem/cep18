@@ -24,24 +24,22 @@ if (!USER_1_PRIVATE_KEY) {
   throw new Error('USER_1_PRIVATE_KEY environment variable is not set.');
 }
 
-const name = 'TEST CEP18',
+const name = 'TEST_CEP18',
   owner = getSigningKey(FAUCET_PRIVATE_KEY),
   ali = getSigningKey(USER_1_PRIVATE_KEY);
 
 const usage = async () => {
-  const accountInfo = await getAccountInfo(RPC_URL, owner.publicKey),
-    contractPackageHash = findKeyFromAccountNamedKeys(
-      accountInfo,
-      `cep18_contract_package_${name}`
+  const account = await getAccountInfo(RPC_URL, owner.publicKey),
+    contractHash = findKeyFromAccountNamedKeys(
+      account,
+      `cep18_contract_hash_${name}`
     );
 
-  const cep18 = await new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME)
-    .setContractHash(undefined, contractPackageHash)
+  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME)
+    .setContractHash(contractHash)
     .startEventStream();
 
-  console.info(
-    `Contract Package Hash: ${cep18.contractPackageHash.toPrefixedString()}`
-  );
+  console.info(`Contract Hash: ${cep18.contractHash.toPrefixedString()}`);
 
   const isMintAndBurnEnabled = await cep18.isMintAndBurnEnabled();
 
@@ -81,7 +79,7 @@ const usage = async () => {
 
   const aliBalance = await cep18.balanceOf(ali.publicKey);
   console.info(
-    `Token minted Successfully, Ali's balance: ${aliBalance.toString()}`
+    `Token minted successfully, Ali's balance: ${aliBalance.toString()}`
   );
 
   // Burn tokens
@@ -115,7 +113,7 @@ const usage = async () => {
 
   const newBalance = await cep18.balanceOf(ali.publicKey);
   console.info(
-    `Token burnt Successfully, Ali's balance: ${newBalance.toString()}`
+    `Token burnt successfully, Ali's balance: ${newBalance.toString()}`
   );
 
   cep18.stopEventStream();
@@ -153,7 +151,7 @@ const eventListener = async (
 
 usage()
   .then(() => {
-    console.info('Usage completed successfully.');
+    console.info('Usage 2 completed.');
   })
   .catch(error => {
     console.error('Usage failed:', error);

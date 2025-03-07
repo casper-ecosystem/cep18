@@ -10,7 +10,8 @@ import {
   ParamDictionaryIdentifier,
   ParamDictionaryIdentifierContractNamedKey,
   type PublicKey,
-  SessionBuilder
+  SessionBuilder,
+  KeyTypeID
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
 import Client from './client';
@@ -33,7 +34,7 @@ export default class CEP18Client extends Client {
   }
 
   public setContractHash(
-    contractHash?: string | ContractHash,
+    contractHash: string | ContractHash,
     contractPackageHash?: string | ContractPackageHash
   ): CEP18Client {
     const removePrefix = (str: string | undefined) =>
@@ -52,23 +53,21 @@ export default class CEP18Client extends Client {
         ? ContractPackageHash.newContractPackage(hexContractPackageHash)
         : undefined;
 
-    if (!newContractHash && !newContractPackageHash) {
-      throw new Error(
-        'Either contract hash or contract package hash must be provided.'
-      );
+    if (!newContractHash) {
+      throw new Error('Contract hash must be provided.');
     }
     return super.setContractHash(
       newContractHash,
       newContractPackageHash
-    ) as CEP18Client;
+    ) as unknown as CEP18Client;
   }
 
-  public async startEventStream(sseUrl?: string): Promise<CEP18Client> {
-    return super.startEventStream(sseUrl) as Promise<CEP18Client>;
+  public startEventStream(sseUrl?: string): CEP18Client {
+    return super.startEventStream(sseUrl) as unknown as CEP18Client;
   }
 
   public stopEventStream(): CEP18Client {
-    return super.stopEventStream() as CEP18Client;
+    return super.stopEventStream() as unknown as CEP18Client;
   }
 
   /**
@@ -474,14 +473,20 @@ export default class CEP18Client extends Client {
    * @returns account's balance
    */
   public async balanceOf(account: PublicKey): Promise<string> {
-    const key = Key.newKey(account.accountHash().toPrefixedString()).bytes();
-    // const keyBytes = CLValue.newCLKey(key).bytes();
-    const keyString = String.fromCharCode(...key);
-    const dictKey = Base64.encode(keyString);
-    // ! TODO
-    const test = '';
+    const keyAccount = Key.newKey(
+      account.accountHash().toPrefixedString()
+    ).bytes();
+    const dictionaryItemKey = Base64.fromUint8Array(keyAccount);
+
+    // ! TODO toPrefixedString() ?
+    const key = `hash-${this.contractHash.hash.toHex()}`;
+
     const contractNamedKey: ParamDictionaryIdentifierContractNamedKey =
-      new ParamDictionaryIdentifierContractNamedKey(test, 'balances', dictKey);
+      new ParamDictionaryIdentifierContractNamedKey(
+        key,
+        'balances',
+        dictionaryItemKey
+      );
 
     const identifier = new ParamDictionaryIdentifier(
       undefined,
@@ -500,7 +505,7 @@ export default class CEP18Client extends Client {
         error instanceof Error &&
         error.toString().includes('Error: Query failed')
       ) {
-        console.warn(`Not found balance for ${account.toHex()}`);
+        console.warn(`Not balance found for ${account.toHex()}`);
       } else throw error;
     }
     return balance;

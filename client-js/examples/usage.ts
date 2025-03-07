@@ -30,7 +30,7 @@ if (!USER_2_PRIVATE_KEY) {
   throw new Error('USER_2_PRIVATE_KEY environment variable is not set.');
 }
 
-const name = 'TEST CEP18',
+const name = 'TEST_CEP18',
   owner = getSigningKey(FAUCET_PRIVATE_KEY),
   ali = getSigningKey(USER_1_PRIVATE_KEY),
   bob = getSigningKey(USER_2_PRIVATE_KEY),
@@ -46,7 +46,7 @@ const usage = async () => {
   const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME).setContractHash(
     contractHash
   );
-  console.info(` Contract Hash: ${cep18.contractHash.toPrefixedString()}`);
+  console.info(`Contract Hash: ${cep18.contractHash.toPrefixedString()}`);
 
   // Fetch token info
   const token_name = await cep18.name(),

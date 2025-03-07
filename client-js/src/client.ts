@@ -117,34 +117,44 @@ export default class Client {
       const timeoutId = setTimeout(
         () => {
           this.sseClient.stop();
-          reject(new Error('Transaction processing timed out'));
+          reject(
+            new Error(`Transaction ${transactionHash} processing timed out.`)
+          );
         },
         timeout ? timeout : defaulTransactionTimeout
       );
 
-      this.sseClient.subscribe(
-        EventName.TransactionProcessedEventType,
-        async (rawEvent: RawEvent) => {
-          try {
-            const processEvent: TransactionProcessedEvent =
-              rawEvent.parseAsTransactionProcessedEvent();
-            if (
-              processEvent.transactionProcessedPayload.transactionHash.toString() ===
-              transactionHash
-            ) {
+      const subscription = this.sseClient
+        .subscribe(
+          EventName.TransactionProcessedEventType,
+          async (rawEvent: RawEvent) => {
+            try {
+              const processEvent: TransactionProcessedEvent =
+                rawEvent.parseAsTransactionProcessedEvent();
+              if (
+                processEvent.transactionProcessedPayload.transactionHash
+                  .toString()
+                  .toLocaleLowerCase() === transactionHash.toLocaleLowerCase()
+              ) {
+                clearTimeout(timeoutId);
+                this.sseClient.stop();
+                const unsubscription =
+                  subscription &&
+                  this.sseClient
+                    .unsubscribe(EventName.TransactionProcessedEventType)
+                    .unwrap();
+                unsubscription && resolve(processEvent);
+              }
+            } catch (error) {
+              console.error('Error processing event:', error);
               clearTimeout(timeoutId);
               this.sseClient.stop();
-              resolve(processEvent);
+              reject(error);
             }
-          } catch (error) {
-            console.error('Error processing event:', error);
-            clearTimeout(timeoutId);
-            this.sseClient.stop();
-            reject(error);
           }
-        }
-      );
-      this.sseClient.start();
+        )
+        .unwrap();
+      subscription && this.sseClient.start();
     });
   };
 
@@ -162,7 +172,7 @@ export default class Client {
   }
 
   protected setContractHash(
-    contractHash?: ContractHash,
+    contractHash: ContractHash,
     contractPackageHash?: ContractPackageHash
   ): Client {
     contractHash && (this._contractHash = contractHash);
@@ -170,48 +180,47 @@ export default class Client {
     return this;
   }
 
-  protected async startEventStream(sseUrl?: string): Promise<Client> {
+  protected startEventStream(sseUrl?: string): Client {
     sseUrl && (this.sseUrl = sseUrl);
-    this._parser = await Parser.create(this.rpcClient, [
-      this.contractHash.hash.toHex()
-    ]);
-
     if (!this.sseClient) {
       throw Error('SSE Client is not set.');
     }
 
-    this.sseClient.subscribe(
-      EventName.TransactionProcessedEventType,
-      async (rawEvent: RawEvent) => {
-        try {
-          const processEvent = rawEvent.parseAsTransactionProcessedEvent();
-          const { executionResult, transactionHash, messages, timestamp } =
-            processEvent.transactionProcessedPayload;
+    const subscription = this.sseClient
+      .subscribe(
+        EventName.TransactionProcessedEventType,
+        async (rawEvent: RawEvent) => {
+          try {
+            const processEvent = rawEvent.parseAsTransactionProcessedEvent();
+            const { executionResult, transactionHash, messages, timestamp } =
+              processEvent.transactionProcessedPayload;
 
-          if (executionResult.errorMessage) {
-            this.handleExecutionError(executionResult.errorMessage);
+            if (executionResult.errorMessage) {
+              this.handleExecutionError(executionResult.errorMessage);
+            }
+
+            (await this.parseExecutionResult(executionResult))
+              ?.map(
+                result =>
+                  ({
+                    ...result,
+                    transactionInfo: {
+                      transactionHash: transactionHash.toString(),
+                      timestamp,
+                      messages
+                    }
+                  }) as unknown as CEP18EventResult
+              )
+              .forEach(event => this.emit(event));
+          } catch (error) {
+            console.error('Error processing event:', error);
+            this.sseClient.stop();
           }
-
-          this.parseExecutionResult(executionResult)
-            ?.map(
-              result =>
-                ({
-                  ...result,
-                  transactionInfo: {
-                    transactionHash: transactionHash.toString(),
-                    timestamp,
-                    messages
-                  }
-                }) as unknown as CEP18EventResult
-            )
-            .forEach(event => this.emit(event));
-        } catch (error) {
-          console.error('Error processing event:', error);
         }
-      }
-    );
+      )
+      .unwrap();
 
-    this.sseClient.start();
+    subscription && this.sseClient.start();
     return this;
   }
 
@@ -293,7 +302,8 @@ export default class Client {
     const contractData: QueryGlobalStateResult =
       await this.rpcClient.queryGlobalStateByStateHash(
         null,
-        this.contractHash?.toPrefixedString(),
+        // TODO Fix that with toPrefixedString ?
+        `hash-${this.contractHash.hash.toHex()}`,
         path
       );
 
@@ -316,9 +326,12 @@ export default class Client {
     }
   }
 
-  private parseExecutionResult(
+  private async parseExecutionResult(
     result: ExecutionResult
-  ): CEP18Event[] | undefined {
+  ): Promise<CEP18Event[] | undefined> {
+    this._parser = await Parser.create(this.rpcClient, [
+      this.contractHash.hash.toHex()
+    ]);
     const results = this._parser?.parseExecutionResult(result);
 
     return (

@@ -22,7 +22,7 @@ if (!FAUCET_PRIVATE_KEY) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
 
-const name = 'TEST CEP18',
+const name = 'TEST_CEP18',
   symbol = 'TFT',
   decimals = 9,
   totalSupply = String(200_000_000_000),
