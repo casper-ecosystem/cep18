@@ -24,7 +24,8 @@ import {
   type DecreaseAllowanceParams,
   type MintParams,
   type BurnParams,
-  type ChangeSecurityParams
+  type ChangeSecurityParams,
+  UpgradeParams
 } from './types';
 
 /**
@@ -128,6 +129,11 @@ export default class CEP18Client extends Client {
    * @returns A `Promise` resolving to `TransactionResult`, containing the transaction details.
    *
    * @throws Will throw an error if the Wasm file is missing or if an error occurs during installation.
+   *
+   * @remarks
+   * This method installs a new CEP-18 contract on the Casper network. It requires a compiled Wasm contract file and includes necessary arguments such as the token name, symbol, decimals, and total supply.
+   * If `waitForTransactionProcessed` is `true`, it waits for the transaction to be processed and returns the execution result.
+   * Ensure that the Wasm file is valid and the required arguments are properly provided before invoking the method.
    */
   public async install(params: InstallParams): Promise<TransactionResult> {
     const {
@@ -179,18 +185,93 @@ export default class CEP18Client extends Client {
         params.waitForTransactionProcessed &&
         transactionInfo.transactionHash
       ) {
-        const deployEvent = await this.waitForTransactionProcessed(
-          transactionInfo.transactionHash.toString()
-        );
+        const transactionProcessedEvent =
+          await this.waitForTransactionProcessed(
+            transactionInfo.transactionHash.toString()
+          );
         return {
           transactionInfo,
           executionResult:
-            deployEvent.transactionProcessedPayload.executionResult
+            transactionProcessedEvent.transactionProcessedPayload
+              .executionResult
         };
       }
       return { transactionInfo };
     } catch (error) {
       throw new Error(`Error during installation.\n${error}`);
+    }
+  }
+
+  /**
+   * Upgrades an existing contract with a new version.
+   *
+   * @param params - Parameters for the contract upgrade.
+   * @param params.wasm - The WASM contract file representing the new version of the contract as a Uint8Array.
+   * @param params.paymentAmount - The payment amount required for the upgrade.
+   * @param params.sender - The transaction sender's account.
+   * @param params.chainName - The name of the network where the contract will be deployed.
+   * @param params.signingKeys - Array of signing keys. If provided, the transaction will be signed with these keys.
+   * @param params.args.name - The name of the token for the new contract version.
+   * @param params.args.eventsMode - The event mode for the new contract version (optional).
+   *
+   * @returns A `Promise` that resolves to a `TransactionResult` object containing transaction details and the execution result.
+   *
+   * @throws Error if the WASM file is missing or there is an error during the upgrade process.
+   *
+   * @remarks
+   * This method allows upgrading an existing contract to a new version. If the `eventsMode` argument is provided, it is added to the contract's runtime arguments.
+   * The `wasm` argument should be the compiled contract in the form of a Uint8Array. Once the upgrade transaction is processed, the result will be returned, including any execution results.
+   */
+  public async upgrade(params: UpgradeParams): Promise<TransactionResult> {
+    const {
+      params: { wasm, paymentAmount, sender, chainName, signingKeys },
+      args: { name, eventsMode }
+    } = params;
+
+    const runtimeArgs = RuntimeArgs.fromMap({
+      name: CLValue.newCLString(name)
+    });
+
+    if (eventsMode !== undefined) {
+      runtimeArgs.insert('events_mode', CLValue.newCLUint8(eventsMode));
+    }
+
+    if (!wasm) {
+      throw new Error('Wasm file is missing.');
+    }
+
+    const transaction = new SessionBuilder()
+      .installOrUpgrade()
+      .wasm(wasm)
+      .runtimeArgs(runtimeArgs)
+      .payment(Number(paymentAmount))
+      .from(sender)
+      .chainName(chainName ? chainName : this.chainName || '')
+      .build();
+
+    if (signingKeys) {
+      signingKeys.forEach(key => transaction.sign(key));
+    }
+    try {
+      const transactionInfo = await this.rpcClient.putTransaction(transaction);
+      if (
+        params.waitForTransactionProcessed &&
+        transactionInfo.transactionHash
+      ) {
+        const transactionProcessedEvent =
+          await this.waitForTransactionProcessed(
+            transactionInfo.transactionHash.toString()
+          );
+        return {
+          transactionInfo,
+          executionResult:
+            transactionProcessedEvent.transactionProcessedPayload
+              .executionResult
+        };
+      }
+      return { transactionInfo };
+    } catch (error) {
+      throw new Error(`Error during upgrade.\n${error}`);
     }
   }
 

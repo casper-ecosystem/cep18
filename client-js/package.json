@@ -13,6 +13,7 @@
     "test:e2e": "cross-env NODE_ENV=test jest -i --detectOpenHandles --forceExit \"tests/e2e\"",
     "test": "npm run test:unit && npm run test:e2e",
     "example:install": "tsx examples/install.ts",
+    "example:upgrade": "tsx examples/upgrade.ts",
     "example:usage": "tsx examples/usage.ts",
     "example:usage2": "tsx examples/usage2.ts",
     "clean": "rm -rf ./dist",

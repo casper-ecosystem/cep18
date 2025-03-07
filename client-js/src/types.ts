@@ -20,6 +20,12 @@ export type InstallArgs = {
   enableMintAndBurn?: boolean;
 };
 
+export type UpgradeArgs = {
+  /** token name */
+  name: string;
+  eventsMode?: EVENTS_MODE;
+};
+
 export enum EVENTS_MODE {
   NoEvents = 0,
   CES = 1
@@ -77,6 +83,10 @@ interface BaseParams {
 
 export interface InstallParams extends BaseParams {
   args: InstallArgs;
+}
+
+export interface UpgradeParams extends BaseParams {
+  args: UpgradeArgs;
 }
 
 export interface TransferParams extends BaseParams {
