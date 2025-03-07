@@ -5,11 +5,6 @@ import {
   PutTransactionResult
 } from 'casper-js-sdk';
 
-export enum EVENTS_MODE {
-  NoEvents = 0,
-  CES = 1
-}
-
 export type InstallArgs = {
   /** token name */
   name: string;
@@ -24,6 +19,11 @@ export type InstallArgs = {
   /** flag for mint and burn, false by default */
   enableMintAndBurn?: boolean;
 };
+
+export enum EVENTS_MODE {
+  NoEvents = 0,
+  CES = 1
+}
 
 type TransferableArgs = {
   amount: string;
