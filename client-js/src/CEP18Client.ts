@@ -10,8 +10,7 @@ import {
   ParamDictionaryIdentifier,
   ParamDictionaryIdentifierContractNamedKey,
   type PublicKey,
-  SessionBuilder,
-  KeyTypeID
+  SessionBuilder
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
 import Client from './client';
@@ -531,15 +530,16 @@ export default class CEP18Client extends Client {
     finalBytes.set(keySpender, keyOwner.length);
 
     const blaked = blake2b(finalBytes, { dkLen: 32 });
-    const dictKey = bytesToHex(blaked);
+    const dictionaryItemKey = bytesToHex(blaked);
 
-    // ! TODO
-    const test = '';
+    // ! TODO toPrefixedString() ?
+    const key = `hash-${this.contractHash.hash.toHex()}`;
+
     const contractNamedKey: ParamDictionaryIdentifierContractNamedKey =
       new ParamDictionaryIdentifierContractNamedKey(
-        test,
+        key,
         'allowances',
-        dictKey
+        dictionaryItemKey
       );
 
     const identifier = new ParamDictionaryIdentifier(

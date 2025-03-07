@@ -63,19 +63,46 @@ export default class Client {
     return this._contractPackageHash;
   }
 
+  public addEventListener(
+    name: string,
+    listener: (event: CEP18EventResult) => void
+  ) {
+    if (!this._events[name]) this._events[name] = [];
+    this._events[name].push(listener);
+  }
+
+  public removeEventListener(
+    name: string,
+    listenerToRemove: (event: CEP18EventResult) => void
+  ) {
+    if (!this._events[name]) {
+      throw new Error(
+        `Can't remove a listener. Event "${name}" doesn't exist.`
+      );
+    }
+    const filterListeners = (listener: (event: CEP18EventResult) => void) =>
+      listener !== listenerToRemove;
+    this._events[name] = this._events[name].filter(filterListeners);
+  }
+
+  // Alias for addEventListener
   public on(name: string, listener: (event: CEP18EventResult) => void) {
     this.addEventListener(name, listener);
   }
 
-  public off(name: string, listener: (event: CEP18EventResult) => void) {
-    this.removeEventListener(name, listener);
+  // Alias for removeEventListener
+  public off(
+    name: string,
+    listenerToRemove: (event: CEP18EventResult) => void
+  ) {
+    this.removeEventListener(name, listenerToRemove);
   }
 
   public removeListenersForEvent(name: string): void {
     if (!this._events[name]) {
       throw new Error(`No listeners found for event "${name}".`);
     }
-    this._events[name] = []; // Clear all listeners
+    this._events[name] = []; // Clear all listeners for event
   }
 
   public removeAllListeners(): void {
@@ -85,6 +112,7 @@ export default class Client {
       }
     }
   }
+
   /**
    * Get and parse transaction result by given hash.
    * It the transaction wasn't successful, throws `ContractError` if there was operational error, otherwise `Error` with original error message.
@@ -114,46 +142,31 @@ export default class Client {
     }
 
     return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(
-        () => {
-          this.sseClient.stop();
-          reject(
-            new Error(`Transaction ${transactionHash} processing timed out.`)
-          );
-        },
-        timeout ? timeout : defaulTransactionTimeout
-      );
+      const timeoutId = setTimeout(() => {
+        this.sseClient.stop();
+        reject(
+          new Error(`Transaction ${transactionHash} processing timed out.`)
+        );
+      }, timeout ?? defaulTransactionTimeout);
 
-      const subscription = this.sseClient
-        .subscribe(
-          EventName.TransactionProcessedEventType,
-          async (rawEvent: RawEvent) => {
-            try {
-              const processEvent: TransactionProcessedEvent =
-                rawEvent.parseAsTransactionProcessedEvent();
-              if (
-                processEvent.transactionProcessedPayload.transactionHash
-                  .toString()
-                  .toLocaleLowerCase() === transactionHash.toLocaleLowerCase()
-              ) {
-                clearTimeout(timeoutId);
-                this.sseClient.stop();
-                const unsubscription =
-                  subscription &&
-                  this.sseClient
-                    .unsubscribe(EventName.TransactionProcessedEventType)
-                    .unwrap();
-                unsubscription && resolve(processEvent);
-              }
-            } catch (error) {
-              console.error('Error processing event:', error);
-              clearTimeout(timeoutId);
-              this.sseClient.stop();
-              reject(error);
-            }
+      const subscription = this.subscribeToTransactionProcessedEvent(
+        async processEvent => {
+          if (
+            processEvent.transactionProcessedPayload.transactionHash
+              .toString()
+              .toLowerCase() === transactionHash.toLowerCase()
+          ) {
+            clearTimeout(timeoutId);
+            this.sseClient.stop();
+            this.sseClient.unsubscribe(EventName.TransactionProcessedEventType);
+            resolve(processEvent);
           }
-        )
-        .unwrap();
+        },
+        error => {
+          clearTimeout(timeoutId);
+          reject(error);
+        }
+      );
       subscription && this.sseClient.start();
     });
   };
@@ -186,40 +199,30 @@ export default class Client {
       throw Error('SSE Client is not set.');
     }
 
-    const subscription = this.sseClient
-      .subscribe(
-        EventName.TransactionProcessedEventType,
-        async (rawEvent: RawEvent) => {
-          try {
-            const processEvent = rawEvent.parseAsTransactionProcessedEvent();
-            const { executionResult, transactionHash, messages, timestamp } =
-              processEvent.transactionProcessedPayload;
+    const subscription = this.subscribeToTransactionProcessedEvent(
+      async processEvent => {
+        const { executionResult, transactionHash, messages, timestamp } =
+          processEvent.transactionProcessedPayload;
 
-            if (executionResult.errorMessage) {
-              this.handleExecutionError(executionResult.errorMessage);
-            }
-
-            (await this.parseExecutionResult(executionResult))
-              ?.map(
-                result =>
-                  ({
-                    ...result,
-                    transactionInfo: {
-                      transactionHash: transactionHash.toString(),
-                      timestamp,
-                      messages
-                    }
-                  }) as unknown as CEP18EventResult
-              )
-              .forEach(event => this.emit(event));
-          } catch (error) {
-            console.error('Error processing event:', error);
-            this.sseClient.stop();
-          }
+        if (executionResult.errorMessage) {
+          this.handleExecutionError(executionResult.errorMessage);
         }
-      )
-      .unwrap();
 
+        (await this.parseExecutionResult(executionResult))
+          ?.map(
+            result =>
+              ({
+                ...result,
+                transactionInfo: {
+                  transactionHash: transactionHash.toString(),
+                  timestamp,
+                  messages
+                }
+              }) as unknown as CEP18EventResult
+          )
+          .forEach(event => this.emit(event));
+      }
+    );
     subscription && this.sseClient.start();
     return this;
   }
@@ -314,6 +317,27 @@ export default class Client {
     throw Error('Invalid stored value');
   }
 
+  private subscribeToTransactionProcessedEvent(
+    onProcess: (event: TransactionProcessedEvent) => Promise<void>,
+    onError?: (error: unknown) => void
+  ): boolean {
+    const eventName = EventName.TransactionProcessedEventType;
+    const subscription = this.sseClient
+      .subscribe(eventName, async (rawEvent: RawEvent) => {
+        try {
+          const processEvent = rawEvent.parseAsTransactionProcessedEvent();
+          await onProcess(processEvent);
+        } catch (error) {
+          console.error('Error processing event:', error);
+          this.sseClient.stop();
+          subscription && this.sseClient.unsubscribe(eventName);
+          onError?.(error);
+        }
+      })
+      .unwrap();
+    return subscription;
+  }
+
   private handleExecutionError(errorMessage: string) {
     if (errorMessage.startsWith(contractErrorMessagePrefix)) {
       const errorCode = parseInt(
@@ -351,28 +375,6 @@ export default class Client {
           };
         }) as unknown as CEP18Event[])
     );
-  }
-
-  private addEventListener(
-    name: string,
-    listener: (event: CEP18EventResult) => void
-  ) {
-    if (!this._events[name]) this._events[name] = [];
-    this._events[name].push(listener);
-  }
-
-  private removeEventListener(
-    name: string,
-    listenerToRemove: (event: CEP18EventResult) => void
-  ) {
-    if (!this._events[name]) {
-      throw new Error(
-        `Can't remove a listener. Event "${name}" doesn't exist.`
-      );
-    }
-    const filterListeners = (listener: (event: CEP18EventResult) => void) =>
-      listener !== listenerToRemove;
-    this._events[name] = this._events[name].filter(filterListeners);
   }
 
   private emit(event: CEP18EventResult) {

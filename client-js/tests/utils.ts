@@ -2,6 +2,8 @@ import {
   Account,
   AccountIdentifier,
   HttpHandler,
+  Key,
+  NamedKeys,
   type PublicKey,
   type PutTransactionResult,
   RpcClient
@@ -28,13 +30,19 @@ export const findKeyFromAccountNamedKeys = (
   account: Account,
   name: string
 ): string => {
-  const key = account.namedKeys.find(name);
-
-  if (!key) throw Error(`Not found key: ${name}`);
-
-  return key.toPrefixedString();
+  // account.namedKeys may not be instance so copy values into an new instance of NamedKeys
+  let namedKeysInstance = account.namedKeys;
+  if (!(namedKeysInstance instanceof NamedKeys)) {
+    namedKeysInstance = new NamedKeys(Object.values(account.namedKeys));
+  }
+  // Find the key from the NamedKeys instance
+  // TODO toPrefixedString does not work here as not an instance but a string ?
+  const key = namedKeysInstance!.find(name).toString();
+  if (!key) throw new Error(`NamedKey not found: ${name}`);
+  return key;
 };
 
+// ! TODO GR
 export const expectTransactionResultToSuccess = (
   result: PutTransactionResult
 ): void => {

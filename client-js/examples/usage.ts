@@ -74,7 +74,7 @@ const usage = async () => {
 
   const transferArgs: TransferArgs = {
     recipient: ali.publicKey,
-    amount: String(10_000_000_000)
+    amount: String(1_000_000_000)
   };
 
   const transferResult = await cep18.transfer({
@@ -93,7 +93,7 @@ const usage = async () => {
   // Approve tokens
   const approveArgs: ApproveArgs = {
     spender: ali.publicKey,
-    amount: String(50_000_000_000)
+    amount: String(5_000_000_000)
   };
 
   const approveResult = await cep18.approve({
@@ -122,7 +122,7 @@ const usage = async () => {
   const transferFromArgs: TransferFromArgs = {
     owner: owner.publicKey,
     recipient: bob.publicKey,
-    amount: String(20_000_000_000)
+    amount: String(2_000_000_000)
   };
 
   const transferFromResult = await cep18.transferFrom({
