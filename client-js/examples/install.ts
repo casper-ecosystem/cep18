@@ -23,7 +23,7 @@ if (!FAUCET_PRIVATE_KEY) {
 }
 
 const name = 'TEST_CEP18',
-  symbol = 'TFT',
+  symbol = 'CEP18',
   decimals = 9,
   totalSupply = String(200_000_000_000),
   // The events mode is disabled by default, to enable CES events you should set `eventsMode`.

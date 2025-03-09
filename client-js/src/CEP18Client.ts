@@ -27,6 +27,7 @@ import {
   type ChangeSecurityParams,
   UpgradeParams
 } from './types';
+import { C } from 'vitest/dist/chunks/reporters.66aFHiyX.js';
 
 /**
  * CEP18Client extends the base `Client` class to provide specific functionality
@@ -60,7 +61,7 @@ export default class CEP18Client extends Client {
     contractPackageHash?: string | ContractPackageHash
   ): CEP18Client {
     const removePrefix = (str: string | undefined) =>
-      str ? str.replace(/^[^-]+-/, '') : '';
+      str ? str.replace(/^.*-/, '') : '';
 
     const hexContractHash =
         typeof contractHash === 'string' ? removePrefix(contractHash) : '',
@@ -664,10 +665,12 @@ export default class CEP18Client extends Client {
         )
       );
     }
+
     // Check if at least one arg is provided and revert if none was provided
     if (runtimeArgs.args.size === 0) {
       throw new Error('Should provide at least one arg');
     }
+
     return this.callEntrypoint(
       'change_security',
       runtimeArgs,
@@ -697,8 +700,11 @@ export default class CEP18Client extends Client {
     ).bytes();
     const dictionaryItemKey = Base64.fromUint8Array(keyAccount);
 
+    if (!this.contractHash) {
+      throw Error('Contract hash is not set.');
+    }
     // ! TODO toPrefixedString() ?
-    const key = `hash-${this.contractHash.hash.toHex()}`;
+    const key = `hash-${this.contractHash?.hash?.toHex()}`;
 
     const contractNamedKey: ParamDictionaryIdentifierContractNamedKey =
       new ParamDictionaryIdentifierContractNamedKey(
@@ -760,8 +766,12 @@ export default class CEP18Client extends Client {
     const blaked = blake2b(finalBytes, { dkLen: 32 });
     const dictionaryItemKey = bytesToHex(blaked);
 
+    if (!this.contractHash) {
+      throw Error('Contract hash is not set.');
+    }
+
     // ! TODO toPrefixedString() ?
-    const key = `hash-${this.contractHash.hash.toHex()}`;
+    const key = `hash-${this.contractHash?.hash?.toHex()}`;
 
     const contractNamedKey: ParamDictionaryIdentifierContractNamedKey =
       new ParamDictionaryIdentifierContractNamedKey(
@@ -841,6 +851,7 @@ export default class CEP18Client extends Client {
     const internalValue = (await this.queryContractData([
       'events_mode'
     ])) as string;
+
     return EVENTS_MODE[internalValue] as keyof typeof EVENTS_MODE;
   }
 

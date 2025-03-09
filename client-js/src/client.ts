@@ -34,7 +34,8 @@ const contractErrorMessagePrefix = 'User error: ';
  */
 export default class Client {
   public chainName!: string;
-
+  private _rpcUrl!: string;
+  private _sseUrl!: string;
   private _rpcClient!: RpcClient;
   private _sseClient!: SseClient;
   private _parser!: Parser;
@@ -64,8 +65,12 @@ export default class Client {
    * @param url - The new RPC URL.
    */
   public set rpcUrl(url: string) {
+    if (!url) {
+      return;
+    }
     const rpcHandler = new HttpHandler(url);
     this._rpcClient = new RpcClient(rpcHandler);
+    this._rpcUrl = url;
   }
 
   /**
@@ -73,7 +78,25 @@ export default class Client {
    * @param url - The new SSE URL.
    */
   public set sseUrl(url: string) {
+    if (!url) {
+      return;
+    }
     this._sseClient = new SseClient(url);
+    this._sseUrl = url;
+  }
+
+  /**
+   * Gets the RPC URL.
+   */
+  public get rpcUrl(): string {
+    return this._rpcUrl;
+  }
+
+  /**
+   * Gets the SSE URL.
+   */
+  public get sseUrl(): string | undefined {
+    return this._sseUrl;
   }
 
   /**
@@ -211,11 +234,10 @@ export default class Client {
     sseUrl?: string
   ): Promise<TransactionProcessedEvent> => {
     sseUrl && (this.sseUrl = sseUrl);
-    if (!this.sseClient) {
-      throw Error('SSE Client is not set.');
-    }
-
     return new Promise((resolve, reject) => {
+      if (!this.sseClient) {
+        reject(new Error(`SSE Client is not set.`));
+      }
       const timeoutId = setTimeout(() => {
         this.sseClient.stop();
         reject(
@@ -237,6 +259,7 @@ export default class Client {
           }
         },
         error => {
+          this.sseClient.stop();
           clearTimeout(timeoutId);
           reject(error);
         }

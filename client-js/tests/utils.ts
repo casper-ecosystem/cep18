@@ -2,12 +2,13 @@ import {
   Account,
   AccountIdentifier,
   HttpHandler,
-  Key,
   NamedKeys,
   type PublicKey,
-  type PutTransactionResult,
+  PrivateKey,
   RpcClient
 } from 'casper-js-sdk';
+import fs from 'fs';
+import { SECRET_KEY_ALGO, SECRET_KEY_NAME } from './config';
 
 export const getAccountInfo = async (
   rpcUrl: string,
@@ -41,19 +42,6 @@ export const findKeyFromAccountNamedKeys = (
   if (!key) throw new Error(`NamedKey not found: ${name}`);
   return key;
 };
-
-// ! TODO GR
-export const expectTransactionResultToSuccess = (
-  result: PutTransactionResult
-): void => {
-  // expect(result.execution_results[0].result.Failure).toBeUndefined();
-  // expect(result.execution_results[0].result.Success).toBeDefined();
-};
-
-import { PrivateKey } from 'casper-js-sdk';
-import fs from 'fs';
-
-import { SECRET_KEY_ALGO, SECRET_KEY_NAME } from './config';
 
 /**
  * Reads a private key from either a file path or a raw string.

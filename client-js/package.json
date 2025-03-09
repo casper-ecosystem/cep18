@@ -9,8 +9,8 @@
     "lint:write": "eslint src/ --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write src",
-    "test:unit": "cross-env NODE_ENV=test jest \"/tests/unit\"",
-    "test:e2e": "cross-env NODE_ENV=test jest -i --detectOpenHandles --forceExit \"tests/e2e\"",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "vitest run tests/e2e --run",
     "test": "npm run test:unit && npm run test:e2e",
     "example:install": "tsx examples/install.ts",
     "example:upgrade": "tsx examples/upgrade.ts",
@@ -18,7 +18,7 @@
     "example:usage2": "tsx examples/usage2.ts",
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify",
     "generate:wasm": "tsx --tsconfig tsconfig.json \"src/scripts/copy-and-convert-wasms.ts\""
   },
   "repository": {
@@ -45,7 +45,7 @@
     "js-base64": "^3.7.7"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
+    "@swc/core": "^1.11.7",
     "@types/node": "^22.13.9",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
@@ -53,11 +53,11 @@
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-import": "^2.31.0",
-    "jest": "^29.7.0",
     "prettier": "^3.5.3",
-    "ts-jest": "^29.2.6",
+    "tsup": "^8.4.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
   },
   "peerDependencies": {
     "@make-software/ces-js-parser": "^2.0.0-beta1",
