@@ -49,9 +49,6 @@ jobs:
           - ./assets/faucet:/app/casper-nctl/assets/net-1/faucet/
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Wait for the service to be ready
         run: |
           echo "Waiting for the service to be ready on port 11101..."
