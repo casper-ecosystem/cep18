@@ -9,7 +9,9 @@ use crate::utility::{
 };
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
 use casper_event_standard::EVENTS_DICT;
-use casper_types::{contract_messages::Message, runtime_args, AddressableEntityHash, U256};
+use casper_types::{
+    contract_messages::Message, runtime_args, AddressableEntityHash, EntityAddr, U256,
+};
 use cep18::{
     constants::{
         ARG_AMOUNT, ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME,
@@ -46,13 +48,12 @@ fn should_have_have_no_events() {
     .build();
     builder.exec(mint_request).expect_success().commit();
 
-    let entity_with_named_keys = builder.get_named_keys(casper_types::EntityAddr::SmartContract(
-        addressable_cep18_token.value(),
-    ));
+    let entity_addr = EntityAddr::SmartContract(addressable_cep18_token.value());
+    let entity_with_named_keys = builder.get_named_keys(entity_addr);
     assert!(entity_with_named_keys.get(EVENTS_DICT).is_none());
 
     assert!(builder
-        .message_topics(None, cep18_contract_hash.value())
+        .message_topics(None, entity_addr)
         .unwrap()
         .is_empty());
 }
@@ -95,10 +96,10 @@ fn should_have_native_events() {
         .and_then(|key| key.into_entity_hash())
         .expect("should have contract hash");
 
+    let entity_addr = EntityAddr::SmartContract(cep18_contract_hash.value());
+
     // events check
-    let binding = builder
-        .message_topics(None, cep18_contract_hash.value())
-        .unwrap();
+    let binding = builder.message_topics(None, entity_addr).unwrap();
     let (topic_name, message_topic_hash) = binding
         .iter()
         .last()
@@ -127,8 +128,9 @@ fn should_have_native_events() {
         "{{\"recipient\":\"{}\",\"amount\":\"1000000\"}}",
         account_user_1_account_hash.to_formatted_string()
     );
+    let entity_addr = EntityAddr::SmartContract(cep18_token.value());
     let message = Message::new(
-        cep18_token.value(),
+        entity_addr,
         mint_message.into(),
         ARG_EVENTS.to_string(),
         *message_topic_hash,

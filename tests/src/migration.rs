@@ -3,7 +3,7 @@ use casper_engine_test_support::{
 };
 use casper_fixtures::LmdbFixtureState;
 use casper_types::{
-    runtime_args, AddressableEntityHash, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
+    runtime_args, AddressableEntityHash, EntityAddr, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
 };
 use cep18::constants::{
     ARG_AMOUNT, ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME,
@@ -218,7 +218,8 @@ fn should_have_native_events() {
     let cep18_token = get_contract_hash_v2_binary(&builder);
 
     // events check
-    let binding = builder.message_topics(None, cep18_token.value()).unwrap();
+    let entity_addr = EntityAddr::SmartContract(cep18_token.value());
+    let binding = builder.message_topics(None, entity_addr).unwrap();
     let (topic_name, message_topic_hash) = binding
         .iter()
         .last()
