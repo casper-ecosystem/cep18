@@ -1,3 +1,4 @@
+import { CHAIN_NAME, FAUCET_PRIVATE_KEY, RPC_URL, SSE_URL } from '../config';
 import {
   CEP18Client,
   ContractWASM as wasm,
@@ -6,12 +7,6 @@ import {
   type TransactionResult,
   type UpgradeArgs
 } from '../dist';
-import {
-  CHAIN_NAME,
-  FAUCET_PRIVATE_KEY,
-  RPC_URL,
-  SSE_URL
-} from '../tests/config';
 import {
   findKeyFromAccountNamedKeys,
   getAccountInfo,

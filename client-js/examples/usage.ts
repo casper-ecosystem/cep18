@@ -2,8 +2,10 @@ import {
   FAUCET_PRIVATE_KEY,
   SSE_URL,
   USER_1_PRIVATE_KEY,
-  USER_2_PRIVATE_KEY
-} from 'tests/config';
+  USER_2_PRIVATE_KEY,
+  CHAIN_NAME,
+  RPC_URL
+} from '../config';
 import {
   CEP18Client,
   TransferArgs,
@@ -11,7 +13,6 @@ import {
   ApproveArgs,
   TransactionParams
 } from '../dist';
-import { CHAIN_NAME, RPC_URL } from '../tests/config';
 import {
   findKeyFromAccountNamedKeys,
   getAccountInfo,

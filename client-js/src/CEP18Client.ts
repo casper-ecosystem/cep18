@@ -27,7 +27,6 @@ import {
   type ChangeSecurityParams,
   UpgradeParams
 } from './types';
-import { C } from 'vitest/dist/chunks/reporters.66aFHiyX.js';
 
 /**
  * CEP18Client extends the base `Client` class to provide specific functionality
@@ -726,11 +725,8 @@ export default class CEP18Client extends Client {
           await this.rpcClient.getDictionaryItemByIdentifier(null, identifier)
         ).storedValue.clValue?.toString() || balance;
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.toString().includes('Error: Query failed')
-      ) {
-        console.warn(`Not balance found for ${account.toHex()}`);
+      if (error instanceof Error && error.toString().includes('Query failed')) {
+        // console.warn(`Not balance found for ${account.toHex()}`);
       } else throw error;
     }
     return balance;

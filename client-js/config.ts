@@ -1,7 +1,7 @@
 import { KeyAlgorithm } from 'casper-js-sdk';
 import { config } from 'dotenv';
 
-config();
+config({ path: './.env' });
 
 const DEFAULT_RPC_URL = 'http://localhost:11101/rpc';
 const DEFAULT_SSE_URL = 'http://localhost:18101/events';

@@ -24,5 +24,5 @@
     "emitDecoratorMetadata": true
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src", "examples", "tests"]
+  "include": ["src", "examples", "tests", "config.ts"]
 }

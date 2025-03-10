@@ -7,8 +7,13 @@ import {
   CEP18EventResult,
   InfoGetTransactionResult
 } from 'dist';
-import { FAUCET_PRIVATE_KEY, SSE_URL, USER_1_PRIVATE_KEY } from 'tests/config';
-import { CHAIN_NAME, RPC_URL } from '../tests/config';
+import {
+  FAUCET_PRIVATE_KEY,
+  SSE_URL,
+  USER_1_PRIVATE_KEY,
+  CHAIN_NAME,
+  RPC_URL
+} from '../config';
 import {
   findKeyFromAccountNamedKeys,
   getAccountInfo,

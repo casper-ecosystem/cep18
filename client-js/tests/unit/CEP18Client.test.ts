@@ -28,7 +28,7 @@ import {
   ChangeSecurityParams
 } from '../../src';
 
-describe('CEP18Client', () => {
+describe('CEP18Client Unit', () => {
   describe('CEP18Client - setContractHash', () => {
     let client: CEP18Client;
     beforeEach(() => {
