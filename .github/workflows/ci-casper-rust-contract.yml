@@ -47,6 +47,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: cep18.wasm
+          path: target/wasm32-unknown-unknown/release
 
       - name: Start Casper NCTL Service
         run: |
