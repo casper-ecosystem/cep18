@@ -23,32 +23,40 @@ jobs:
       - run: make prepare
       - run: make check-lint
       - run: make test
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Run cargo audit
+        run: cargo audit
       - uses: actions/upload-artifact@v4
         with:
           name: cep18.wasm
           path: target/wasm32-unknown-unknown/release/cep18.wasm
 
   ci-js-client:
+    needs: ci-smart-contract
     strategy:
       matrix:
         os: [ubuntu-latest]
         node-version: [22.x]
     runs-on: ${{ matrix.os }}
 
-    services:
-      casper-nctl:
-        image: gregoshop/casper-nctl:2.0
-        ports:
-          - 11101-11105:11101-11105
-          - 14101-14105:14101-14105
-          - 18101-18105:18101-18105
-          - 25101-25105:25101-25105
-          - 28101-28105:28101-28105
-        volumes:
-          - ./assets/users:/app/casper-nctl/assets/net-1/users/
-          - ./assets/faucet:/app/casper-nctl/assets/net-1/faucet/
-
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start Casper NCTL Service
+        run: |
+          docker run -d \
+            --name casper-nctl \
+            -p 11101-11105:11101-11105 \
+            -p 14101-14105:14101-14105 \
+            -p 18101-18105:18101-18105 \
+            -p 25101-25105:25101-25105 \
+            -p 28101-28105:28101-28105 \
+            -v $PWD/assets/users:/app/casper-nctl/assets/net-1/users/ \
+            -v $PWD/assets/faucet:/app/casper-nctl/assets/net-1/faucet/ \
+            gregoshop/casper-nctl:2.0
+
       - name: Wait for the service to be ready
         run: |
           echo "Waiting for the service to be ready on port 11101..."
@@ -102,6 +110,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Audit
+        working-directory: client-js
+        run: npm audit
 
       - name: Install Dependencies
         working-directory: client-js
