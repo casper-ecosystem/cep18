@@ -1,8 +1,8 @@
 import {
-  FAUCET_PRIVATE_KEY,
+  PRIVATE_KEY_FAUCET,
   SSE_URL,
-  USER_1_PRIVATE_KEY,
-  USER_2_PRIVATE_KEY,
+  PRIVATE_KEY_USER_1,
+  PRIVATE_KEY_USER_2,
   CHAIN_NAME,
   RPC_URL
 } from '../config';
@@ -21,20 +21,20 @@ import {
 
 // Here you can check examples how to check balance, approve tokens, transfer tokens, and transfer tokens by allowance
 
-if (!FAUCET_PRIVATE_KEY) {
+if (!PRIVATE_KEY_FAUCET) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
-if (!USER_1_PRIVATE_KEY) {
-  throw new Error('USER_1_PRIVATE_KEY environment variable is not set.');
+if (!PRIVATE_KEY_USER_1) {
+  throw new Error('PRIVATE_KEY_USER_1 environment variable is not set.');
 }
-if (!USER_2_PRIVATE_KEY) {
-  throw new Error('USER_2_PRIVATE_KEY environment variable is not set.');
+if (!PRIVATE_KEY_USER_2) {
+  throw new Error('PRIVATE_KEY_USER_2 environment variable is not set.');
 }
 
 const name = 'TEST_CEP18',
-  owner = getSigningKey(FAUCET_PRIVATE_KEY),
-  ali = getSigningKey(USER_1_PRIVATE_KEY),
-  bob = getSigningKey(USER_2_PRIVATE_KEY),
+  owner = getSigningKey(PRIVATE_KEY_FAUCET),
+  ali = getSigningKey(PRIVATE_KEY_USER_1),
+  bob = getSigningKey(PRIVATE_KEY_USER_2),
   waitForTransactionProcessed = true;
 
 const usage = async () => {

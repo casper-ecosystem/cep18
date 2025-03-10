@@ -8,9 +8,9 @@ import {
   InfoGetTransactionResult
 } from 'dist';
 import {
-  FAUCET_PRIVATE_KEY,
+  PRIVATE_KEY_FAUCET,
   SSE_URL,
-  USER_1_PRIVATE_KEY,
+  PRIVATE_KEY_USER_1,
   CHAIN_NAME,
   RPC_URL
 } from '../config';
@@ -22,16 +22,16 @@ import {
 
 // Here you can check examples how to mint and burn tokens and listen to event stream
 
-if (!FAUCET_PRIVATE_KEY) {
+if (!PRIVATE_KEY_FAUCET) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
-if (!USER_1_PRIVATE_KEY) {
-  throw new Error('USER_1_PRIVATE_KEY environment variable is not set.');
+if (!PRIVATE_KEY_USER_1) {
+  throw new Error('PRIVATE_KEY_USER_1 environment variable is not set.');
 }
 
 const name = 'TEST_CEP18',
-  owner = getSigningKey(FAUCET_PRIVATE_KEY),
-  ali = getSigningKey(USER_1_PRIVATE_KEY);
+  owner = getSigningKey(PRIVATE_KEY_FAUCET),
+  ali = getSigningKey(PRIVATE_KEY_USER_1);
 
 const usage = async () => {
   const account = await getAccountInfo(RPC_URL, owner.publicKey),

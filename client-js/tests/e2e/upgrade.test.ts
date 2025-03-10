@@ -1,11 +1,11 @@
 import { expect, describe, it, beforeEach } from 'vitest';
 import { owner, paymentAmount, eventsMode, install } from './helpers';
-import { RPC_URL, SSE_URL, CHAIN_NAME, FAUCET_PRIVATE_KEY } from '../../config';
+import { RPC_URL, SSE_URL, CHAIN_NAME, PRIVATE_KEY_FAUCET } from '../../config';
 import { CEP18Client, TransactionParams, TransactionResult } from '../../src';
 import wasm from '../../src/wasm/cep18';
 import { getAccountInfo, findKeyFromAccountNamedKeys } from '../utils';
 
-if (!FAUCET_PRIVATE_KEY) {
+if (!PRIVATE_KEY_FAUCET) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
 

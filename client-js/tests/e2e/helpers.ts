@@ -1,7 +1,7 @@
 import {
-  FAUCET_PRIVATE_KEY,
-  USER_1_PRIVATE_KEY,
-  USER_2_PRIVATE_KEY
+  PRIVATE_KEY_FAUCET,
+  PRIVATE_KEY_USER_1,
+  PRIVATE_KEY_USER_2
 } from '../../config';
 import {
   ApproveArgs,
@@ -13,14 +13,14 @@ import {
 import wasm from '../../src/wasm/cep18';
 import { getSigningKey } from '../utils';
 
-if (!FAUCET_PRIVATE_KEY) {
+if (!PRIVATE_KEY_FAUCET) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
-if (!USER_1_PRIVATE_KEY) {
-  throw new Error('USER_1_PRIVATE_KEY environment variable is not set.');
+if (!PRIVATE_KEY_USER_1) {
+  throw new Error('PRIVATE_KEY_USER_1 environment variable is not set.');
 }
-if (!USER_2_PRIVATE_KEY) {
-  throw new Error('USER_2_PRIVATE_KEY environment variable is not set.');
+if (!PRIVATE_KEY_USER_2) {
+  throw new Error('PRIVATE_KEY_USER_2 environment variable is not set.');
 }
 
 export const symbol = 'CEP18';
@@ -29,9 +29,9 @@ export const totalSupply = String(200_000_000_000);
 export const eventsMode = EVENTS_MODE.CES;
 export const enableMintAndBurn = true;
 export const paymentAmount = String(350_000_000_000);
-export const owner = getSigningKey(FAUCET_PRIVATE_KEY);
-export const ali = getSigningKey(USER_1_PRIVATE_KEY);
-export const bob = getSigningKey(USER_2_PRIVATE_KEY);
+export const owner = getSigningKey(PRIVATE_KEY_FAUCET);
+export const ali = getSigningKey(PRIVATE_KEY_USER_1);
+export const bob = getSigningKey(PRIVATE_KEY_USER_2);
 
 export const install = async (
   client: CEP18Client,

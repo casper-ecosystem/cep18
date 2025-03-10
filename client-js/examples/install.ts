@@ -1,4 +1,4 @@
-import { CHAIN_NAME, FAUCET_PRIVATE_KEY, RPC_URL, SSE_URL } from '../config';
+import { CHAIN_NAME, PRIVATE_KEY_FAUCET, RPC_URL, SSE_URL } from '../config';
 import {
   CEP18Client,
   ContractWASM as wasm,
@@ -13,7 +13,7 @@ import {
   getSigningKey
 } from '../tests/utils';
 
-if (!FAUCET_PRIVATE_KEY) {
+if (!PRIVATE_KEY_FAUCET) {
   throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
 }
 
@@ -26,7 +26,7 @@ const name = 'TEST_CEP18',
   // Mint and burn is also disabled by default, if you need to enable burn and mint you should set `enableMintAndBurn` as true.
   enableMintAndBurn = true,
   waitForTransactionProcessed = true,
-  sender = getSigningKey(FAUCET_PRIVATE_KEY),
+  sender = getSigningKey(PRIVATE_KEY_FAUCET),
   paymentAmount = String(350_000_000_000);
 
 const install = async () => {

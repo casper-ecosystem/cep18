@@ -11,13 +11,13 @@ const DEFAULT_PRIVATE_KEY_ALGO: KeyAlgorithm = KeyAlgorithm.ED25519;
 const DEFAULT_TRANSACTION_TIMEOUT = '50000'; // 50s
 
 // Path or base64 value or full .pem key as a string
-export const { FAUCET_PRIVATE_KEY, USER_1_PRIVATE_KEY, USER_2_PRIVATE_KEY } =
+export const { PRIVATE_KEY_FAUCET, PRIVATE_KEY_USER_1, PRIVATE_KEY_USER_2 } =
   process.env;
 
 export const SECRET_KEY_NAME: string =
   process.env.SECRET_KEY_NAME || DEFAULT_PRIVATE_KEY_NAME;
 export const SECRET_KEY_ALGO: KeyAlgorithm =
-  process.env.FAUCET_PRIVATE_KEY === 'SECP256K1'
+  process.env.PRIVATE_KEY_FAUCET === 'SECP256K1'
     ? KeyAlgorithm.SECP256K1
     : DEFAULT_PRIVATE_KEY_ALGO;
 
