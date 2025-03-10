@@ -18,7 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "allowJs": true,
+    "allowJs": false,
     "strictNullChecks": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
