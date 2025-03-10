@@ -9,15 +9,15 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-        node-version: [16.x, 20.x]
+        os: [ubuntu-latest]
+        node-version: [22.x]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b #v3.0.2
+        uses: actions/checkout@v4
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
@@ -27,17 +27,17 @@ jobs:
           components: rustfmt, clippy
       # Needed for gcc install
       - run: sudo apt update && sudo apt install -y build-essential wabt
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - run: make prepare
       - run: make build-contract
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@5b949b50c3461bbcd5a540b150c368278160234a #v3.4.0
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install
+      - name: Install Dependencies
         working-directory: ./client-js
         run: npm install
 

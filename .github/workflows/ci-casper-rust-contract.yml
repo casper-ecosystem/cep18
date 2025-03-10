@@ -9,7 +9,11 @@ on:
 
 jobs:
   ci-smart-contract:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
