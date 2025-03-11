@@ -30,26 +30,29 @@ const name = 'TEST_CEP18',
   paymentAmount = String(350_000_000_000);
 
 const install = async () => {
-  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME),
-    params: TransactionParams = {
-      wasm,
-      sender: sender.publicKey,
-      paymentAmount,
-      signingKeys: [sender]
-    },
-    args: InstallArgs = {
-      name,
-      symbol,
-      decimals,
-      totalSupply,
-      eventsMode,
-      enableMintAndBurn
-    },
-    transactionResult: TransactionResult = await cep18.install({
-      params,
-      args,
-      waitForTransactionProcessed
-    });
+  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
+
+  const params: TransactionParams = {
+    wasm,
+    sender: sender.publicKey,
+    paymentAmount,
+    signingKeys: [sender]
+  };
+
+  const args: InstallArgs = {
+    name,
+    symbol,
+    decimals,
+    totalSupply,
+    eventsMode,
+    enableMintAndBurn
+  };
+
+  const transactionResult: TransactionResult = await cep18.install({
+    params,
+    args,
+    waitForTransactionProcessed
+  });
 
   if (!transactionResult.transactionInfo.transactionHash) {
     throw Error('Invalid transaction hash');

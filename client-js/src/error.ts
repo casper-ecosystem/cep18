@@ -32,29 +32,52 @@ export enum ERROR_CODES {
   InvalidEnableMBFlag = 60014,
   /// This contract instance cannot be initialized again.
   AlreadyInitialized = 60015,
-  ///  The mint and burn mode is disabled.
+  /// The mint and burn mode is disabled.
   MintBurnDisabled = 60016,
+  /// The target user cannot be the sender.
   CannotTargetSelfUser = 60017,
+  /// The burn operation was attempted on an invalid target.
   InvalidBurnTarget = 60018,
+  /// A required package hash for contract upgrade is missing.
   MissingPackageHashForUpgrade = 60019,
+  /// A required contract hash for contract upgrade is missing.
   MissingContractHashForUpgrade = 60020,
+  /// The provided key type is invalid.
   InvalidKeyType = 60021,
+  /// Failed to convert data to JSON format.
   FailedToConvertToJson = 60022,
+  /// Failed to return the expected entry point result.
   FailedToReturnEntryPointResult = 60023,
+  /// Failed to create a new dictionary in storage.
   FailedToCreateDictionary = 60024,
+  /// Failed to convert bytes to the expected type.
   FailedToConvertBytes = 60025,
+  /// Failed to update the total supply of tokens.
   FailedToChangeTotalSupply = 60026,
+  /// Failed to read data from storage.
   FailedToReadFromStorage = 60027,
+  /// Failed to retrieve a key from storage.
   FailedToGetKey = 60028,
+  /// Failed to disable a specific contract version.
   FailedToDisableContractVersion = 60029,
+  /// Failed to insert an entry into the security list.
   FailedToInsertToSecurityList = 60030,
-  UrefNotFound = 6001,
+  /// The specified URef was not found.
+  UrefNotFound = 60031,
+  /// Failed to retrieve the old contract hash key.
   FailedToGetOldContractHashKey = 60032,
+  /// Failed to retrieve the old package key.
   FailedToGetOldPackageKey = 60033,
+  /// Failed to retrieve the package key.
   FailedToGetPackageKey = 60034,
-  UnchangedEventsMode = 60035,
-  MissingStorageUref = 60036,
-  InvalidStorageUref = 60037
+  /// A required storage URef is missing.
+  MissingStorageUref = 60035,
+  /// The provided storage URef is invalid.
+  InvalidStorageUref = 60036,
+  /// Unable to retrieve the version contract hash key.
+  MissingVersionContractKey = 60037,
+  /// The provided version contract key is invalid.
+  InvalidVersionContractKey = 60038
 }
 
 export class ContractError extends Error {

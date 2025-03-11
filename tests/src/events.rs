@@ -21,7 +21,7 @@ use cep18::{
 };
 
 #[test]
-fn should_have_have_no_events() {
+fn should_have_have_no_events_with_default_message_topics() {
     let (
         mut builder,
         TestContext {
@@ -52,7 +52,7 @@ fn should_have_have_no_events() {
     let entity_with_named_keys = builder.get_named_keys(entity_addr);
     assert!(entity_with_named_keys.get(EVENTS_DICT).is_none());
 
-    assert!(builder
+    assert!(!builder
         .message_topics(None, entity_addr)
         .unwrap()
         .is_empty());

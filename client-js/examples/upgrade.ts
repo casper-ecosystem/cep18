@@ -21,7 +21,7 @@ const name = 'TEST_CEP18',
   eventsMode = EVENTS_MODE.NoEvents,
   waitForTransactionProcessed = true,
   sender = getSigningKey(PRIVATE_KEY_FAUCET),
-  paymentAmount = String(350_000_000_000);
+  paymentAmount = String(400_000_000_000);
 
 const upgrade = async () => {
   const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME),

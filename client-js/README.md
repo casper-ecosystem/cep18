@@ -17,37 +17,55 @@ The `casper-cep18-js-client` requires `casper-js-sdk` and `@make-software/ces-js
 Create an instance of the CEP-18 client:
 
 ```ts
-import { ContractWASM, CEP18Client } from 'casper-cep18-js-client';
+import {
+  CEP18Client,
+  ContractWASM as wasm,
+  EVENTS_MODE,
+  type InstallArgs,
+  type TransactionParams,
+  type TransactionResult
+} from 'casper-cep18-js-client';
 
-const NODE_URL = 'http://localhost:11101/rpc';
-const NETWORK_NAME = 'casper-net-1';
+const RPC_URL = 'http://localhost:11101/rpc';
+const SSE_URL = 'http://localhost:18101/events';
+const CHAIN_NAME = 'casper-net-1';
 
-const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
+const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
 ```
 
-Create a deploy to install the contract:
+Send a transaction to install the contract:
 
 ```ts
-const deploy = cep18.install(
-  ContractWASM, // Contract wasm
-  {
-    name: 'TEST',
-    symbol: 'TST',
-    decimals: 9,
-    totalSupply: 50_000_000_000
-  },
-  60_000_000_000, // Payment Amount
-  ownerPublicKey,
-  NETWORK_NAME,
-  [owner]
-);
+const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
+
+const params: TransactionParams = {
+  wasm,
+  sender: sender.publicKey,
+  paymentAmount,
+  signingKeys: [sender]
+};
+
+const args: InstallArgs = {
+  name,
+  symbol,
+  decimals,
+  totalSupply,
+  eventsMode,
+  enableMintAndBurn
+};
+
+const transactionResult: TransactionResult = await cep18.install({
+  params,
+  args,
+  waitForTransactionProcessed: true
+});
 ```
 
 Set the contract hash (a unique identifier for the network):
 
 ```ts
 cep18.setContractHash(
-  'hash-c2402c3d88b13f14390ff46fde9c06b8590c9e45a9802f7fb8a2674ff9c1e5b1'
+  'entity-contract-c2402c3d88b13f14390ff46fde9c06b8590c9e45a9802f7fb8a2674ff9c1e5b1'
 );
 ```
 
@@ -61,6 +79,10 @@ const symbol = await cep18.symbol();
 const totalSupply = await cep18.totalSupply();
 
 const decimals = await cep18.decimals();
+
+const eventsMode = await cep18.eventsMode();
+
+const isMintAndBurnEnabled = await cep18.isMintAndBurnEnabled();
 ```
 
 **Transfers**
@@ -72,7 +94,7 @@ const deploy = cep18.transfer(
   { recipient: recipientPublicKey, amount: 50_000_000_000 },
   5_000_000_000, // Payment amount
   ownerPublicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [ownerAsymmetricKey] // Optional
 );
 ```
@@ -88,7 +110,7 @@ const deploy = cep18.transferFrom(
   },
   5_000_000_000,
   approvedPublicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [approvedAsymmetricKey]
 );
 ```
@@ -113,7 +135,7 @@ const deploy = cep18.approve(
   },
   5_000_000_000,
   ownerPublicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [ownerAsymmetricKey]
 );
 ```
@@ -139,7 +161,7 @@ const deploy = cep18.increaseAllowance(
   },
   5_000_000_000,
   owner.publicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [owner]
 );
 ```
@@ -152,7 +174,7 @@ const deploy = cep18.decreaseAllowance(
   },
   5_000_000_000,
   owner.publicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [owner]
 );
 ```
@@ -175,7 +197,7 @@ const deploy = cep18.mint(
   },
   5_000_000_000,
   owner.publicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [owner]
 );
 ```
@@ -192,7 +214,7 @@ const deploy = cep18.burn(
   },
   5_000_000_000,
   owner.publicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [owner]
 );
 ```
@@ -210,7 +232,7 @@ const deploy = cep18.changeSecurity(
   },
   5_000_000_000,
   owner.publicKey,
-  NETWORK_NAME,
+  CHAIN_NAME,
   [owner]
 );
 ```
