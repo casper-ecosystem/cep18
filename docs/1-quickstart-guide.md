@@ -1,4 +1,3 @@
-
 # Casper Fungible Token Quick Start Guide
 
 This quick start guide introduces you to the Casper client commands and Wasm files necessary to deploy a CEP-18 Casper Fungible Token contract to a [Casper network](https://cspr.live).
@@ -13,11 +12,11 @@ For greater detail into the creation and mechanics of the Casper fungible token 
 
 Before using this guide, ensure you meet the following requirements:
 
--   Set up your machine as per the [prerequisites](https://docs.casper.network/developers/prerequisites/)
--   Use the [Casper command-line client]
--   Get a valid [`node-address`](https://cspr.live/tools/peers)
--   Know how to deploy a [smart contract](https://docs.casper.network/developers/dapps/sending-deploys/) to a Casper network
--   Hold enough CSPR tokens to pay for transactions
+- Set up your machine as per the [prerequisites](https://docs.casper.network/developers/prerequisites/)
+- Use the [Casper command-line client]
+- Get a valid [`node-address`](https://cspr.live/tools/peers)
+- Know how to deploy a [smart contract](https://docs.casper.network/developers/dapps/sending-deploys/) to a Casper network
+- Hold enough CSPR tokens to pay for transactions
 
 # Setup
 
@@ -33,7 +32,7 @@ The following command will create a deploy containing the CEP-18 contract instan
 - **Decimals** - The number of spaces after the decimal. (As an example, a total supply of 1000000 with a `decimals` setting of 3 would be 1,000.000 tokens)
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-path ~/casper/demo/cep18.wasm \
@@ -49,7 +48,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 The following command will install the CEP-18 helper contract that allows you to check balances and access approval features.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-path ~/casper/demo/cep18_test_contract.wasm \

@@ -226,6 +226,48 @@ describe('Client Class', () => {
       expect(mockSseClient.unsubscribe).toHaveBeenCalled();
     });
 
+    it('should use the provided sseUrl when calling waitForTransactionProcessed', async () => {
+      const mockProcessedEvent: TransactionProcessedEvent = {
+        transactionProcessedPayload: {
+          transactionHash: mockTransactionHash
+        }
+      } as unknown as TransactionProcessedEvent;
+
+      const timeout = 200;
+      const mockSseUrl = 'http://mock-sse-url'; // Provided sseUrl
+
+      vi.spyOn(
+        client as any,
+        'subscribeToTransactionProcessedEvent'
+      ).mockImplementation((callback: any) => {
+        // Simulate processing of the event
+        setTimeout(() => {
+          callback(mockProcessedEvent); // Invoke the callback with mock event
+        }, 100);
+        return {} as unknown as EventSubscription; // Return the mock subscription
+      });
+
+      vi.spyOn(client, 'sseUrl', 'set').mockImplementation(() => {
+        client['_sseClient'] = mockSseClient;
+        client['_sseUrl'] = mockSseUrl;
+      });
+
+      // Test the case where sseUrl is passed to the method
+      await expect(
+        client.waitForTransactionProcessed(
+          mockTransactionHash,
+          timeout,
+          mockSseUrl
+        )
+      ).resolves.toEqual(mockProcessedEvent);
+
+      expect(mockSseClient.start).toHaveBeenCalled();
+      expect(mockSseClient.stop).toHaveBeenCalled();
+      expect(mockSseClient.unsubscribe).toHaveBeenCalled();
+
+      expect(client['_sseUrl']).toBe(mockSseUrl);
+    });
+
     it('should reject if transaction processing times out', async () => {
       const timeout = 200; // Mock timeout duration
 

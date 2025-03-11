@@ -726,7 +726,7 @@ export default class CEP18Client extends Client {
         ).storedValue.clValue?.toString() || balance;
     } catch (error) {
       if (error instanceof Error && error.toString().includes('Query failed')) {
-        // console.warn(`Not balance found for ${account.toHex()}`);
+        console.warn(`Not balance found for ${account.toHex()}`);
       } else throw error;
     }
     return balance;

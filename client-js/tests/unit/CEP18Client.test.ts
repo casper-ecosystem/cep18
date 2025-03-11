@@ -116,7 +116,7 @@ describe('CEP18Client Unit', () => {
     it('should call startEventStream and return the updated CEP18Client instance', () => {
       // Spy on the super class method
       const startEventStreamSpy = vi
-        .spyOn(client, 'startEventStream')
+        .spyOn(CEP18Client.prototype, 'startEventStream')
         .mockReturnThis();
 
       const result = client.startEventStream(mockSseUrl);
@@ -127,13 +127,31 @@ describe('CEP18Client Unit', () => {
     it('should call stopEventStream and return the updated CEP18Client instance', () => {
       // Spy on the super class method
       const stopEventStreamSpy = vi
-        .spyOn(client, 'stopEventStream')
+        .spyOn(CEP18Client.prototype, 'stopEventStream')
         .mockReturnThis();
 
       // Call stopEventStream and check that it works
       const result = client.stopEventStream();
       expect(stopEventStreamSpy).toHaveBeenCalled();
       expect(result).toBe(client); // Expecting the same instance to be returned
+    });
+
+    it('should handle undefined sseUrl gracefully', () => {
+      const clientWithUndefinedSseUrl = new CEP18Client(
+        'http://mock-rpc-url',
+        undefined, // undefined sseUrl for testing
+        'testnet'
+      );
+
+      const startEventStreamSpy = vi
+        .spyOn(CEP18Client.prototype, 'startEventStream')
+        .mockReturnThis();
+
+      const result = clientWithUndefinedSseUrl.startEventStream(
+        'http://mock-sse-url'
+      );
+      expect(startEventStreamSpy).toHaveBeenCalledWith(mockSseUrl);
+      expect(result).toBe(clientWithUndefinedSseUrl);
     });
   });
 

@@ -27,7 +27,7 @@ const name = 'TEST_CEP18',
   enableMintAndBurn = true,
   waitForTransactionProcessed = true,
   sender = getSigningKey(PRIVATE_KEY_FAUCET),
-  paymentAmount = String(350_000_000_000);
+  paymentAmount = String(400_000_000_000);
 
 const install = async () => {
   const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
