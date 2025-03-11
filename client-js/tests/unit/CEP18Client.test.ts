@@ -1291,16 +1291,22 @@ describe('CEP18Client Unit', () => {
       );
     });
 
-    // it('should throw an error when no arguments are provided', async () => {
-    //   const emptyArgsParams: ChangeSecurityParams = {
-    //     ...mockParams,
-    //     args: {} // Empty args
-    //   };
+    it('should throw an error when no arguments are provided', async () => {
+      const emptyArgsParams: ChangeSecurityParams = {
+        ...mockParams,
+        args: {} // Empty args
+      };
 
-    //   await expect(client.changeSecurity(emptyArgsParams)).toThrowError(
-    //     'Should provide at least one arg'
-    //   );
-    // });
+      try {
+        await client.changeSecurity(emptyArgsParams);
+        expect(false).toBe(true); // Forces failure if no error is thrown
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe(
+          'Should provide at least one arg'
+        );
+      }
+    });
 
     it('should handle errors during the changeSecurity process', async () => {
       const errorMessage = 'Error during changeSecurity.';
