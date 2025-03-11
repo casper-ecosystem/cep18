@@ -156,7 +156,7 @@ const eventListener = async (
 
 usage()
   .then(() => {
-    console.info('Usage 2 completed.');
+    console.info('Events usage completed.');
   })
   .catch(error => {
     console.error('Usage failed:', error);
