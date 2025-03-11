@@ -126,8 +126,7 @@ describe('Client Class', () => {
     };
 
     // Simulate an event trigger
-    // @ts-ignore (if necessary, but try without it first)
-    client._events['testEvent'].forEach(listener => listener(mockEvent));
+    client['_events']['testEvent'].forEach(listener => listener(mockEvent));
 
     expect(mockListener).toHaveBeenCalledWith(mockEvent);
   });
