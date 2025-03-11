@@ -106,7 +106,7 @@ fn should_be_able_to_call_1x_contract_in_2x_execution_engine() {
 }
 
 #[test]
-fn should_migrate_1_5_6_to_2_0_0_rc3() {
+fn should_migrate_1_5_6_to_2_0_0() {
     // load fixture
     let (mut builder, lmdb_fixture_state, _temp_dir) =
         casper_fixtures::builder_from_global_state_fixture("cep18-1.5.6-minted");
