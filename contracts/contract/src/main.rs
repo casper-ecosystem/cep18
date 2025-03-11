@@ -451,16 +451,18 @@ pub fn upgrade(name: &str) {
     );
 
     let mut message_topics = BTreeMap::new();
-    match get_key(ARG_CONDOR) {
-        Some(_) => {}
-        None => {
+    let condor_uref: Key = storage::new_uref(ARG_CONDOR).into();
+
+    if let Some(events_mode_u8) = events_mode {
+        if [EventsMode::Native, EventsMode::NativeBytes]
+            .contains(&events_mode_u8.try_into().unwrap_or_default())
+        {
             message_topics.insert(ARG_EVENTS.to_string(), MessageTopicOperation::Add);
-            put_key(ARG_CONDOR, storage::new_uref(ARG_CONDOR).into());
         }
     }
 
     let mut named_keys = NamedKeys::new();
-    named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
+    named_keys.insert(ARG_CONDOR.to_string(), condor_uref);
 
     let (contract_hash, contract_version) = storage::add_contract_version(
         contract_package_hash.into(),
@@ -586,7 +588,6 @@ pub fn install_contract(name: &str) {
             .unwrap_or_revert_with(Cep18Error::FailedToInsertToSecurityList);
     }
 
-    put_key(ARG_CONDOR, storage::new_uref(ARG_CONDOR).into());
     runtime::call_contract::<()>(contract_hash, ENTRY_POINT_INIT, init_args);
 }
 

@@ -6,15 +6,13 @@ use casper_types::{
     runtime_args, AddressableEntityHash, EntityAddr, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
 };
 use cep18::constants::{
-    ARG_AMOUNT, ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME,
-    ARG_OWNER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, ENTRY_POINT_MINT,
+    ARG_AMOUNT, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ENTRY_POINT_MINT,
 };
 
 use crate::utility::{
     constants::{
         AMOUNT_1, CEP18_CONTRACT_WASM, CEP18_TEST_CONTRACT_WASM, CEP18_TEST_TOKEN_CONTRACT_NAME,
-        CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL,
-        TOKEN_TOTAL_SUPPLY,
+        CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_NAME,
     },
     installer_request_builders::{cep18_check_balance_of, get_test_account},
     message_handlers::{message_summary, message_topic},
@@ -128,9 +126,6 @@ fn should_migrate_1_5_6_to_2_0_0_rc3() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
             ARG_EVENTS_MODE => 2_u8,
         },
     )
@@ -204,11 +199,7 @@ fn should_have_native_events() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
             ARG_EVENTS_MODE => 3_u8,
-            ARG_ENABLE_MINT_BURN => true
         },
     )
     .build();

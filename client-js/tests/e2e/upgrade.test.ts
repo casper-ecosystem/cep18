@@ -1,7 +1,12 @@
 import { expect, describe, it, beforeEach } from 'vitest';
-import { owner, paymentAmount, eventsMode, install } from './helpers';
+import { owner, paymentAmount, install } from './helpers';
 import { RPC_URL, SSE_URL, CHAIN_NAME, PRIVATE_KEY_FAUCET } from '../../config';
-import { CEP18Client, TransactionParams, TransactionResult } from '../../src';
+import {
+  CEP18Client,
+  EVENTS_MODE,
+  TransactionParams,
+  TransactionResult
+} from '../../src';
 import wasm from '../../src/wasm/cep18';
 import { getAccountInfo, findKeyFromAccountNamedKeys } from '../utils';
 
@@ -27,7 +32,7 @@ describe('CEP18Client - E2E Upgrade', () => {
       },
       args = {
         name,
-        eventsMode
+        eventsMode: EVENTS_MODE.Native
       },
       transactionResult: TransactionResult = await client.upgrade({
         params,
@@ -49,7 +54,7 @@ describe('CEP18Client - E2E Upgrade', () => {
       },
       args = {
         name,
-        eventsMode
+        eventsMode: EVENTS_MODE.Native
       },
       transactionResult: TransactionResult = await client.upgrade({
         params,
