@@ -28,7 +28,9 @@ export type UpgradeArgs = {
 
 export enum EVENTS_MODE {
   NoEvents = 0,
-  CES = 1
+  CES = 1,
+  Native = 2,
+  NativeBytes = 3
 }
 
 type TransferableArgs = {
