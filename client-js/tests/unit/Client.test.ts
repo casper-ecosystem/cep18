@@ -44,18 +44,14 @@ describe('Client Class', () => {
   it('should add an event listener', () => {
     const mockListener = vi.fn();
     client.addEventListener('testEvent', mockListener);
-
-    // @ts-ignore (Accessing private field for testing)
-    expect(client._events['testEvent']).toContain(mockListener);
+    expect(client['_events']['testEvent']).toContain(mockListener);
   });
 
   it('should remove an event listener', () => {
     const mockListener = vi.fn();
     client.addEventListener('testEvent', mockListener);
     client.removeEventListener('testEvent', mockListener);
-
-    // @ts-ignore
-    expect(client._events['testEvent']).not.toContain(mockListener);
+    expect(client['_events']['testEvent']).not.toContain(mockListener);
   });
 
   it('should throw an error when removing a non-existent event listener', () => {
@@ -75,9 +71,7 @@ describe('Client Class', () => {
     client.addEventListener('testEvent', mockListener2);
 
     client.removeListenersForEvent('testEvent');
-
-    // @ts-ignore
-    expect(client._events['testEvent']).toEqual([]);
+    expect(client['_events']['testEvent']).toEqual([]);
   });
 
   it('should throw an error when removing listeners for a non-existent event', () => {
@@ -94,11 +88,8 @@ describe('Client Class', () => {
     client.addEventListener('event2', mockListener2);
 
     client.removeAllListeners();
-
-    // @ts-ignore
-    expect(client._events['event1']).toEqual([]);
-    // @ts-ignore
-    expect(client._events['event2']).toEqual([]);
+    expect(client['_events']['event1']).toEqual([]);
+    expect(client['_events']['event2']).toEqual([]);
   });
 
   it('should call event listeners when an event occurs', () => {
@@ -134,18 +125,14 @@ describe('Client Class', () => {
   it("should use 'on' alias to add an event listener", () => {
     const mockListener = vi.fn();
     client.on('aliasEvent', mockListener);
-
-    // @ts-ignore
-    expect(client._events['aliasEvent']).toContain(mockListener);
+    expect(client['_events']['aliasEvent']).toContain(mockListener);
   });
 
   it("should use 'off' alias to remove an event listener", () => {
     const mockListener = vi.fn();
     client.on('aliasEvent', mockListener);
     client.off('aliasEvent', mockListener);
-
-    // @ts-ignore
-    expect(client._events['aliasEvent']).not.toContain(mockListener);
+    expect(client['_events']['aliasEvent']).not.toContain(mockListener);
   });
 
   describe('Client - getTransactionResult', () => {
