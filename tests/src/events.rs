@@ -18,6 +18,7 @@ use cep18::{
         ARG_OWNER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, ENTRY_POINT_MINT,
     },
     events::Mint,
+    modalities::EventsMode,
 };
 
 #[test]
@@ -33,7 +34,7 @@ fn should_have_have_no_events_with_default_message_topics() {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => 0_u8,
+        ARG_EVENTS_MODE => EventsMode::NoEvents as u8,
         ARG_ENABLE_MINT_BURN => true,
     });
 
@@ -71,7 +72,7 @@ fn should_have_native_events() {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => 2_u8,
+        ARG_EVENTS_MODE => EventsMode::Native as u8,
         ARG_ENABLE_MINT_BURN => true,
     });
 
@@ -153,7 +154,7 @@ fn should_have_ces_events() {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => 1_u8,
+        ARG_EVENTS_MODE => EventsMode::CES as u8,
         ARG_ENABLE_MINT_BURN => true,
     });
 
@@ -206,7 +207,7 @@ fn should_test_error_message_topic_on_mint_overflow() {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => 0_u8,
+        ARG_EVENTS_MODE => EventsMode::NoEvents as u8,
         ARG_ENABLE_MINT_BURN => true,
     });
 

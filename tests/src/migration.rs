@@ -5,8 +5,9 @@ use casper_fixtures::LmdbFixtureState;
 use casper_types::{
     runtime_args, AddressableEntityHash, EntityAddr, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
 };
-use cep18::constants::{
-    ARG_AMOUNT, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ENTRY_POINT_MINT,
+use cep18::{
+    constants::{ARG_AMOUNT, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ENTRY_POINT_MINT},
+    modalities::EventsMode,
 };
 
 use crate::utility::{
@@ -126,7 +127,7 @@ fn should_migrate_1_5_6_to_2_0_0_rc3() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_EVENTS_MODE => 2_u8,
+            ARG_EVENTS_MODE => EventsMode::Native as u8,
         },
     )
     .build();
@@ -199,7 +200,7 @@ fn should_have_native_events() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_EVENTS_MODE => 3_u8,
+            ARG_EVENTS_MODE => EventsMode::NativeBytes as u8,
         },
     )
     .build();

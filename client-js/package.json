@@ -64,7 +64,7 @@
     "vitest": "^3.0.7"
   },
   "peerDependencies": {
-    "@make-software/ces-js-parser": "^2.0.0-beta1",
+    "@make-software/ces-js-parser": "^2.0.1-beta1",
     "casper-js-sdk": "5.0.14-beta2"
   }
 }

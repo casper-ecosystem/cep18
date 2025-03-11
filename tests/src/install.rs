@@ -4,9 +4,12 @@ use casper_engine_test_support::{
 };
 use casper_execution_engine::{engine_state::Error as CoreError, execution::ExecError};
 use casper_types::{runtime_args, system::mint::TOTAL_SUPPLY_KEY, ApiError, EntityAddr, Key, U256};
-use cep18::constants::{
-    ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS_MODE, ARG_NAME, ARG_SYMBOL, ARG_TOTAL_SUPPLY,
-    DICT_ALLOWANCES, DICT_BALANCES,
+use cep18::{
+    constants::{
+        ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS_MODE, ARG_NAME, ARG_SYMBOL,
+        ARG_TOTAL_SUPPLY, DICT_ALLOWANCES, DICT_BALANCES,
+    },
+    modalities::EventsMode,
 };
 
 use crate::utility::{
@@ -87,7 +90,7 @@ fn should_fail_with_left_over_bytes_converted_into_60006() {
             ARG_SYMBOL => TOKEN_SYMBOL,
             ARG_DECIMALS => TOKEN_DECIMALS,
             ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-            ARG_EVENTS_MODE => Some(0_u8),
+            ARG_EVENTS_MODE => Some(EventsMode::Native as u8),
             ARG_ENABLE_MINT_BURN => true,
         },
     )
