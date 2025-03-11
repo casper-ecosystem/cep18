@@ -46,12 +46,12 @@ clippy:
 format:
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18-test-contract
-	cargo fmt -p tests
+	cargo +stable fmt -p tests
 
 check-lint: clippy
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18-test-contract
-	cargo fmt -p tests -- --check
+	cargo +stable fmt -p tests -- --check
 
 lint: clippy format
 
