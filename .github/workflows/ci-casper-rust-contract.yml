@@ -135,7 +135,7 @@ jobs:
         working-directory: client-js
         run: npm run build
 
-      - name: Run Integration Tests
+      - name: Run Unit/Integration Tests
         working-directory: client-js
         run: |
           set -e  # Fail fast if any command fails
