@@ -413,13 +413,13 @@ export default class Client {
     try {
       const transactionInfo = await this.rpcClient.putTransaction(transaction);
       if (waitForTransactionProcessed && transactionInfo.transactionHash) {
-        const deployEvent = await this.waitForTransactionProcessed(
+        const processedEvent = await this.waitForTransactionProcessed(
           transactionInfo.transactionHash.toString()
         );
         return {
           transactionInfo,
           executionResult:
-            deployEvent.transactionProcessedPayload.executionResult
+            processedEvent.transactionProcessedPayload.executionResult
         };
       }
       return { transactionInfo };

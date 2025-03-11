@@ -71,10 +71,10 @@ This modality is specified by providing an optional runtime argument during inst
 
 ### Example Installation
 
-Here is a sample deploy installing a fungible token with event logging and minting and burning enabled:
+Here is a sample transaction installing a fungible token with event logging and minting and burning enabled:
 
 ```bash
-casper-client put-transactiion \
+casper-client put-transaction \
 --node-address http://65.21.235.219:7777  \
 --chain-name casper-test \
 --secret-key ~/KEYS/secret_key.pem \

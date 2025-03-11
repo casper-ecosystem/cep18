@@ -30,7 +30,7 @@ TOKEN_INSTALL_DEPLOY=$(casper-client put-transaction\
   --session-arg "symbol:string='$TOKEN_SYMBOL'"\
   --session-arg "decimals:u8='$TOKEN_DECIMALS'"\
   --session-arg "total_supply:u256='$TOKEN_SUPPLY'"\
-  | jq .result.deploy_hash\
+  | jq .result.transaction_hash\
   | tr -d '"')
 
 sleep 90
@@ -43,7 +43,7 @@ TOKEN_CONTRACT_HASH=$(nctl-view-user-account user=1\
   | tr -d '"')
 
 # Recover install cost
-INSTALL_COST=$(nctl-view-chain-deploy deploy=$TOKEN_INSTALL_DEPLOY\
+INSTALL_COST=$(nctl-view-chain-transaction deploy=$TOKEN_INSTALL_DEPLOY\
                 | jq .execution_results[0].result.Success.cost\
                 | tr -d '"')
 

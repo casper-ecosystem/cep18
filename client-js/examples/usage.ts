@@ -133,7 +133,7 @@ const usage = async () => {
   });
 
   console.info(
-    `Token transferFrom deploy hash: ${transferFromResult.transactionInfo.transactionHash}`
+    `Token transferFrom transaction hash: ${transferFromResult.transactionInfo.transactionHash}`
   );
 
   const bobBalance = await cep18.balanceOf(bob.publicKey);
