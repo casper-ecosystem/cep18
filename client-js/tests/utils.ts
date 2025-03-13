@@ -14,7 +14,6 @@ export const getAccountInfo = async (
   rpcUrl: string,
   publicKey: PublicKey
 ): Promise<Account> => {
-  // !TODO GR
   const rpcHandler = new HttpHandler(rpcUrl);
   const client = new RpcClient(rpcHandler);
 

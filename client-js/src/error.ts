@@ -1,4 +1,3 @@
-// !TODO GR Check
 export enum ERROR_CODES {
   /// CEP-18 contract called from within an invalid context.
   InvalidContext = 60000,
