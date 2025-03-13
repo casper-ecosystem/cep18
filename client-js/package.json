@@ -40,7 +40,7 @@
   "bugs": {
     "url": "https://github.com/casper-ecosystem/cep18/issues"
   },
-  "homepage": "https://github.com/casper-ecosystem/cep18/tree/master/client-js#readme",
+  "homepage": "https://github.com/casper-ecosystem/cep18/tree/dev/client-js#readme",
   "files": [
     "/dist"
   ],
