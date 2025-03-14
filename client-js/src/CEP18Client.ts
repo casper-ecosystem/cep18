@@ -189,16 +189,19 @@ export default class CEP18Client extends Client {
           await this.waitForTransactionProcessed(
             transactionInfo.transactionHash.toString()
           );
+        const executionResult =
+          transactionProcessedEvent.transactionProcessedPayload.executionResult;
+        if (executionResult?.errorMessage) {
+          this.handleExecutionError(executionResult.errorMessage);
+        }
         return {
           transactionInfo,
-          executionResult:
-            transactionProcessedEvent.transactionProcessedPayload
-              .executionResult
+          executionResult
         };
       }
       return { transactionInfo };
     } catch (error) {
-      throw new Error(`Error during installation.\n${error}`);
+      throw new Error(`Error during installation runtime.\n${error}`);
     }
   }
 
@@ -262,16 +265,19 @@ export default class CEP18Client extends Client {
           await this.waitForTransactionProcessed(
             transactionInfo.transactionHash.toString()
           );
+        const executionResult =
+          transactionProcessedEvent.transactionProcessedPayload.executionResult;
+        if (executionResult?.errorMessage) {
+          this.handleExecutionError(executionResult.errorMessage);
+        }
         return {
           transactionInfo,
-          executionResult:
-            transactionProcessedEvent.transactionProcessedPayload
-              .executionResult
+          executionResult
         };
       }
       return { transactionInfo };
     } catch (error) {
-      throw new Error(`Error during upgrade.\n${error}`);
+      throw new Error(`Error during upgrade runtime.\n${error}`);
     }
   }
 

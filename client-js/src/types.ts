@@ -5,6 +5,12 @@ import {
   PutTransactionResult
 } from 'casper-js-sdk';
 
+export enum EVENTS_MODE {
+  NoEvents = 0,
+  CES = 1,
+  Native = 2,
+  NativeBytes = 3
+}
 export type InstallArgs = {
   /** token name */
   name: string;
@@ -25,13 +31,6 @@ export type UpgradeArgs = {
   name: string;
   eventsMode?: EVENTS_MODE;
 };
-
-export enum EVENTS_MODE {
-  NoEvents = 0,
-  CES = 1,
-  Native = 2,
-  NativeBytes = 3
-}
 
 type TransferableArgs = {
   amount: string;

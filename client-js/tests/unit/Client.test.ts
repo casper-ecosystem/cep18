@@ -142,11 +142,16 @@ describe('Client Class', () => {
         executionInfo: { executionResult: { errorMessage: null } }
       } as unknown as InfoGetTransactionResult;
 
+      const errorMessage = 'Transaction failed';
       const mockErrorResult = {
         executionInfo: {
-          executionResult: { errorMessage: 'Transaction failed' }
+          executionResult: { errorMessage }
         }
       } as unknown as InfoGetTransactionResult;
+
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       // Mocking the RpcClient's `getTransactionByTransactionHash` method for the rpcClient
       vi.spyOn(client['_rpcClient'], 'getTransactionByTransactionHash')
@@ -159,9 +164,10 @@ describe('Client Class', () => {
       );
 
       // Test failure case
-      await expect(client.getTransactionResult('mockHash2')).rejects.toThrow(
-        'Transaction failed'
+      await expect(client.getTransactionResult('mockHash2')).resolves.toEqual(
+        mockErrorResult
       );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(`Error: ${errorMessage}`);
     });
   });
 

@@ -244,7 +244,7 @@ describe('CEP18Client Unit', () => {
       );
 
       await expect(client.install(mockParams)).rejects.toThrow(
-        `Error during installation.\nError: ${errorMessage}`
+        `Error during installation runtime.\nError: ${errorMessage}`
       );
     });
   });
@@ -334,7 +334,7 @@ describe('CEP18Client Unit', () => {
       );
 
       await expect(client.upgrade(mockParams)).rejects.toThrow(
-        `Error during upgrade.\nError: ${errorMessage}`
+        `Error during upgrade runtime.\nError: ${errorMessage}`
       );
     });
   });

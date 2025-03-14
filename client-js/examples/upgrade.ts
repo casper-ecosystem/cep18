@@ -80,5 +80,5 @@ upgrade()
     console.info(`Contract Package Hash: ${contractPackageHash}`);
   })
   .catch(error => {
-    console.error('Error:', error);
+    console.error(error);
   });

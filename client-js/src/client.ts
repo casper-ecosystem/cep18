@@ -461,6 +461,30 @@ export default class Client {
   }
 
   /**
+   * Handles execution errors returned from contract execution.
+   *
+   * If the error message contains a known contract error prefix, it extracts the error code and throws a `ContractError`.
+   * Otherwise, it throws a generic `Error` with the provided message.
+   *
+   * @param errorMessage - The error message returned from contract execution.
+   * @throws `ContractError` if the error is a recognized contract error.
+   * @throws `Error` if the error message does not match the contract error format.
+   */
+  protected handleExecutionError(errorMessage: string) {
+    if (errorMessage.startsWith(contractErrorMessagePrefix)) {
+      const errorCode = parseInt(
+        errorMessage.substring(contractErrorMessagePrefix.length),
+        10
+      );
+      console.error(
+        `Error: ${new ContractError(errorCode).message}\nError code: ${new ContractError(errorCode).code}`
+      );
+    } else {
+      console.error(`Error: ${new Error(errorMessage).message}`);
+    }
+  }
+
+  /**
    * Subscribes to the `TransactionProcessedEventType` SSE event.
    *
    * This method listens for transaction-processed events and triggers the provided callback when an event is received.
@@ -489,28 +513,6 @@ export default class Client {
       })
       .unwrap();
     return subscription;
-  }
-
-  /**
-   * Handles execution errors returned from contract execution.
-   *
-   * If the error message contains a known contract error prefix, it extracts the error code and throws a `ContractError`.
-   * Otherwise, it throws a generic `Error` with the provided message.
-   *
-   * @param errorMessage - The error message returned from contract execution.
-   * @throws `ContractError` if the error is a recognized contract error.
-   * @throws `Error` if the error message does not match the contract error format.
-   */
-  private handleExecutionError(errorMessage: string) {
-    if (errorMessage.startsWith(contractErrorMessagePrefix)) {
-      const errorCode = parseInt(
-        errorMessage.substring(contractErrorMessagePrefix.length),
-        10
-      );
-      throw new ContractError(errorCode);
-    } else {
-      throw new Error(errorMessage);
-    }
   }
 
   /**
