@@ -168,7 +168,7 @@ export default class CEP18Client extends Client {
 
     const wasmBytes = wasm || ContractWASM;
 
-    if (!wasm) {
+    if (!wasmBytes) {
       throw new Error('Wasm file is missing.');
     }
 
@@ -246,7 +246,7 @@ export default class CEP18Client extends Client {
 
     const wasmBytes = wasm || ContractWASM;
 
-    if (!wasm) {
+    if (!wasmBytes) {
       throw new Error('Wasm file is missing.');
     }
 
