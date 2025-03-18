@@ -14,7 +14,6 @@ import {
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
 import Client from './client';
-import ContractWASM from './wasm/cep18.ts';
 import {
   EVENTS_MODE,
   type InstallParams,
@@ -28,6 +27,7 @@ import {
   type ChangeSecurityParams,
   UpgradeParams
 } from './types';
+import ContractWASM from './wasm/cep18';
 
 /**
  * CEP18Client extends the base `Client` class to provide specific functionality
