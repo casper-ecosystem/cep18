@@ -14,6 +14,7 @@ import {
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
 import Client from './client';
+import ContractWASM from './wasm/cep18.ts';
 import {
   EVENTS_MODE,
   type InstallParams,
@@ -164,12 +165,16 @@ export default class CEP18Client extends Client {
         CLValue.newCLUint8(enableMintAndBurn ? 1 : 0)
       );
     }
+
+    const wasmBytes = wasm || ContractWASM;
+
     if (!wasm) {
       throw new Error('Wasm file is missing.');
     }
+
     const transaction = new SessionBuilder()
       .installOrUpgrade()
-      .wasm(wasm)
+      .wasm(wasmBytes)
       .runtimeArgs(runtimeArgs)
       .payment(Number(paymentAmount))
       .from(sender)
@@ -239,13 +244,15 @@ export default class CEP18Client extends Client {
       runtimeArgs.insert('events_mode', CLValue.newCLUint8(eventsMode));
     }
 
+    const wasmBytes = wasm || ContractWASM;
+
     if (!wasm) {
       throw new Error('Wasm file is missing.');
     }
 
     const transaction = new SessionBuilder()
       .installOrUpgrade()
-      .wasm(wasm)
+      .wasm(wasmBytes)
       .runtimeArgs(runtimeArgs)
       .payment(Number(paymentAmount))
       .from(sender)
