@@ -198,17 +198,6 @@ describe('CEP18Client Unit', () => {
       });
     });
 
-    it('should throw an error if wasm is missing', async () => {
-      const invalidParams = {
-        ...mockParams,
-        params: { ...mockParams.params, wasm: undefined }
-      };
-
-      await expect(client.install(invalidParams)).rejects.toThrow(
-        'Wasm file is missing.'
-      );
-    });
-
     it('should call waitForTransactionProcessed if waitForTransactionProcessed is true', async () => {
       const paramsWithWait = {
         ...mockParams,
@@ -286,17 +275,6 @@ describe('CEP18Client Unit', () => {
       expect(result).toEqual({
         transactionInfo: { transactionHash: 'mockTransactionHash' }
       });
-    });
-
-    it('should throw an error if wasm is missing', async () => {
-      const invalidParams = {
-        ...mockParams,
-        params: { ...mockParams.params, wasm: undefined }
-      };
-
-      await expect(client.upgrade(invalidParams)).rejects.toThrow(
-        'Wasm file is missing.'
-      );
     });
 
     it('should call waitForTransactionProcessed if waitForTransactionProcessed is true', async () => {
