@@ -78,15 +78,22 @@ const usage = async () => {
     amount: String(1_000_000_000)
   };
 
-  const transferResult = await cep18.transfer({
+  let { transactionInfo, executionResult } = await cep18.transfer({
     params,
     args: transferArgs,
     waitForTransactionProcessed
   });
 
-  console.info(
-    `Token transfer transaction hash: ${transferResult.transactionInfo.transactionHash}`
-  );
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during transfer.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(
+      `Token transfer transaction hash: ${transactionInfo.transactionHash}`
+    );
+    console.info(`Transfer cost consumed: ${executionResult?.consumed}`);
+  }
 
   const aliBalance = await cep18.balanceOf(ali.publicKey);
   console.info(`Ali's balance: ${aliBalance.toString()}`);
@@ -97,15 +104,22 @@ const usage = async () => {
     amount: String(5_000_000_000)
   };
 
-  const approveResult = await cep18.approve({
+  ({ transactionInfo, executionResult } = await cep18.approve({
     params,
     args: approveArgs,
     waitForTransactionProcessed
-  });
+  }));
 
-  console.info(
-    `Token approval transaction hash: ${approveResult.transactionInfo.transactionHash}`
-  );
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during approval.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(
+      `Token approval transaction hash: ${transactionInfo.transactionHash}`
+    );
+    console.info(`Approval cost consumed: ${executionResult?.consumed}`);
+  }
 
   // Get allowances
   const allowances = await cep18.allowances(owner.publicKey, ali.publicKey);
@@ -126,15 +140,19 @@ const usage = async () => {
     amount: String(2_000_000_000)
   };
 
-  const transferFromResult = await cep18.transferFrom({
+  ({ transactionInfo, executionResult } = await cep18.transferFrom({
     params,
     args: transferFromArgs,
     waitForTransactionProcessed
-  });
+  }));
 
-  console.info(
-    `Token transferFrom transaction hash: ${transferFromResult.transactionInfo.transactionHash}`
-  );
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during transferFrom.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(`TransferFrom cost consumed: ${executionResult?.consumed}`);
+  }
 
   const bobBalance = await cep18.balanceOf(bob.publicKey);
   console.info(`Bob's balance: ${bobBalance.toString()}`);
