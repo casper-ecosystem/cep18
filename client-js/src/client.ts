@@ -293,6 +293,8 @@ export default class Client {
    */
   protected stopEventStream(): Client {
     this.sseClient?.stop();
+    // Clean SseClient instance of its subscriptions
+    this._sseClient = new SseClient(this._sseUrl);
     return this;
   }
 
