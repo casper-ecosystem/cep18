@@ -1,4 +1,8 @@
 import {
+  AccountHash,
+  AddressableEntityHash,
+  ContractHash,
+  ContractPackageHash,
   ExecutionResult,
   PrivateKey,
   PublicKey,
@@ -36,16 +40,23 @@ type TransferableArgs = {
   amount: string;
 };
 
+export type Entity =
+  | PublicKey
+  | AccountHash
+  | ContractHash
+  | ContractPackageHash
+  | AddressableEntityHash;
+
 interface HasOwner {
-  owner: PublicKey;
+  owner: Entity;
 }
 
 interface HasRecipient {
-  recipient: PublicKey;
+  recipient: Entity;
 }
 
 interface HasSpender {
-  spender: PublicKey;
+  spender: Entity;
 }
 
 export type TransferArgs = TransferableArgs & HasRecipient;
@@ -57,11 +68,11 @@ export type MintArgs = TransferableArgs & HasOwner;
 export type BurnArgs = TransferableArgs & HasOwner;
 
 export type ChangeSecurityArgs = {
-  adminList?: PublicKey[];
-  minterList?: PublicKey[];
-  burnerList?: PublicKey[];
-  mintAndBurnList?: PublicKey[];
-  noneList?: PublicKey[];
+  adminList?: Entity[];
+  minterList?: Entity[];
+  burnerList?: Entity[];
+  mintAndBurnList?: Entity[];
+  noneList?: Entity[];
 };
 
 export type TransactionParams = {

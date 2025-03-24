@@ -9,7 +9,7 @@ import {
   Key,
   ParamDictionaryIdentifier,
   ParamDictionaryIdentifierContractNamedKey,
-  type PublicKey,
+  PublicKey,
   SessionBuilder
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
@@ -25,7 +25,8 @@ import {
   type MintParams,
   type BurnParams,
   type ChangeSecurityParams,
-  UpgradeParams
+  UpgradeParams,
+  Entity
 } from './types';
 import ContractWASM from './wasm/cep18';
 
@@ -313,9 +314,7 @@ export default class CEP18Client extends Client {
     } = params;
 
     const runtimeArgs = RuntimeArgs.fromMap({
-      recipient: CLValue.newCLKey(
-        Key.newKey(recipient.accountHash().toPrefixedString())
-      ),
+      recipient: CLValue.newCLKey(this.getPrefixedString(recipient)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -358,12 +357,8 @@ export default class CEP18Client extends Client {
     } = params;
 
     const runtimeArgs = RuntimeArgs.fromMap({
-      owner: CLValue.newCLKey(
-        Key.newKey(owner.accountHash().toPrefixedString())
-      ),
-      recipient: CLValue.newCLKey(
-        Key.newKey(recipient.accountHash().toPrefixedString())
-      ),
+      owner: CLValue.newCLKey(this.getPrefixedString(owner)),
+      recipient: CLValue.newCLKey(this.getPrefixedString(recipient)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -404,9 +399,7 @@ export default class CEP18Client extends Client {
       waitForTransactionProcessed
     } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
-      spender: CLValue.newCLKey(
-        Key.newKey(spender.accountHash().toPrefixedString())
-      ),
+      spender: CLValue.newCLKey(this.getPrefixedString(spender)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -448,9 +441,7 @@ export default class CEP18Client extends Client {
     } = params;
 
     const runtimeArgs = RuntimeArgs.fromMap({
-      spender: CLValue.newCLKey(
-        Key.newKey(spender.accountHash().toPrefixedString())
-      ),
+      spender: CLValue.newCLKey(this.getPrefixedString(spender)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -494,9 +485,7 @@ export default class CEP18Client extends Client {
       waitForTransactionProcessed
     } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
-      spender: CLValue.newCLKey(
-        Key.newKey(spender.accountHash().toPrefixedString())
-      ),
+      spender: CLValue.newCLKey(this.getPrefixedString(spender)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -535,9 +524,7 @@ export default class CEP18Client extends Client {
       waitForTransactionProcessed
     } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
-      owner: CLValue.newCLKey(
-        Key.newKey(owner.accountHash().toPrefixedString())
-      ),
+      owner: CLValue.newCLKey(this.getPrefixedString(owner)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -575,9 +562,7 @@ export default class CEP18Client extends Client {
       waitForTransactionProcessed
     } = params;
     const runtimeArgs = RuntimeArgs.fromMap({
-      owner: CLValue.newCLKey(
-        Key.newKey(owner.accountHash().toPrefixedString())
-      ),
+      owner: CLValue.newCLKey(this.getPrefixedString(owner)),
       amount: CLValue.newCLUInt256(amount)
     });
     return this.callEntrypoint(
@@ -627,9 +612,7 @@ export default class CEP18Client extends Client {
         'admin_list',
         CLValue.newCLList(
           CLTypeKey,
-          adminList.map(key =>
-            CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
-          )
+          adminList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
         )
       );
     }
@@ -638,9 +621,7 @@ export default class CEP18Client extends Client {
         'minter_list',
         CLValue.newCLList(
           CLTypeKey,
-          minterList.map(key =>
-            CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
-          )
+          minterList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
         )
       );
     }
@@ -649,9 +630,7 @@ export default class CEP18Client extends Client {
         'burner_list',
         CLValue.newCLList(
           CLTypeKey,
-          burnerList.map(key =>
-            CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
-          )
+          burnerList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
         )
       );
     }
@@ -661,7 +640,7 @@ export default class CEP18Client extends Client {
         CLValue.newCLList(
           CLTypeKey,
           mintAndBurnList.map(key =>
-            CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+            CLValue.newCLKey(this.getPrefixedString(key))
           )
         )
       );
@@ -671,9 +650,7 @@ export default class CEP18Client extends Client {
         'none_list',
         CLValue.newCLList(
           CLTypeKey,
-          noneList.map(key =>
-            CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
-          )
+          noneList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
         )
       );
     }
@@ -877,5 +854,13 @@ export default class CEP18Client extends Client {
       'enable_mint_burn'
     ])) as string;
     return internalValue !== '0';
+  }
+
+  private getPrefixedString(entity: Entity): Key {
+    if (entity instanceof PublicKey) {
+      return Key.newKey(entity.accountHash().toPrefixedString());
+    }
+
+    return Key.newKey(entity.toPrefixedString());
   }
 }
