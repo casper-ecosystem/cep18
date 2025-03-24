@@ -1354,7 +1354,7 @@ describe('CEP18Client Unit', () => {
       const balance = await client.balanceOf(key.publicKey);
       expect(balance).toBe('0');
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        `Not balance found for ${key.publicKey.toHex()}`
+        `No balance found for ${key.publicKey.accountHash().toPrefixedString()}`
       );
     });
 
@@ -1456,7 +1456,7 @@ describe('CEP18Client Unit', () => {
       );
       expect(allowance).toBe('0');
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        `Not found allowances for ${keyOwner.publicKey.toHex()}`
+        `No allowances found for ${keyOwner.publicKey.accountHash().toPrefixedString()}`
       );
     });
 

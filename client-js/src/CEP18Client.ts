@@ -683,10 +683,9 @@ export default class CEP18Client extends Client {
    * @remarks The method queries the contract's balance storage by constructing a dictionary identifier for the account's balance.
    *          If no balance is found, it logs a warning to the console.
    */
-  public async balanceOf(account: PublicKey): Promise<string> {
-    const keyAccount = Key.newKey(
-      account.accountHash().toPrefixedString()
-    ).bytes();
+  public async balanceOf(account: Entity): Promise<string> {
+    const entity = this.getPrefixedString(account);
+    const keyAccount = entity.bytes();
     const dictionaryItemKey = Base64.fromUint8Array(keyAccount);
 
     if (!this.contractHash) {
@@ -716,7 +715,7 @@ export default class CEP18Client extends Client {
         ).storedValue.clValue?.toString() || balance;
     } catch (error) {
       if (error instanceof Error && error.toString().includes('Query failed')) {
-        console.warn(`Not balance found for ${account.toHex()}`);
+        console.warn(`No balance found for ${entity.toPrefixedString()}`);
       } else throw error;
     }
     return balance;
@@ -736,14 +735,11 @@ export default class CEP18Client extends Client {
    *          It then queries the contract's allowance storage. If no allowance is found, it logs a warning to the console.
    *          The allowance is returned as a string.
    */
-  public async allowances(
-    owner: PublicKey,
-    spender: PublicKey
-  ): Promise<string> {
-    const keyOwner = Key.newKey(owner.accountHash().toPrefixedString()).bytes();
-    const keySpender = Key.newKey(
-      spender.accountHash().toPrefixedString()
-    ).bytes();
+  public async allowances(owner: Entity, spender: Entity): Promise<string> {
+    const entityOwner = this.getPrefixedString(owner);
+    const keyOwner = entityOwner.bytes();
+    const entitySpender = this.getPrefixedString(spender);
+    const keySpender = entitySpender.bytes();
 
     const finalBytes = new Uint8Array(keyOwner.length + keySpender.length);
     finalBytes.set(keyOwner);
@@ -784,7 +780,7 @@ export default class CEP18Client extends Client {
         error instanceof Error &&
         error.toString().includes('Error: Query failed')
       ) {
-        console.warn(`Not found allowances for ${owner.toHex()}`);
+        console.warn(`No allowances found for ${entityOwner}`);
       } else throw error;
     }
     return allowances;
