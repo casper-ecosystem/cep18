@@ -17,7 +17,6 @@ use casper_contract::{
     },
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_event_standard::EVENTS_DICT;
 use casper_types::{
     bytesrepr::ToBytes, contract_messages::MessageTopicOperation, runtime_args,
     AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, PackageHash, U256,
@@ -314,12 +313,7 @@ pub extern "C" fn init() {
     let minter_list: Option<Vec<Key>> =
         get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
 
-    let events_mode: EventsMode = EventsMode::try_from(get_named_arg::<u8>(ARG_EVENTS_MODE))
-        .unwrap_or_revert_with(Cep18Error::InvalidEventsMode);
-
-    if EventsMode::CES == events_mode {
-        init_events();
-    }
+    init_events();
 
     if let Some(minter_list) = minter_list {
         for minter in minter_list {
@@ -412,10 +406,8 @@ fn change_events_mode() {
     }
     let events_mode_u8 = events_mode as u8;
     put_key(ARG_EVENTS_MODE, storage::new_uref(events_mode_u8).into());
+    init_events();
 
-    if get_key(EVENTS_DICT).is_none() {
-        init_events()
-    }
     events::record_event_dictionary(Event::ChangeEventsMode(ChangeEventsMode {
         events_mode: events_mode_u8,
     }));
