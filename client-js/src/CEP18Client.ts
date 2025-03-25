@@ -10,7 +10,8 @@ import {
   ParamDictionaryIdentifier,
   ParamDictionaryIdentifierContractNamedKey,
   PublicKey,
-  SessionBuilder
+  SessionBuilder,
+  AddressableEntityHash
 } from 'casper-js-sdk';
 import { Base64 } from 'js-base64';
 import Client from './client';
@@ -852,11 +853,18 @@ export default class CEP18Client extends Client {
     return internalValue !== '0';
   }
 
+  // ! TODO toPrefixedString() ?
+  // Error: prefix is not found, source: contract-0x, see Key.newKey()
   private getPrefixedString(entity: Entity): Key {
     if (entity instanceof PublicKey) {
       return Key.newKey(entity.accountHash().toPrefixedString());
     }
-
-    return Key.newKey(entity.toPrefixedString());
+    if (
+      entity instanceof ContractHash ||
+      entity instanceof ContractPackageHash
+    ) {
+      return Key.newKey(`hash-${entity.hash.toHex()}`);
+    }
+    return Key.newKey((entity as AddressableEntityHash).toPrefixedString());
   }
 }
