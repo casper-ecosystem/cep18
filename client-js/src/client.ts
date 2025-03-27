@@ -426,7 +426,9 @@ export default class Client {
       }
       return { transactionInfo };
     } catch (error) {
-      throw new Error(`Error during entry point call.\n${error}`);
+      throw new Error(
+        `Error during entry point call.\n${transaction.hash.toHex()}\n${error}`
+      );
     }
   }
 
