@@ -386,7 +386,6 @@ export default class Client {
     sender: PublicKey,
     signingKeys?: PrivateKey[],
     chainName?: string,
-
     waitForTransactionProcessed?: boolean
   ): Promise<TransactionResult> {
     let contractCallBuilder = new ContractCallBuilder()
