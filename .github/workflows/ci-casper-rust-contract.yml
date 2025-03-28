@@ -102,6 +102,8 @@ jobs:
             exit 1
           fi
 
+      # WARNING: These accounts, and their private keys, are now publicly known.
+      # Any funds sent to them on Mainnet or any other live network WILL BE LOST.
       - name: Set environment variables
         run: |
           echo "PRIVATE_KEY_FAUCET=$(sed -n '2p' ./assets/faucet/secret_key.pem)" >> $GITHUB_ENV
