@@ -127,6 +127,8 @@ export default class CEP18Client extends Client {
    *     - `totalSupply`: The total supply of the token.
    *     - `eventsMode`: (Optional) The mode in which events are emitted.
    *     - `enableMintAndBurn`: (Optional) A boolean indicating whether minting and burning are enabled.
+   *     - `adminList`: List of accounts with admin privileges.
+   *     - `minterList`: List of accounts allowed to mint tokens.
    *   - `waitForTransactionProcessed`: (Optional) If `true`, waits for the transaction to be processed.
    *
    * @returns A `Promise` resolving to `TransactionResult`, containing the transaction details.
@@ -147,7 +149,9 @@ export default class CEP18Client extends Client {
         decimals,
         totalSupply,
         eventsMode,
-        enableMintAndBurn
+        enableMintAndBurn,
+        adminList,
+        minterList
       }
     } = params;
 
@@ -165,6 +169,25 @@ export default class CEP18Client extends Client {
       runtimeArgs.insert(
         'enable_mint_burn',
         CLValue.newCLUint8(enableMintAndBurn ? 1 : 0)
+      );
+    }
+
+    if (adminList) {
+      runtimeArgs.insert(
+        'admin_list',
+        CLValue.newCLList(
+          CLTypeKey,
+          adminList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
+        )
+      );
+    }
+    if (minterList) {
+      runtimeArgs.insert(
+        'minter_list',
+        CLValue.newCLList(
+          CLTypeKey,
+          minterList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
+        )
       );
     }
 

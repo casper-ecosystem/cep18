@@ -28,6 +28,9 @@ export type InstallArgs = {
   eventsMode?: EVENTS_MODE;
   /** flag for mint and burn, false by default */
   enableMintAndBurn?: boolean;
+
+  adminList?: Entity[];
+  minterList?: Entity[];
 };
 
 export type UpgradeArgs = {

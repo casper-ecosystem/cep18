@@ -12,7 +12,7 @@ npm install cep18-js-client
 
 Import the contract in your code:
 
-`import { CEP78Client } from 'casper-cep78-js-client'`
+`import { CEP18Client } from 'casper-cep18-js-client'`
 
 If you want to install it, look at the `install` method and all of the possible configuration options (`InstallArgs`).
 
