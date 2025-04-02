@@ -1,4 +1,4 @@
-PINNED_TOOLCHAIN := $(shell cat contracts/rust-toolchain)
+PINNED_TOOLCHAIN := $(shell cat rust-toolchain)
 WASM_TARGET_DIR := ./target/wasm32-unknown-unknown/release
 WASM_OUTPUT_DIR := tests/wasm
 WASM_FILES := cep18.wasm cep18_test_contract.wasm
@@ -41,17 +41,17 @@ clippy:
 	cargo +$(PINNED_TOOLCHAIN) clippy --release -p cep18 --lib --target wasm32-unknown-unknown $(CARGO_BUILD_FLAGS) -- -D warnings
 	cargo +$(PINNED_TOOLCHAIN) clippy --release -p cep18 --lib --target wasm32-unknown-unknown $(CARGO_BUILD_FLAGS) --no-default-features -- -D warnings
 	cargo +$(PINNED_TOOLCHAIN) clippy -p cep18-test-contract --bins --target wasm32-unknown-unknown $(CARGO_BUILD_FLAGS) -- -D warnings
-	cargo clippy -p tests --all-targets -- -D warnings
+	cargo +stable clippy -p tests --all-targets -- -D warnings
 
 format:
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18-test-contract
-	cargo fmt -p tests
+	cargo +stable fmt -p tests
 
 check-lint: clippy
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18
 	cargo +$(PINNED_TOOLCHAIN) fmt -p cep18-test-contract
-	cargo fmt -p tests -- --check
+	cargo +stable fmt -p tests -- --check
 
 lint: clippy format
 

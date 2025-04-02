@@ -1,6 +1,0 @@
-[
-  ["name", { "bytes": "0a00000054455354204345503138", "cl_type": "String" }],
-  ["symbol", { "bytes": "03000000544654", "cl_type": "String" }],
-  ["decimals", { "bytes": "09", "cl_type": "U8" }],
-  ["total_supply", { "bytes": "0500743ba40b", "cl_type": "U256" }]
-]

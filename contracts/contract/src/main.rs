@@ -13,11 +13,10 @@ use alloc::{
 use casper_contract::{
     contract_api::{
         runtime::{self, call_contract, get_key, get_named_arg, put_key, revert},
-        storage::{self, dictionary_put},
+        storage::{self, dictionary_put, read},
     },
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_event_standard::EVENTS_DICT;
 use casper_types::{
     bytesrepr::ToBytes, contract_messages::MessageTopicOperation, runtime_args,
     AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, PackageHash, U256,
@@ -43,7 +42,8 @@ use cep18::{
     security::{change_sec_badge, sec_check, SecurityBadge},
     utils::{
         base64_encode, get_contract_version_key, get_immediate_caller,
-        get_optional_named_arg_with_user_errors, get_stored_value, write_total_supply_to,
+        get_optional_named_arg_with_user_errors, get_stored_value, get_uref_with_user_errors,
+        write_total_supply_to,
     },
 };
 
@@ -313,12 +313,7 @@ pub extern "C" fn init() {
     let minter_list: Option<Vec<Key>> =
         get_optional_named_arg_with_user_errors(MINTER_LIST, Cep18Error::InvalidMinterList);
 
-    let events_mode: EventsMode = EventsMode::try_from(get_named_arg::<u8>(ARG_EVENTS_MODE))
-        .unwrap_or_revert_with(Cep18Error::InvalidEventsMode);
-
-    if EventsMode::CES == events_mode {
-        init_events();
-    }
+    init_events();
 
     if let Some(minter_list) = minter_list {
         for minter in minter_list {
@@ -411,10 +406,8 @@ fn change_events_mode() {
     }
     let events_mode_u8 = events_mode as u8;
     put_key(ARG_EVENTS_MODE, storage::new_uref(events_mode_u8).into());
+    init_events();
 
-    if get_key(EVENTS_DICT).is_none() {
-        init_events()
-    }
     events::record_event_dictionary(Event::ChangeEventsMode(ChangeEventsMode {
         events_mode: events_mode_u8,
     }));
@@ -450,14 +443,23 @@ pub fn upgrade(name: &str) {
         Cep18Error::InvalidEventsMode,
     );
 
-    let mut message_topics = BTreeMap::new();
-    match get_key(ARG_CONDOR) {
-        Some(_) => {}
-        None => {
-            message_topics.insert(ARG_EVENTS.to_string(), MessageTopicOperation::Add);
-            put_key(ARG_CONDOR, storage::new_uref(ARG_CONDOR).into());
-        }
-    }
+    let version_value_uref = get_uref_with_user_errors(
+        &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_VERSION}_{name}"),
+        Cep18Error::MissingVersionContractKey,
+        Cep18Error::InvalidVersionContractKey,
+    );
+
+    let version_value: String = read(version_value_uref)
+        .unwrap_or_default()
+        .unwrap_or_default();
+
+    // If stored version is a non empty string (and not a u32), it means it is already a Condor
+    // version, do not add message topics then, as already set when installed
+    let message_topics: BTreeMap<String, MessageTopicOperation> = if !version_value.is_empty() {
+        BTreeMap::new()
+    } else {
+        BTreeMap::from([(ARG_EVENTS.to_string(), MessageTopicOperation::Add)])
+    };
 
     let mut named_keys = NamedKeys::new();
     named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
@@ -536,15 +538,11 @@ pub fn install_contract(name: &str) {
         ARG_ENABLE_MINT_BURN.to_string(),
         storage::new_uref(enable_mint_burn).into(),
     );
+    named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
 
     let entry_points = generate_entry_points();
 
-    let mut message_topics = BTreeMap::new();
-    if [EventsMode::Native, EventsMode::NativeBytes]
-        .contains(&events_mode.try_into().unwrap_or_default())
-    {
-        message_topics.insert(ARG_EVENTS.to_string(), MessageTopicOperation::Add);
-    };
+    let message_topics = BTreeMap::from([(ARG_EVENTS.to_string(), MessageTopicOperation::Add)]);
 
     let package_hash_name = format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_PACKAGE_NAME}_{name}");
 
@@ -586,7 +584,6 @@ pub fn install_contract(name: &str) {
             .unwrap_or_revert_with(Cep18Error::FailedToInsertToSecurityList);
     }
 
-    put_key(ARG_CONDOR, storage::new_uref(ARG_CONDOR).into());
     runtime::call_contract::<()>(contract_hash, ENTRY_POINT_INIT, init_args);
 }
 

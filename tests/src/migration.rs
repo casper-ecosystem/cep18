@@ -3,18 +3,17 @@ use casper_engine_test_support::{
 };
 use casper_fixtures::LmdbFixtureState;
 use casper_types::{
-    runtime_args, AddressableEntityHash, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
+    runtime_args, AddressableEntityHash, EntityAddr, EraId, Key, ProtocolVersion, RuntimeArgs, U256,
 };
-use cep18::constants::{
-    ARG_AMOUNT, ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME,
-    ARG_OWNER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, ENTRY_POINT_MINT,
+use cep18::{
+    constants::{ARG_AMOUNT, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ENTRY_POINT_MINT},
+    modalities::EventsMode,
 };
 
 use crate::utility::{
     constants::{
         AMOUNT_1, CEP18_CONTRACT_WASM, CEP18_TEST_CONTRACT_WASM, CEP18_TEST_TOKEN_CONTRACT_NAME,
-        CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_DECIMALS, TOKEN_NAME, TOKEN_SYMBOL,
-        TOKEN_TOTAL_SUPPLY,
+        CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_NAME,
     },
     installer_request_builders::{cep18_check_balance_of, get_test_account},
     message_handlers::{message_summary, message_topic},
@@ -107,7 +106,7 @@ fn should_be_able_to_call_1x_contract_in_2x_execution_engine() {
 }
 
 #[test]
-fn should_migrate_1_5_6_to_2_0_0_rc3() {
+fn should_migrate_1_5_6_to_2_0_0() {
     // load fixture
     let (mut builder, lmdb_fixture_state, _temp_dir) =
         casper_fixtures::builder_from_global_state_fixture("cep18-1.5.6-minted");
@@ -128,10 +127,7 @@ fn should_migrate_1_5_6_to_2_0_0_rc3() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-            ARG_EVENTS_MODE => 2_u8,
+            ARG_EVENTS_MODE => EventsMode::Native as u8,
         },
     )
     .build();
@@ -204,11 +200,7 @@ fn should_have_native_events() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-            ARG_EVENTS_MODE => 3_u8,
-            ARG_ENABLE_MINT_BURN => true
+            ARG_EVENTS_MODE => EventsMode::NativeBytes as u8,
         },
     )
     .build();
@@ -218,7 +210,8 @@ fn should_have_native_events() {
     let cep18_token = get_contract_hash_v2_binary(&builder);
 
     // events check
-    let binding = builder.message_topics(None, cep18_token.value()).unwrap();
+    let entity_addr = EntityAddr::SmartContract(cep18_token.value());
+    let binding = builder.message_topics(None, entity_addr).unwrap();
     let (topic_name, message_topic_hash) = binding
         .iter()
         .last()

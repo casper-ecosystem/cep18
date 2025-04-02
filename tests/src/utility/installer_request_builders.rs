@@ -13,9 +13,12 @@ use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, AddressableEntityHash, CLTyped,
     EntityAddr, Key, PackageHash, PublicKey, RuntimeArgs, U256,
 };
-use cep18::constants::{
-    ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ARG_RECIPIENT,
-    ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, ENTRY_POINT_APPROVE, ENTRY_POINT_TRANSFER,
+use cep18::{
+    constants::{
+        ARG_ADDRESS, ARG_AMOUNT, ARG_DECIMALS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ARG_RECIPIENT,
+        ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, ENTRY_POINT_APPROVE, ENTRY_POINT_TRANSFER,
+    },
+    modalities::EventsMode,
 };
 use cep18_test_contract::constants::{
     ARG_TOKEN_CONTRACT, CEP18_TEST_CONTRACT_PACKAGE_NAME, ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
@@ -55,7 +58,7 @@ pub(crate) fn setup() -> (LmdbWasmTestBuilder, TestContext) {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => 2_u8
+        ARG_EVENTS_MODE => EventsMode::Native as u8
     })
 }
 

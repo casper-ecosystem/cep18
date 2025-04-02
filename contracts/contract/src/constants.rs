@@ -12,6 +12,7 @@ pub const ENTRY_POINT_BALANCE_OF: &str = "balance_of";
 pub const ENTRY_POINT_BURN: &str = "burn";
 pub const ENTRY_POINT_CHANGE_EVENTS_MODE: &str = "change_events_mode";
 pub const ENTRY_POINT_CHANGE_SECURITY: &str = "change_security";
+pub const ENTRY_POINT_CONDOR: &str = "condor";
 pub const ENTRY_POINT_DECIMALS: &str = "decimals";
 pub const ENTRY_POINT_DECREASE_ALLOWANCE: &str = "decrease_allowance";
 pub const ENTRY_POINT_INCREASE_ALLOWANCE: &str = "increase_allowance";

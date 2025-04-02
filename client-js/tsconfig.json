@@ -1,22 +1,28 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "strict": true,
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "removeComments": true,
     "declaration": true,
-    "target": "es5",
-    "lib": ["es2015", "dom"],
-    "module": "commonjs",
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
     "skipLibCheck": true,
-    "outDir": "./dist",
-    "baseUrl": "."
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "allowJs": false,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"],
-  "include": ["src/**/*", "examples/**/*", "tests/**/*", ".eslintrc.js"]
+  "exclude": ["node_modules", "dist"],
+  "include": ["src", "examples", "tests", "config.ts"]
 }

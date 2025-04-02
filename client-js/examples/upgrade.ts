@@ -3,9 +3,9 @@ import {
   CEP18Client,
   ContractWASM as wasm,
   EVENTS_MODE,
-  type InstallArgs,
   type TransactionParams,
-  type TransactionResult
+  type TransactionResult,
+  type UpgradeArgs
 } from '../dist';
 import {
   findKeyFromAccountNamedKeys,
@@ -18,41 +18,28 @@ if (!PRIVATE_KEY_FAUCET) {
 }
 
 const name = 'TEST_CEP18',
-  symbol = 'CEP18',
-  decimals = 9,
-  totalSupply = String(200_000_000_000),
-  // The events mode is disabled by default, to enable CES events you should set `eventsMode`.
-  eventsMode = EVENTS_MODE.CES,
-  // Mint and burn is also disabled by default, if you need to enable burn and mint you should set `enableMintAndBurn` as true.
-  enableMintAndBurn = true,
+  eventsMode = EVENTS_MODE.NoEvents,
   waitForTransactionProcessed = true,
   sender = getSigningKey(PRIVATE_KEY_FAUCET),
   paymentAmount = String(400_000_000_000);
 
-const install = async () => {
-  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
-
-  const params: TransactionParams = {
-    wasm,
-    sender: sender.publicKey,
-    paymentAmount,
-    signingKeys: [sender]
-  };
-
-  const args: InstallArgs = {
-    name,
-    symbol,
-    decimals,
-    totalSupply,
-    eventsMode,
-    enableMintAndBurn
-  };
-
-  const transactionResult: TransactionResult = await cep18.install({
-    params,
-    args,
-    waitForTransactionProcessed
-  });
+const upgrade = async () => {
+  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME),
+    params: TransactionParams = {
+      wasm,
+      sender: sender.publicKey,
+      paymentAmount,
+      signingKeys: [sender]
+    },
+    args: UpgradeArgs = {
+      name,
+      eventsMode
+    },
+    transactionResult: TransactionResult = await cep18.upgrade({
+      params,
+      args,
+      waitForTransactionProcessed
+    });
 
   if (!transactionResult.transactionInfo.transactionHash) {
     throw Error('Invalid transaction hash');
@@ -60,21 +47,21 @@ const install = async () => {
   return transactionResult;
 };
 
-install()
+upgrade()
   .then(async transactionResult => {
     const { transactionInfo, executionResult } = transactionResult;
     console.info(
-      `Contract installation transaction hash: ${transactionInfo.transactionHash}`
+      `Contract upgrade transaction hash: ${transactionInfo.transactionHash}`
     );
 
     if (executionResult) {
       if (executionResult?.errorMessage) {
         throw new Error(
-          `Error during installation.\n${executionResult?.errorMessage.toString()}`
+          `Error during upgrade.\n${executionResult?.errorMessage.toString()}`
         );
       } else {
         console.info(
-          `Contract installation cost consumed: ${executionResult?.consumed}`
+          `Contract upgrade cost consumed: ${executionResult?.consumed}`
         );
       }
     }

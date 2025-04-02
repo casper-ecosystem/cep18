@@ -1,7 +1,7 @@
 use casper_engine_test_support::LmdbWasmTestBuilder;
 use casper_types::{
     contract_messages::{MessageChecksum, MessageTopicSummary, TopicNameHash},
-    AddressableEntityHash, Digest, Key, StoredValue,
+    AddressableEntityHash, Digest, EntityAddr, Key, StoredValue,
 };
 
 pub fn message_topic(
@@ -9,12 +9,9 @@ pub fn message_topic(
     contract_hash: &AddressableEntityHash,
     topic_name_hash: TopicNameHash,
 ) -> MessageTopicSummary {
+    let entity_addr = EntityAddr::SmartContract(contract_hash.value());
     let query_result = builder
-        .query(
-            None,
-            Key::message_topic(contract_hash.value(), topic_name_hash),
-            &[],
-        )
+        .query(None, Key::message_topic(entity_addr, topic_name_hash), &[])
         .expect("should query");
 
     match query_result {
@@ -35,9 +32,10 @@ pub fn message_summary(
     message_index: u32,
     state_hash: Option<Digest>,
 ) -> Result<MessageChecksum, String> {
+    let entity_addr = EntityAddr::SmartContract(contract_hash.value());
     let query_result = builder.query(
         state_hash,
-        Key::message(contract_hash.value(), *topic_name_hash, message_index),
+        Key::message(entity_addr, *topic_name_hash, message_index),
         &[],
     )?;
 

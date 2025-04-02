@@ -7,64 +7,64 @@
   "scripts": {
     "lint": "eslint src/ --max-warnings=0",
     "lint:write": "eslint src/ --fix",
-    "test:unit": "cross-env NODE_ENV=test jest \"/tests/unit\"",
-    "test:e2e": "cross-env NODE_ENV=test jest -i --detectOpenHandles --forceExit \"tests/e2e\"",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write src",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "npx vitest run tests/e2e",
     "test": "npm run test:unit && npm run test:e2e",
-    "example:install": "ts-node examples/install.ts",
-    "example:usage": "ts-node examples/usage.ts",
-    "example:usage2": "ts-node examples/usage2.ts",
+    "test:e2e:install": "npx vitest run tests/e2e/install.test.ts",
+    "test:e2e:upgrade": "npx vitest run tests/e2e/upgrade.test.ts",
+    "test:e2e:usage": "npx vitest run tests/e2e/usage.test.ts",
+    "test:e2e:events": "npx vitest run tests/e2e/events.test.ts",
+    "example:install": "tsx examples/install.ts",
+    "example:upgrade": "tsx examples/upgrade.ts",
+    "example:usage": "tsx examples/usage.ts",
+    "example:events": "tsx examples/events.ts",
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json",
-    "generate:wasm": "ts-node \"src/scripts/copy-and-convert-wasms.ts\""
+    "build": "tsup src/index.ts --format esm,cjs --dts --minify",
+    "generate:wasm": "tsx --tsconfig tsconfig.json \"src/scripts/copy-and-convert-wasms.ts\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/casper-ecosystem/cep18.git"
+    "url": "git+https://github.com/casper-ecosystem/cep18.git",
+    "directory": "client-js"
   },
   "keywords": [
     "casper",
     "cep18",
     "fungible token"
   ],
-  "author": "Ryo Kanazawa <ryo@casperlabs.io>",
+  "author": "casper.network",
   "license": "Apache License 2.0",
   "bugs": {
     "url": "https://github.com/casper-ecosystem/cep18/issues"
   },
-  "homepage": "https://github.com/casper-ecosystem/cep18/tree/master/client-js#readme",
+  "homepage": "https://github.com/casper-ecosystem/cep18/tree/dev/client-js#readme",
   "files": [
     "/dist"
   ],
   "dependencies": {
-    "@ethersproject/bignumber": "^5.7.0",
-    "@noble/hashes": "^1.7.1"
+    "@noble/hashes": "^1.7.1",
+    "js-base64": "^3.7.7"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.12.0",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
-    "cross-env": "^7.0.3",
+    "@swc/core": "^1.11.8",
+    "@types/node": "^22.13.10",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
     "dotenv": "^16.4.7",
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^18.0.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-jest": "^28.11.0",
-    "eslint-plugin-n": "^17.15.1",
-    "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "eslint-plugin-unicorn": "^56.0.1",
-    "eslint-plugin-unused-imports": "^4.1.4",
-    "jest": "^29.7.0",
-    "prettier": "^3.4.2",
-    "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-import": "^2.31.0",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
   },
   "peerDependencies": {
-    "casper-js-sdk": "^2.15.7",
-    "@make-software/ces-js-parser": "^1.3.3"
+    "@make-software/ces-js-parser": "^2.0.0",
+    "casper-js-sdk": "5.0.0"
   }
 }

@@ -3,12 +3,17 @@ use crate::utility::{
         CEP18_CONTRACT_WASM, CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_DECIMALS, TOKEN_NAME,
         TOKEN_SYMBOL, TOKEN_TOTAL_SUPPLY,
     },
-    installer_request_builders::setup,
+    installer_request_builders::{setup, setup_with_args},
     support::query_stored_value,
 };
 use casper_engine_test_support::{ExecuteRequestBuilder, DEFAULT_ACCOUNT_ADDR};
 use casper_types::{runtime_args, Key, U256};
-use cep18::constants::{ARG_DECIMALS, ARG_NAME, ARG_SYMBOL, ARG_TOTAL_SUPPLY};
+use cep18::{
+    constants::{
+        ARG_DECIMALS, ARG_ENABLE_MINT_BURN, ARG_EVENTS_MODE, ARG_NAME, ARG_SYMBOL, ARG_TOTAL_SUPPLY,
+    },
+    modalities::EventsMode,
+};
 
 #[test]
 fn should_upgrade_contract_version() {
@@ -39,9 +44,6 @@ fn should_upgrade_contract_version() {
         CEP18_CONTRACT_WASM,
         runtime_args! {
             ARG_NAME => TOKEN_NAME,
-            ARG_SYMBOL => TOKEN_SYMBOL,
-            ARG_DECIMALS => TOKEN_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
         },
     )
     .build();
@@ -72,4 +74,28 @@ fn should_upgrade_contract_version() {
 
     assert!(version_0_major == version_1_major);
     assert!(version_0_minor < version_1_minor);
+}
+
+#[test]
+fn should_upgrade_contract_from_ces_to_native() {
+    let (mut builder, ..) = setup_with_args(runtime_args! {
+        ARG_NAME => TOKEN_NAME,
+        ARG_SYMBOL => TOKEN_SYMBOL,
+        ARG_DECIMALS => TOKEN_DECIMALS,
+        ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
+        ARG_EVENTS_MODE => EventsMode::CES as u8,
+        ARG_ENABLE_MINT_BURN => true,
+    });
+
+    let upgrade_request = ExecuteRequestBuilder::standard(
+        *DEFAULT_ACCOUNT_ADDR,
+        CEP18_CONTRACT_WASM,
+        runtime_args! {
+            ARG_NAME => TOKEN_NAME,
+            ARG_EVENTS_MODE => EventsMode::Native as u8,
+        },
+    )
+    .build();
+
+    builder.exec(upgrade_request).expect_success().commit();
 }

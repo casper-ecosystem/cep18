@@ -10,10 +10,7 @@ use casper_contract::{
         },
         storage::{dictionary_get, dictionary_put, read, write},
     },
-    ext_ffi::{
-        casper_get_key, casper_get_named_arg, casper_get_named_arg_size, casper_read_host_buffer,
-        casper_read_value,
-    },
+    ext_ffi::{casper_get_key, casper_get_named_arg, casper_get_named_arg_size},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
@@ -23,7 +20,7 @@ use casper_types::{
     contracts::{ContractPackageHash, ContractVersionKey},
     ApiError, CLTyped, EntityAddr, Key, PackageHash, URef, U256,
 };
-use core::{convert::TryInto, mem::MaybeUninit};
+use core::convert::TryInto;
 
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
@@ -83,6 +80,18 @@ where
         .unwrap_or_revert_with(Cep18Error::FailedToReadFromStorage)
 }
 
+// This method Unused for now in the contract but maybe usefull later
+// pub fn get_stored_value_with_user_errors<T: CLTyped + FromBytes>(
+//     name: &str,
+//     missing: Cep18Error,
+//     invalid: Cep18Error,
+// ) -> T {
+//     let uref = get_uref_with_user_errors(name, missing, invalid);
+//     read::<T>(uref)
+//         .unwrap_or_revert_with(missing)
+//         .unwrap_or_revert_with(invalid)
+// }
+
 pub fn get_named_arg_with_user_errors<T: FromBytes>(
     name: &str,
     missing: Cep18Error,
@@ -123,15 +132,6 @@ pub fn get_optional_named_arg_with_user_errors<T: FromBytes>(
         Err(Cep18Error::Phantom) => None,
         Err(e) => revert(e),
     }
-}
-
-pub fn get_stored_value_with_user_errors<T: CLTyped + FromBytes>(
-    name: &str,
-    missing: Cep18Error,
-    invalid: Cep18Error,
-) -> T {
-    let uref = get_uref_with_user_errors(name, missing, invalid);
-    read_with_user_errors(uref, missing, invalid)
 }
 
 pub fn make_dictionary_item_key<T: CLTyped + ToBytes, V: CLTyped + ToBytes>(
@@ -189,7 +189,7 @@ fn get_uref(name: &str) -> URef {
         .unwrap_or_revert_with(Cep18Error::InvalidKeyType)
 }
 
-fn get_uref_with_user_errors(name: &str, missing: Cep18Error, invalid: Cep18Error) -> URef {
+pub fn get_uref_with_user_errors(name: &str, missing: Cep18Error, invalid: Cep18Error) -> URef {
     let key = get_key_with_user_errors(name, missing, invalid);
     key.into_uref()
         .unwrap_or_revert_with(Cep18Error::InvalidKeyType)
@@ -216,50 +216,6 @@ fn get_key_with_user_errors(name: &str, missing: Cep18Error, invalid: Cep18Error
     key_bytes.truncate(total_bytes);
 
     bytesrepr::deserialize(key_bytes).unwrap_or_revert_with(invalid)
-}
-
-fn read_with_user_errors<T: CLTyped + FromBytes>(
-    uref: URef,
-    missing: Cep18Error,
-    invalid: Cep18Error,
-) -> T {
-    let key: Key = uref.into();
-    let (key_ptr, key_size, _bytes) = to_ptr(key);
-
-    // Get the size of the value
-    let value_size = {
-        let mut value_size = MaybeUninit::uninit();
-        let ret = unsafe { casper_read_value(key_ptr, key_size, value_size.as_mut_ptr()) };
-        match api_error::result_from(ret) {
-            Ok(_) => unsafe { value_size.assume_init() },
-            Err(ApiError::ValueNotFound) => revert(missing),
-            Err(e) => revert(e),
-        }
-    };
-
-    // Allocate a buffer to store the value
-    let mut buffer = vec![0u8; value_size];
-    let mut bytes_written = 0usize;
-
-    let ret = unsafe {
-        casper_read_host_buffer(
-            buffer.as_mut_ptr(),
-            value_size,
-            &mut bytes_written as *mut usize,
-        )
-    };
-
-    // Check for errors
-    match api_error::result_from(ret) {
-        Ok(_) => {}
-        Err(e) => revert(e),
-    }
-
-    if bytes_written != value_size {
-        revert(ApiError::UnexpectedKeyVariant);
-    }
-
-    bytesrepr::deserialize(buffer).unwrap_or_revert_with(invalid)
 }
 
 fn to_ptr<T: ToBytes>(t: T) -> (*const u8, usize, Vec<u8>) {
