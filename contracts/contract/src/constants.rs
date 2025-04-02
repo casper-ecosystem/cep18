@@ -37,7 +37,6 @@ pub const ARG_EVENTS_MODE: &str = "events_mode";
 pub const ARG_FROM: &str = "from";
 pub const ARG_ID: &str = "id";
 pub const ARG_NAME: &str = "name";
-pub const ARG_UPGRADE_FLAG: &str = "upgrade";
 pub const ARG_OPERATOR: &str = "operator";
 pub const ARG_OWNER: &str = "owner";
 pub const ARG_PACKAGE_HASH: &str = "package_hash";
