@@ -103,7 +103,7 @@ Set the contract hash (a unique identifier for the network):
 
 ```ts
 cep18.setContractHash(
-  'entity-contract-c2402c3d88b13f14390ff46fde9c06b8590c9e45a9802f7fb8a2674ff9c1e5b1'
+  'hash-c2402c3d88b13f14390ff46fde9c06b8590c9e45a9802f7fb8a2674ff9c1e5b1'
 );
 ```
 
