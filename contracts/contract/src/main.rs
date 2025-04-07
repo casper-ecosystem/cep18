@@ -484,7 +484,7 @@ pub fn upgrade(name: &str) {
     // ContractHash in previous versions, now AddressableEntityHash
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_NAME}_{name}"),
-        Key::Hash(contract_hash.value().into()),
+        Key::Hash(contract_hash.value()),
     );
 
     runtime::put_key(
@@ -557,7 +557,7 @@ pub fn install_contract(name: &str) {
     let package_hash = runtime::get_key(&package_hash_name)
         .unwrap_or_revert_with(Cep18Error::FailedToGetPackageKey);
 
-    let contract_hash_key = Key::Hash(contract_hash.value().into());
+    let contract_hash_key = Key::Hash(contract_hash.value());
 
     // Store contract_hash and contract_version under the keys CONTRACT_NAME and CONTRACT_VERSION
     runtime::put_key(
