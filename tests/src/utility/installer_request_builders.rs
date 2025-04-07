@@ -145,7 +145,7 @@ pub(crate) fn cep18_check_total_supply(
         .expect("should have test contract hash");
 
     let check_total_supply_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
     };
 
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
@@ -194,7 +194,7 @@ pub(crate) fn cep18_check_balance_of(
         .expect("should have test contract package hash");
 
     let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
         ARG_ADDRESS => address,
     };
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
@@ -230,7 +230,7 @@ pub(crate) fn cep18_check_allowance_of(
         .expect("should have test contract hash");
 
     let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => Key::contract_entity_key(cep18_contract_hash),
+        ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
         ARG_OWNER => owner,
         ARG_SPENDER => spender,
     };
@@ -337,7 +337,7 @@ pub(crate) fn make_cep18_transfer_request(
             None,
             ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
                 ARG_AMOUNT => amount,
                 ARG_RECIPIENT => recipient,
             },
@@ -363,7 +363,7 @@ pub(crate) fn make_cep18_transfer_request(
             None,
             ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
                 ARG_AMOUNT => amount,
                 ARG_RECIPIENT => recipient,
             },
@@ -396,7 +396,7 @@ pub(crate) fn make_cep18_approve_request(
             None,
             ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+                ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
                 ARG_SPENDER => spender,
                 ARG_AMOUNT => amount,
             },
@@ -423,7 +423,7 @@ pub(crate) fn make_cep18_approve_request(
                 None,
                 ENTRY_POINT_APPROVE_AS_STORED_CONTRACT,
                 runtime_args! {
-                    ARG_TOKEN_CONTRACT => Key::contract_entity_key(*cep18_contract_hash),
+                    ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
                     ARG_SPENDER => spender,
                     ARG_AMOUNT => amount,
                 },
