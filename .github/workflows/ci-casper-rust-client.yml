@@ -1,4 +1,4 @@
-name: ci-cep18
+name: ci-cep18-js-client
 
 on:
   push:
