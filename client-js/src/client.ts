@@ -31,6 +31,11 @@ const contractErrorMessagePrefix = 'User error: ';
  * Client class for interacting with the Casper blockchain.
  * Provides functionalities to connect to an RPC and SSE server,
  * manage smart contract interactions, and listen for blockchain events.
+ *
+ * IMPORTANT:
+ * This class is duplicated in every CEP JS client.
+ * Any modifications made to this class must be reflected across all instances of CEP clients to maintain consistency.
+ * Ensure to update all relevant CEP JS clients whenever changes are made to this class.
  */
 export default class Client {
   public chainName!: string;

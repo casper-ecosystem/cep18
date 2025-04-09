@@ -36,6 +36,8 @@ npm install && npm run generate:wasm
 
 > The `casper-cep18-js-client` requires `casper-js-sdk` and `@make-software/ces-js-parser` as a peer dependency.
 
+> **IMPORTANT:** The class Client in client.ts is duplicated in every CEP JS client. Any modifications made to this class must be reflected across all instances of CEP clients to ensure consistency. Be sure to update all relevant CEP JS clients whenever changes are made to this class.
+
 ## Examples and E2E Tests
 
 In this project, you'll find two important directories that help demonstrate and test the functionality of the code:
