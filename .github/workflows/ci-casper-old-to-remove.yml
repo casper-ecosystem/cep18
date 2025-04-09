@@ -1,19 +1,16 @@
-name: ci-cep18
+name: ci-cep18-to-remove
 
 on:
   push:
-    branches: [dev]
+    branches: [master, dev]
 
   pull_request:
-    branches: [dev]
+    branches: [master, dev]
 
 jobs:
   # This ci-smart-contract step shall be removed, only for PR passing previous CI/CD checks
   ci-smart-contract:
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node-version: [16.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,6 +19,11 @@ jobs:
   ci-js-client:
     needs: ci-smart-contract
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [16.x, 20.x]
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
