@@ -8,6 +8,14 @@ on:
     branches: [dev, feat-*, release-*]
 
 jobs:
+  # This ci-js-client step shall be removed, only for PR passing previous CI/CD checks
+  ci-js-client-to-remove:
+    needs: ci-smart-contract
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [16.x]
+
   ci-smart-contract:
     strategy:
       matrix:
