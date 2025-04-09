@@ -1,0 +1,27 @@
+name: ci-cep18
+
+on:
+  push:
+    branches: [dev]
+
+  pull_request:
+    branches: [dev]
+
+jobs:
+  # This ci-smart-contract step shall be removed, only for PR passing previous CI/CD checks
+  ci-smart-contract:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+  # This ci-js-client step shall be removed, only for PR passing previous CI/CD checks
+  ci-js-client:
+    needs: ci-smart-contract
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
