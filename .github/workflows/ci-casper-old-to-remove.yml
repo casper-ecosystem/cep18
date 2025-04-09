@@ -1,4 +1,4 @@
-name: ci-cep18-to-remove
+name: ci-cep18
 
 on:
   push:
