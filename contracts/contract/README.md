@@ -26,11 +26,15 @@ The modality provides two options:
 
 1. `NoEvents`: This modality will signal the contract not to record events. This is the default mode.
 2. `CES`: This modality will signal the contract to record events using the [Casper Event Standard (CES)](#casper-event-standard).
+3. `Native`: This modality will signal the contract to record events using the 2.0 Native event
+4. `NativeBytes`: This modality will signal the contract to record events using the 2.0 Native event as bytes
 
-| EventsMode | u8  |
-| ---------- | --- |
-| NoEvents   | 0   |
-| CES        | 1   |
+| EventsMode  | u8  |
+| ----------- | --- |
+| NoEvents    | 0   |
+| CES         | 1   |
+| Native      | 2   |
+| NativeBytes | 3   |
 
 #### The Casper Event Standard
 
@@ -107,6 +111,9 @@ The Casper CEP-18 Standard follows the [ERC20 Standard](https://eips.ethereum.or
 - `mint` - Creates the number of tokens specified and assigns them to an account, increasing the total supply.
 - `burn` - Destroys the number of tokens specified from an account, reducing the total supply.
 - `change_security` - An entrypoint specific to CEP-18, used for Administration and Security operations. See more details below.
+- `condor` - A custom entry point that returns a fixed string. This serves as a sentinel value to confirm the contract was correctly installed or migrated to a version compatible with the 2.0 upgrade path. It is primarily used for upgrade verification and not as a versioning mechanism.
+
+- `change_events_mode` - Allows changing the contract's event handling mode. Takes a single `u8` argument named `events_mode` and returns `Unit`.
 
 ### Changing Security Access
 
