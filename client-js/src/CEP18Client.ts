@@ -231,7 +231,9 @@ export default class CEP18Client extends Client {
       }
       return { transactionInfo };
     } catch (error) {
-      throw new Error(`Error during installation runtime.\n${error}`);
+      throw new Error(
+        `Error during installation runtime.\n${error}\n${(error as any)?.sourceErr?.data}`
+      );
     }
   }
 
@@ -309,7 +311,9 @@ export default class CEP18Client extends Client {
       }
       return { transactionInfo };
     } catch (error) {
-      throw new Error(`Error during upgrade runtime.\n${error}`);
+      throw new Error(
+        `Error during upgrade runtime.\n${error}\n${(error as any)?.sourceErr?.data}`
+      );
     }
   }
 
