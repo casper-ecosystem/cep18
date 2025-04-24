@@ -472,7 +472,7 @@ pub fn upgrade(name: &str) {
     );
 
     storage::disable_contract_version(
-        contract_package_hash.into(),
+        contract_package_hash,
         converted_previous_contract_hash.into(),
     )
     .unwrap_or_revert_with(Cep18Error::FailedToDisableContractVersion);
