@@ -481,7 +481,6 @@ pub fn upgrade(name: &str) {
     // new `new_contract` implementation
     runtime::put_key(package_key_name, contract_package_hash.into());
 
-    // ContractHash in previous versions, now AddressableEntityHash
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_NAME}_{name}"),
         Key::Hash(contract_hash.value()),
