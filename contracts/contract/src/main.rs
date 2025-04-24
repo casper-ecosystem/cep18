@@ -477,9 +477,10 @@ pub fn upgrade(name: &str) {
     )
     .unwrap_or_revert_with(Cep18Error::FailedToDisableContractVersion);
 
+    // ! TODO Check why new_contract still using ContractPackageHash
     // migrate old ContractPackageHash as PackageHash so it's stored in a uniform format with the
     // `add_contract_version` implementation
-    runtime::put_key(package_key_name, contract_package_hash.into());
+    // runtime::put_key(package_key_name, contract_package_hash.into());
 
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_NAME}_{name}"),
