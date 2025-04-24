@@ -18,8 +18,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::ToBytes, contract_messages::MessageTopicOperation, runtime_args,
-    AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, PackageHash, U256,
+    bytesrepr::ToBytes, contract_messages::MessageTopicOperation, contracts::ContractPackageHash,
+    runtime_args, AddressableEntityHash, CLValue, EntityAddr, Key, NamedKeys, U256,
 };
 use cep18::{
     allowances::{read_allowance_from, write_allowance_to},
@@ -427,7 +427,7 @@ pub fn upgrade(name: &str) {
         Key::SmartContract(package_hash) => package_hash,
         _ => revert(Cep18Error::MissingPackageHashForUpgrade),
     };
-    let contract_package_hash = PackageHash::new(old_contract_package_hash);
+    let contract_package_hash = ContractPackageHash::new(old_contract_package_hash);
 
     let previous_contract_hash = match runtime::get_key(contract_key_name)
         .unwrap_or_revert_with(Cep18Error::FailedToGetOldContractHashKey)
@@ -465,7 +465,7 @@ pub fn upgrade(name: &str) {
     named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
 
     let (contract_hash, contract_version) = storage::add_contract_version(
-        contract_package_hash.into(),
+        contract_package_hash,
         entry_points,
         named_keys,
         message_topics,
