@@ -478,7 +478,7 @@ pub fn upgrade(name: &str) {
     .unwrap_or_revert_with(Cep18Error::FailedToDisableContractVersion);
 
     // migrate old ContractPackageHash as PackageHash so it's stored in a uniform format with the
-    // new `new_contract` implementation
+    // `add_contract_version` implementation
     runtime::put_key(package_key_name, contract_package_hash.into());
 
     runtime::put_key(
