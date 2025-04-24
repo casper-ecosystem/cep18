@@ -558,7 +558,7 @@ pub fn install_contract(name: &str) {
 
     let contract_hash_key = Key::Hash(contract_hash.value());
 
-    // Store contract_hash and contract_version under the keys CONTRACT_NAME and CONTRACT_VERSION
+    // Store contract_hash and contract_version under account keys
     runtime::put_key(
         &format!("{PREFIX_CEP18}_{PREFIX_CONTRACT_NAME}_{name}"),
         contract_hash_key,
