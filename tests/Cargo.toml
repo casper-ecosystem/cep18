@@ -19,7 +19,7 @@ once_cell = "*"
 cep18 = { path = "../contracts/contract", default-features = false }
 cep18-test-contract = { path = "../contracts/test-contract" }
 casper-types.workspace = true
-casper-fixtures = { path = "https://github.com/deuszex/casper-fixtures", branch = "feat-2.0", default-features = false }
+casper-fixtures = { git = "https://github.com/deuszex/casper-fixtures", branch = "feat-2.0", default-features = false }
 casper-engine-test-support = { version = "8.0.0", default-features = false }
 casper-execution-engine = { version = "8.0.0", default-features = false }
 casper-event-standard.workspace = true
