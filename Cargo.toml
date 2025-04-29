@@ -14,9 +14,9 @@ repository = "https://github.com/casper-ecosystem/cep18"
 license-file = "LICENSE"
 
 [workspace.dependencies]
-casper-contract = { version = "5.0.0", git = "https://github.com/casper-network/casper-node.git", default-features = false }
-casper-types = { version = "5.0.0", git = "https://github.com/casper-network/casper-node.git", default-features = false }
-casper-event-standard = { git = "https://github.com/make-software/casper-event-standard", branch = "casper-2.0", default-features = false }
+casper-contract = { version = "5.0.0", default-features = false }
+casper-types = { version = "5.0.1", default-features = false }
+casper-event-standard = { version = "0.6.0", default-features = false }
 
 [profile.release]
 codegen-units = 1
