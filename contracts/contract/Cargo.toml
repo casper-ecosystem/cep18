@@ -1,0 +1,33 @@
+[package]
+name = "cep18"
+description.workspace = true
+version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license-file.workspace = true
+readme.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "cep18"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+casper-types.workspace = true
+casper-contract = { workspace = true, optional = true }
+casper-event-standard = { workspace = true, default-features = false }
+base64 = { version = "*", default-features = false, features = ["alloc"] }
+hex = { version = "*", default-features = false }
+serde = { version = "*", default-features = false }
+serde_json = { version = "*", default-features = false }
+
+[features]
+default = ["contract-support"]
+contract-support = ["dep:casper-contract"]

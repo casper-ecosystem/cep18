@@ -44,7 +44,6 @@ The [Writing Rust Contracts on Casper](https://docs.casper.network/developers/wr
 
    j. [Sample Deploy on Testnet](#example-deploy-on-testnet-sample-deploy-testnet)
 
-
 # Preparation
 
 First clone the contract from GitHub:
@@ -250,24 +249,24 @@ Casper's Peregrine update introduced a refund system. In the event of overpay, 9
 Use the following command template to deploy the contract:
 
 ```bash
-casper-client put-deploy \
+casper-client put-transaction \
     --node-address http://<HOST:PORT> \
-    --chain-name [NETWORK_NAME]] \
+    --chain-name [CHAIN_NAME]] \
     --secret-key [PATH_TO_YOUR_KEY]/secret_key.pem \
     --payment-amount [AMOUNT] \
     --session-path [WASM_FILE_PATH]/[File_Name].wasm
     --session-arg <"NAME:TYPE='VALUE'" OR "NAME:TYPE=null">
 ```
 
-- `NETWORK_NAME`: Use the relevant network name. Here we use '_casper-test_'
+- `CHAIN_NAME`: Use the relevant network name. Here we use '_casper-test_'
 - `PATH_TO_YOUR_KEY`: Replace this with the actual path of your secret key
 - `PAYMENT_AMOUNT`: Gas amount in tokens needed for contract execution. If there are no adequate tokens, the deploy will not execute and will return an error
 - `WASM FILE PATH`: The session-path argument should point to the location of your compiled Fungible Token Wasm file
 
-Here is a sample _put-deploy_ command:
+Here is a sample _put-transaction_ command:
 
 ```bash
-casper-client put-deploy \
+casper-client put-transaction \
 --node-address http://95.216.24.237:7777 \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
@@ -377,12 +376,12 @@ This result contains the network state before the deploy. You can see the `named
 Send the Deploy containing your contract with this command:
 
 ```bash
-casper-client put-deploy \
+casper-client put-transaction \
 --node-address http://<HOST:PORT>  \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \ 
+--session-path "<machine-path>/cep18/target/wasm32-unknown-unknown/release/cep18.wasm" \
 --session-arg "name:string='Token test'" \
 --session-arg "symbol:string='TEST'" \
 --session-arg "total_supply:u256='1000'" \

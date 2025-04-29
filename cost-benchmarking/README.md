@@ -3,7 +3,8 @@
 These scripts deploy and operate a basic CEP-18 contract to record the gas costs of basic operations. Output is written to `cep18-cost-benchmarking-output` in the repository's root directory.
 
 ## Prerequisites
-- a running NCTL network with casper-node version 1.4.4 or later
+
+- a running NCTL network with casper-node version 2.0 or later
 - user 1 with sufficient tokens (usually the case!)
 - users 1-3 available
 - user 1 always acts as the installer

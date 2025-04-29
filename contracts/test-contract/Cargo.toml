@@ -1,0 +1,19 @@
+[package]
+name = "cep18-test-contract"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "cep18_test_contract"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
+[dependencies]
+cep18 = { path = "../contract" }
+casper-types.workspace = true
+casper-contract.workspace = true
+
+[features]
+default = ["cep18/contract-support"]

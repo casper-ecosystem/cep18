@@ -1,0 +1,119 @@
+name: ci-cep18-js-client
+
+on:
+  push:
+    branches: [dev, feat-*, release-*]
+
+  pull_request:
+    branches: [dev, feat-*, release-*]
+
+jobs:
+  ci-js-client:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt, clippy
+      - run: sudo apt update && sudo apt install -y build-essential wabt
+      - uses: Swatinem/rust-cache@v2
+      - run: make prepare
+      - run: make setup-test
+
+      - name: Start Casper NCTL Service
+        run: |
+          docker run -d \
+            --name casper-nctl \
+            -p 11101-11105:11101-11105 \
+            -p 14101-14105:14101-14105 \
+            -p 18101-18105:18101-18105 \
+            -p 25101-25105:25101-25105 \
+            -p 28101-28105:28101-28105 \
+            -v $PWD/assets/users:/app/casper-nctl/assets/net-1/users/ \
+            -v $PWD/assets/faucet:/app/casper-nctl/assets/net-1/faucet/ \
+            gregoshop/casper-nctl:2.0
+
+      - name: Wait for the service to be ready
+        run: |
+          echo "Waiting for the service to be ready on port 11101..."
+          for i in {1..30}; do # wait for up to 30 seconds
+            if nc -z localhost 11101; then
+              echo "Service is up!"
+              echo "Wait 45s for nctl to boot and create keys"
+              sleep 45  # - name: wait for up to 45 seconds for an era like
+              break
+            fi
+            echo "Waiting..."
+            sleep 1
+          done
+
+          # Check if the service is still not ready after 30 seconds
+          if ! nc -z localhost 11101; then
+            echo "Service did not start in time!"
+            exit 1
+          fi
+
+          echo "Waiting for the service to be ready on http://127.0.0.1:18101/events..."
+
+          for i in {1..30}; do  # Wait for up to 30 seconds
+            if curl --silent --max-time 2 http://127.0.0.1:18101/events | grep -q "ApiVersion"; then
+              echo "Service is up!"
+              break
+            fi
+            echo "Waiting..."
+            sleep 1
+          done
+
+          # Final check after timeout
+          if ! curl --silent --max-time 2 http://127.0.0.1:18101/events | grep -q "ApiVersion"; then
+            echo "Service did not start in time!"
+            exit 1
+          fi
+
+      # WARNING: These accounts, and their private keys, are now publicly known.
+      # Any funds sent to them on Mainnet or any other live network WILL BE LOST.
+      - name: Set environment variables
+        run: |
+          echo "PRIVATE_KEY_FAUCET=$(sed -n '2p' ./assets/faucet/secret_key.pem)" >> $GITHUB_ENV
+          echo "PRIVATE_KEY_USER_1=$(sed -n '2p' ./assets/users/user-1/secret_key.pem)" >> $GITHUB_ENV
+          echo "PRIVATE_KEY_USER_2=$(sed -n '2p' ./assets/users/user-2/secret_key.pem)" >> $GITHUB_ENV
+
+      - name: Print GITHUB_ENV
+        run: |
+          echo "Contents of GITHUB_ENV:"
+          cat $GITHUB_ENV
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Audit
+        working-directory: client-js
+        run: npm audit
+
+      - name: Install Dependencies
+        working-directory: client-js
+        run: npm install
+
+      - name: Generate WASMS
+        working-directory: client-js
+        run: npm run generate:wasm
+
+      - name: Build Project
+        working-directory: client-js
+        run: npm run build
+
+      - name: Run Unit/E2E Tests
+        working-directory: client-js
+        run: |
+          set -e  # Fail fast if any command fails
+          npm run test

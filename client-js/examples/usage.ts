@@ -1,56 +1,62 @@
-import { CasperServiceByJsonRPC } from 'casper-js-sdk';
-
-import { CEP18Client, InstallArgs } from '../src';
-import { findKeyFromAccountNamedKeys, getAccountInfo } from '../tests/utils';
 import {
-  DEPLOY_TIMEOUT,
-  FAUCET_KEY,
-  NETWORK_NAME,
-  NODE_URL,
-  USER1_KEY,
-  USER2_KEY
-} from './common';
+  PRIVATE_KEY_FAUCET,
+  SSE_URL,
+  PRIVATE_KEY_USER_1,
+  PRIVATE_KEY_USER_2,
+  CHAIN_NAME,
+  RPC_URL
+} from '../config';
+import {
+  CEP18Client,
+  TransferArgs,
+  TransferFromArgs,
+  ApproveArgs,
+  TransactionParams
+} from '../dist';
+import {
+  findKeyFromAccountNamedKeys,
+  getAccountInfo,
+  getSigningKey
+} from '../tests/utils';
 
 // Here you can check examples how to check balance, approve tokens, transfer tokens, and transfer tokens by allowance
 
-const run = async () => {
-  const cep18 = new CEP18Client(NODE_URL, NETWORK_NAME);
-  const client = new CasperServiceByJsonRPC(NODE_URL);
+if (!PRIVATE_KEY_FAUCET) {
+  throw new Error('FAUCET_SECRET_KEY environment variable is not set.');
+}
+if (!PRIVATE_KEY_USER_1) {
+  throw new Error('PRIVATE_KEY_USER_1 environment variable is not set.');
+}
+if (!PRIVATE_KEY_USER_2) {
+  throw new Error('PRIVATE_KEY_USER_2 environment variable is not set.');
+}
 
-  const owner = FAUCET_KEY;
-  const ali = USER1_KEY;
-  const bob = USER2_KEY;
+const name = 'TEST_CEP18',
+  owner = getSigningKey(PRIVATE_KEY_FAUCET),
+  ali = getSigningKey(PRIVATE_KEY_USER_1),
+  bob = getSigningKey(PRIVATE_KEY_USER_2),
+  waitForTransactionProcessed = true;
 
-  const tokenInfo: InstallArgs = {
-    name: 'TEST CEP18',
-    symbol: 'TFT',
-    decimals: 9,
-    totalSupply: 200_000_000_000
-  };
-  const accountInfo = await getAccountInfo(NODE_URL, owner.publicKey);
+const usage = async () => {
+  const accountInfo = await getAccountInfo(RPC_URL, owner.publicKey),
+    contractHash = findKeyFromAccountNamedKeys(
+      accountInfo,
+      `cep18_contract_hash_${name}`
+    );
 
-  const contractHash = findKeyFromAccountNamedKeys(
-    accountInfo,
-    `cep18_contract_hash_${tokenInfo.name}`
-  ) as `hash-${string}`;
-
-  const contractPackageHash = findKeyFromAccountNamedKeys(
-    accountInfo,
-    `cep18_contract_package_${tokenInfo.name}`
-  ) as `hash-${string}`;
-
-  cep18.setContractHash(contractHash, contractPackageHash);
-  console.log(`... Contract Hash: ${contractHash}`);
-  console.log(`... Contract Package Hash: ${contractPackageHash}`);
+  const cep18 = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME).setContractHash(
+    contractHash
+  );
+  console.info(`Contract Hash: ${cep18.contractHash.toPrefixedString()}`);
 
   // Fetch token info
-  const name = await cep18.name();
-  const symbol = await cep18.symbol();
-  const decimals = await cep18.decimals();
-  const totalSupply = await cep18.totalSupply();
+  const token_name = await cep18.name(),
+    symbol = await cep18.symbol(),
+    decimals = await cep18.decimals(),
+    totalSupply = await cep18.totalSupply();
 
-  console.log('tokenInfo: ', {
-    name,
+  console.info('tokenInfo: ', {
+    token_name,
     symbol,
     decimals: decimals.toString(),
     totalSupply: totalSupply.toString()
@@ -58,65 +64,104 @@ const run = async () => {
 
   // Fetch token balance
   const balance = await cep18.balanceOf(owner.publicKey);
-  console.log('...Owner token balance: ', balance.toString());
+  console.info('Owner token balance: ', balance.toString());
 
   // Transfer tokens
-  const transferDeploy = cep18.transfer(
-    { recipient: ali.publicKey, amount: 10_000_000_000 },
-    5_000_000_000,
-    owner.publicKey,
-    NETWORK_NAME,
-    [owner]
-  );
-  const transferDeployHash = await transferDeploy.send(NODE_URL);
-  console.log(`...Token transfer deploy hash: ${transferDeployHash}`);
+  let params: TransactionParams = {
+    sender: owner.publicKey,
+    paymentAmount: String(5_000_000_000),
+    signingKeys: [owner]
+  };
 
-  await client.waitForDeploy(transferDeploy, DEPLOY_TIMEOUT);
+  const transferArgs: TransferArgs = {
+    recipient: ali.publicKey,
+    amount: String(1_000_000_000)
+  };
+
+  let { transactionInfo, executionResult } = await cep18.transfer({
+    params,
+    args: transferArgs,
+    waitForTransactionProcessed
+  });
+
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during transfer.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(
+      `Token transfer transaction hash: ${transactionInfo.transactionHash}`
+    );
+    console.info(`Transfer cost consumed: ${executionResult?.consumed}`);
+  }
 
   const aliBalance = await cep18.balanceOf(ali.publicKey);
-  console.log(`...Ali's balance: ${aliBalance.toString()}`);
+  console.info(`Ali's balance: ${aliBalance.toString()}`);
 
   // Approve tokens
-  const approveDeploy = cep18.approve(
-    {
-      spender: ali.publicKey,
-      amount: 50_000_000_000
-    },
-    5_000_000_000,
-    owner.publicKey,
-    NETWORK_NAME,
-    [owner]
-  );
-  const approveDeployHash = await approveDeploy.send(NODE_URL);
-  console.log(`...Token approve deploy hash: ${approveDeployHash}`);
-  await client.waitForDeploy(approveDeploy, DEPLOY_TIMEOUT);
+  const approveArgs: ApproveArgs = {
+    spender: ali.publicKey,
+    amount: String(5_000_000_000)
+  };
+
+  ({ transactionInfo, executionResult } = await cep18.approve({
+    params,
+    args: approveArgs,
+    waitForTransactionProcessed
+  }));
+
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during approval.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(
+      `Token approval transaction hash: ${transactionInfo.transactionHash}`
+    );
+    console.info(`Approval cost consumed: ${executionResult?.consumed}`);
+  }
 
   // Get allowances
   const allowances = await cep18.allowances(owner.publicKey, ali.publicKey);
-  console.log(
-    `...Allowances from ${owner.publicKey.toHex()} to ${ali.publicKey.toHex()} : ${allowances.toString()}`
+  console.info(
+    `Allowances from ${owner.publicKey.toHex()} to ${ali.publicKey.toHex()} : ${allowances.toString()}`
   );
 
   // Transfer tokens by allowances
-  const transferFromDeploy = cep18.transferFrom(
-    {
-      owner: owner.publicKey,
-      recipient: bob.publicKey,
-      amount: 20_000_000_000
-    },
-    5_000_000_000,
-    ali.publicKey,
-    NETWORK_NAME,
-    [ali]
-  );
+  params = {
+    sender: ali.publicKey,
+    paymentAmount: String(5_000_000_000),
+    signingKeys: [ali]
+  };
 
-  const transferFromDeployHash = await transferFromDeploy.send(NODE_URL);
-  console.log(`...Token transferFrom deploy hash: ${transferFromDeployHash}`);
-  await client.waitForDeploy(transferFromDeploy, DEPLOY_TIMEOUT);
+  const transferFromArgs: TransferFromArgs = {
+    owner: owner.publicKey,
+    recipient: bob.publicKey,
+    amount: String(2_000_000_000)
+  };
+
+  ({ transactionInfo, executionResult } = await cep18.transferFrom({
+    params,
+    args: transferFromArgs,
+    waitForTransactionProcessed
+  }));
+
+  if (executionResult?.errorMessage) {
+    throw new Error(
+      `Error during transferFrom.\n${executionResult?.errorMessage.toString()}`
+    );
+  } else {
+    console.info(`TransferFrom cost consumed: ${executionResult?.consumed}`);
+  }
 
   const bobBalance = await cep18.balanceOf(bob.publicKey);
-  console.log(`...Bob's balance: ${bobBalance.toString()}`);
+  console.info(`Bob's balance: ${bobBalance.toString()}`);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-run();
+usage()
+  .then(() => {
+    console.info('Usage completed successfully.');
+  })
+  .catch(error => {
+    console.error('Usage failed:', error);
+  });

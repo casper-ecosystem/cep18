@@ -1,20 +1,34 @@
-import { CLKey, CLU256, CLValue } from 'casper-js-sdk';
+import { CLValue, Hash, Message } from 'casper-js-sdk';
+
+export enum CEP18_EVENTS {
+  Mint = 'Mint',
+  Burn = 'Burn',
+  SetAllowance = 'SetAllowance',
+  IncreaseAllowance = 'IncreaseAllowance',
+  DecreaseAllowance = 'DecreaseAllowance',
+  Transfer = 'Transfer',
+  TransferFrom = 'TransferFrom'
+}
+
+type EventName = keyof typeof CEP18_EVENTS;
 
 export type Event<E extends Record<string, CLValue>> = {
-  name: string;
-  contractHash: `hash-${string}`;
-  contractPackageHash: `hash-${string}`;
+  name: EventName;
+  contractHash: Hash;
+  contractPackageHash: Hash;
+  eventId: number;
   data: E;
 };
 
-export interface DeployInfo {
-  deployHash: string;
+export interface TransactionInfo {
+  transactionHash: string;
   timestamp: string;
+  messages: Message[];
 }
 
-export type WithDeployInfo<E> = E & { deployInfo: DeployInfo };
+export type WithTransactionInfo<E> = E & { transactionInfo: TransactionInfo };
 
-export type CEP18EventWithDeployInfo = WithDeployInfo<CEP18Event>;
+export type CEP18EventResult = WithTransactionInfo<CEP18Event>;
 
 export type CEP18Event = Event<
   | Mint
@@ -27,54 +41,44 @@ export type CEP18Event = Event<
 >;
 
 export type EventsMap = {
-  Mint: Event<Mint>;
-  Burn: Event<Burn>;
-  SetAllowance: Event<SetAllowance>;
-  IncreaseAllowance: Event<IncreaseAllowance>;
-  DecreaseAllowance: Event<DecreaseAllowance>;
-  Transfer: Event<Transfer>;
-  TransferFrom: Event<TransferFrom>;
+  Mint: WithTransactionInfo<Event<Mint>>;
+  Burn: WithTransactionInfo<Event<Burn>>;
+  SetAllowance: WithTransactionInfo<Event<SetAllowance>>;
+  IncreaseAllowance: WithTransactionInfo<Event<IncreaseAllowance>>;
+  DecreaseAllowance: WithTransactionInfo<Event<DecreaseAllowance>>;
+  Transfer: WithTransactionInfo<Event<Transfer>>;
+  TransferFrom: WithTransactionInfo<Event<TransferFrom>>;
 };
 
-export type Mint = {
-  recipient: CLKey;
-  amount: CLU256;
-};
+export type Mint = { recipient: CLValue; amount: CLValue };
 
-export type Burn = {
-  owner: CLKey;
-  amount: CLU256;
-};
+export type Burn = { owner: CLValue; amount: CLValue };
 
 export type SetAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
 };
 
 export type IncreaseAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
-  inc_by: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
+  inc_by: CLValue;
 };
 
 export type DecreaseAllowance = {
-  owner: CLKey;
-  spender: CLKey;
-  allowance: CLU256;
-  decr_by: CLU256;
+  owner: CLValue;
+  spender: CLValue;
+  allowance: CLValue;
+  decr_by: CLValue;
 };
 
-export type Transfer = {
-  sender: CLKey;
-  recipient: CLKey;
-  amount: CLU256;
-};
+export type Transfer = { sender: CLValue; recipient: CLValue; amount: CLValue };
 
 export type TransferFrom = {
-  spender: CLKey;
-  owner: CLKey;
-  recipient: CLKey;
-  amount: CLU256;
+  spender: CLValue;
+  owner: CLValue;
+  recipient: CLValue;
+  amount: CLValue;
 };

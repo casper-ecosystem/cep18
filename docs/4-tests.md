@@ -68,7 +68,6 @@ The code in the [utility directory](https://github.com/casper-ecosystem/cep18/tr
 
 Expand the example below to see a subset of the required constants for this project. The testing framework defines constants via the [`constants.rs`](https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/constants.rs) file within the `utility` directory. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/cep18).
 
-
 <details>
 <summary>Example of required constants</summary>
 
@@ -76,8 +75,8 @@ Expand the example below to see a subset of the required constants for this proj
 // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
 
 use casper_engine_test_support::{
-    ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
-    MINIMUM_ACCOUNT_CREATION_BALANCE, PRODUCTION_RUN_GENESIS_REQUEST,
+    ExecuteRequestBuilder, LmdbWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
+    MINIMUM_ACCOUNT_CREATION_BALANCE, LOCAL_GENESIS_REQUEST,
 };
 use casper_execution_engine::core::engine_state::ExecuteRequest;
 use casper_types::{
@@ -85,7 +84,7 @@ use casper_types::{
 };
 
 use crate::utility::constants::{
-    ALLOWANCE_AMOUNT_1, ALLOWANCE_AMOUNT_2, TOTAL_SUPPLY_KEY, TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2,
+    AMOUNT_ALLOWANCE_1, AMOUNT_ALLOWANCE_2, TOTAL_SUPPLY_KEY, AMOUNT_TRANSFER_1, AMOUNT_TRANSFER_2,
 };
 
 use super::constants::{
@@ -94,7 +93,6 @@ use super::constants::{
 ```
 
 </details>
-
 
 ### Installing the Contract
 
@@ -121,7 +119,7 @@ pub(crate) cep18_test_contract_package: ContractPackageHash,
 
 // Setting up the test instance of CEP-18.
 
-pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
+pub(crate) fn setup() -> (LmdbWasmTestBuilder, TestContext) {
     setup_with_args(runtime_args! {
         ARG_NAME => TOKEN_NAME,
         ARG_SYMBOL => TOKEN_SYMBOL,
@@ -132,9 +130,9 @@ pub(crate) fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
 // Establishing test accounts.
 
-pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (InMemoryWasmTestBuilder, TestContext) {
-    let mut builder = InMemoryWasmTestBuilder::default();
-    builder.run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST);
+pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (LmdbWasmTestBuilder, TestContext) {
+    let mut builder = LmdbWasmTestBuilder::default();
+    builder.run_genesis(&LOCAL_GENESIS_REQUEST);
 
     let id: Option<u64> = None;
     let transfer_1_args = runtime_args! {
@@ -219,7 +217,7 @@ The following code snippet is an example function that tests the ability to tran
 // File https://github.com/casper-ecosystem/cep18/blob/dev/tests/src/utility/installer_request_builders.rs
 
 pub(crate) fn test_cep18_transfer(
-    builder: &mut InMemoryWasmTestBuilder,
+    builder: &mut LmdbWasmTestBuilder,
     test_context: &TestContext,
     sender1: Key,
     recipient1: Key,
@@ -229,8 +227,8 @@ pub(crate) fn test_cep18_transfer(
 
     // Defining the amount to be transferred to each account.
 
-    let transfer_amount_1 = U256::from(TRANSFER_AMOUNT_1);
-    let transfer_amount_2 = U256::from(TRANSFER_AMOUNT_2);
+    let transfer_amount_1 = U256::from(AMOUNT_TRANSFER_1);
+    let transfer_amount_2 = U256::from(AMOUNT_TRANSFER_2);
 
     // Checking the pre-existing balances of the default address and the two receiving addresses.
 

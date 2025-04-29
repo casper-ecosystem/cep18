@@ -7,7 +7,7 @@ This document describes how to transfer CEP-18 tokens on a Casper network using 
 The following command will invoke the `transfer` entry point on your instance of CEP-18, directing it to transfer 10 of the associated CEP-18 tokens to another account.
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT> \
+casper-client put-transaction -n http://<node IP>:<PORT> \
 // The chain name of the Casper network on which your CEP-18 instance was installed.
 --chain-name <CHAIN NAME>\
 // The local path to your account's secret key.
@@ -28,7 +28,7 @@ casper-client put-deploy -n http://<node IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT> \
+casper-client put-transaction -n http://<node IP>:<PORT> \
 --chain-name <CHAIN NAME>\
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-hash hash-b568f50a64acc8bbe43462ffe243849a88111060b228dacb8f08d42e26985180 \
@@ -47,7 +47,7 @@ This command will return a deploy hash that you can query using `casper-client g
 The following Casper client command invokes the `check_balance_of` entry point on the `cep18_test_contract`.
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_test_contract" \
 --session-entry-point "check_balance_of" \
@@ -63,7 +63,7 @@ casper-client put-deploy -n http://<node IP>:<PORT>\
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_test_contract" \
 --session-entry-point "check_balance_of" \
@@ -120,14 +120,14 @@ This command should show something similar to the following in response, with `p
 
 ## Approving an Allowance for Another Account
 
-The Casper fungible token contract features an `allowance` entry point that allows an account to delegate another account to spend a preset number of CEP-18 tokens from their balance. 
+The Casper fungible token contract features an `allowance` entry point that allows an account to delegate another account to spend a preset number of CEP-18 tokens from their balance.
 
 ### Approving an Account to Spend Tokens on Another Account's Behalf
 
-The following command approves a third-party account to spend an `allowance` of 15 CEP-18 tokens from the balance of the account that sent the CEP-18 instance. 
+The following command approves a third-party account to spend an `allowance` of 15 CEP-18 tokens from the balance of the account that sent the CEP-18 instance.
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 // This is the contract hash of the CEP-18 token contract.
@@ -144,7 +144,7 @@ casper-client put-deploy -n http://<node IP>:<PORT>\
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-hash hash-05d893e76c731729fc26339e5a970bd79fbf4a6adf743c8385431fb494bff45e \
@@ -161,7 +161,7 @@ casper-client put-deploy -n http://<node IP>:<PORT>\
 After approving an account to spend an `allowance` of tokens, we can verify the allotted allowance by using the utility contract. The following command will write the `allowance` of the spender's account to the `result` URef of in the utility contract's `NamedKeys`:
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_test_contract" \
 --session-entry-point "check_allowance_of" \
@@ -179,7 +179,7 @@ casper-client put-deploy -n http://<node IP>:<PORT>\
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<node IP>:<PORT>\
+casper-client put-transaction -n http://<node IP>:<PORT>\
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_test_contract" \
 --session-entry-point "check_allowance_of" \
@@ -238,7 +238,7 @@ You should get a response similar to the following:
 The following command allows an account to transfer CEP-18 tokens held by another account up to their approved `allowance`.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --chain-name <CHAIN NAME> \
 // This is the secret key for the account that is spending their `allowance` from another account's balance.
 --secret-key ~/casper/demo/user_a/secret_key.pem \
@@ -258,7 +258,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --chain-name <CHAIN NAME> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-hash hash-05d893e76c731729fc26339e5a970bd79fbf4a6adf743c8385431fb494bff45e \
@@ -268,6 +268,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 --session-arg "amount:u256='10'" \
 --payment-amount "10000000000"
 ```
+
 </details>
 
 ### Increasing and Decreasing an Allowance
@@ -277,7 +278,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 The following command increases the designated `allowance` for the provided account.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "increase_allowance" \
@@ -293,7 +294,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "increase_allowance" \
@@ -310,7 +311,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 The following command decreases the designated allowance for the provided account.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "decrease_allowance" \
@@ -326,7 +327,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "decrease_allowance" \
@@ -345,7 +346,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 If the contract allows for minting, the following command will mint a number of CEP-18 tokens directly to the provided account. This increases the total supply of the token in question.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "mint" \
@@ -361,7 +362,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "mint" \
@@ -378,7 +379,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 If the contract allows for burning, the following command will burn a number of CEP-18 tokens directly from the provided account. This decreases the total supply of the token in question.
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "burn" \
@@ -394,7 +395,7 @@ casper-client put-deploy -n http://<NODE IP>:<PORT> \
 <summary><b>Casper client command without comments</b></summary>
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "burn" \
@@ -435,7 +436,7 @@ Here is an example of a `session-arg` that provides a list of account hashes to 
 The following command can be supplied with any of the optional arguments above:
 
 ```bash
-casper-client put-deploy -n http://<NODE IP>:<PORT> \
+casper-client put-transaction -n http://<NODE IP>:<PORT> \
 --secret-key ~/casper/demo/user_a/secret_key.pem \
 --session-package-name "cep18_contract_package_CEP18" \
 --session-entry-point "change_security" \

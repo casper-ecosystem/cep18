@@ -13,8 +13,8 @@ USER_3_ACCOUNT=$(nctl-view-user-account user=3\
 
 # Transfers from user 1 to user 2
 
-TOKEN_SMALL_TRANSFER_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_SMALL_TRANSFER_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_1_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -22,11 +22,11 @@ TOKEN_SMALL_TRANSFER_DEPLOY=$(casper-client put-deploy\
         --session-entry-point "transfer"\
         --session-arg "recipient:key='$USER_2_ACCOUNT'"\
         --session-arg "amount:u256='$SMALL_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
-TOKEN_BIG_TRANSFER_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_BIG_TRANSFER_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_1_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -34,13 +34,13 @@ TOKEN_BIG_TRANSFER_DEPLOY=$(casper-client put-deploy\
         --session-entry-point "transfer"\
         --session-arg "recipient:key='$USER_2_ACCOUNT'"\
         --session-arg "amount:u256='$BIG_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
 # Approval from user 1 for user 2
 
-TOKEN_SMALL_APPROVE_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_SMALL_APPROVE_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_1_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -48,13 +48,13 @@ TOKEN_SMALL_APPROVE_DEPLOY=$(casper-client put-deploy\
         --session-entry-point "approve"\
         --session-arg "spender:key='$USER_2_ACCOUNT'"\
         --session-arg "amount:u256='$SMALL_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
 sleep 120
 
-TOKEN_BIG_APPROVE_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_BIG_APPROVE_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_1_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -62,15 +62,15 @@ TOKEN_BIG_APPROVE_DEPLOY=$(casper-client put-deploy\
         --session-entry-point "approve"\
         --session-arg "spender:key='$USER_2_ACCOUNT'"\
         --session-arg "amount:u256='$BIG_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
 sleep 120
 
 # Indirect transfer from user 1 to user 3
 
-TOKEN_SMALL_TRANSFER_FROM_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_SMALL_TRANSFER_FROM_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_2_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -79,11 +79,11 @@ TOKEN_SMALL_TRANSFER_FROM_DEPLOY=$(casper-client put-deploy\
         --session-arg "owner:key='$USER_1_ACCOUNT'"\
         --session-arg "recipient:key='$USER_3_ACCOUNT'"\
         --session-arg "amount:u256='$SMALL_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
-TOKEN_BIG_TRANSFER_FROM_DEPLOY=$(casper-client put-deploy\
-        --chain-name $NETWORK_NAME\
+TOKEN_BIG_TRANSFER_FROM_DEPLOY=$(casper-client put-transaction\
+        --chain-name $CHAIN_NAME\
         --node-address $NODE_1_ADDRESS\
         --secret-key $USER_2_SECRET_KEY\
         --payment-amount $GAS_LIMIT\
@@ -92,7 +92,7 @@ TOKEN_BIG_TRANSFER_FROM_DEPLOY=$(casper-client put-deploy\
         --session-arg "owner:key='$USER_1_ACCOUNT'"\
         --session-arg "recipient:key='$USER_3_ACCOUNT'"\
         --session-arg "amount:u256='$BIG_SMALLER_AMOUNT'"\
-        | jq .result.deploy_hash\
+        | jq .result.transaction_hash\
         | tr -d '"')
 
 sleep 120

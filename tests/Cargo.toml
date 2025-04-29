@@ -1,16 +1,25 @@
 [package]
 name = "tests"
-version = "1.2.0"
-edition = "2018"
-authors = ["Michał Papierski <michal@casperlabs.io>"]
-
-[dependencies]
-casper-types = "3.0.0"
-casper-engine-test-support = "5.0.0"
-casper-execution-engine = "5.0.0"
-once_cell = "1.16.0"
+version.workspace = true
+edition.workspace = true
 
 [lib]
 name = "tests"
 bench = false
 doctest = false
+
+[[bin]]
+name = "fixture_gen"
+path = "src/fixture_gen.rs"
+bench = false
+doctest = false
+
+[dependencies]
+once_cell = "*"
+cep18 = { path = "../contracts/contract" }
+cep18-test-contract = { path = "../contracts/test-contract" }
+casper-types.workspace = true
+casper-fixtures = { git = "https://github.com/deuszex/casper-fixtures", branch = "feat-2.0", default-features = false }
+casper-engine-test-support = { git = "https://github.com/casper-network/casper-node.git", default-features = false }
+casper-execution-engine = { git = "https://github.com/casper-network/casper-node.git", default-features = false }
+casper-event-standard.workspace = true

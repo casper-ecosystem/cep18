@@ -1,0 +1,33 @@
+name: ci-cep18-contract
+
+on:
+  push:
+    branches: [dev, feat-*, release-*]
+
+  pull_request:
+    branches: [dev, feat-*, release-*]
+
+jobs:
+  ci-smart-contract:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: rustfmt, clippy
+      - run: sudo apt update && sudo apt install -y build-essential wabt
+      - uses: Swatinem/rust-cache@v2
+      - run: make prepare
+      - run: make check-lint
+      - run: make test
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Run cargo audit
+        run: cargo audit
