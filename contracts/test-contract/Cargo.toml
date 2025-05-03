@@ -11,7 +11,7 @@ doctest = false
 test = false
 
 [dependencies]
-cep18 = { path = "../contract" }
+cep18 = { path = "../contract", default-features = false }
 casper-types.workspace = true
 casper-contract.workspace = true
 

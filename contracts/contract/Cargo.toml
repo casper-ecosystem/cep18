@@ -21,7 +21,9 @@ path = "src/lib.rs"
 
 [dependencies]
 casper-types.workspace = true
-casper-contract = { workspace = true, optional = true }
+casper-contract = { workspace = true, optional = true, features = [
+  "no-std-helpers",
+] }
 casper-event-standard = { workspace = true, default-features = false }
 base64 = { version = "*", default-features = false, features = ["alloc"] }
 hex = { version = "*", default-features = false }

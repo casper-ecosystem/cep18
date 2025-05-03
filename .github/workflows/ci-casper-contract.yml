@@ -11,7 +11,7 @@ jobs:
   ci-smart-contract:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04, ubuntu-latest]
         node-version: [22.x]
     runs-on: ${{ matrix.os }}
     steps:
@@ -23,7 +23,6 @@ jobs:
           profile: minimal
           components: rustfmt, clippy
       - run: sudo apt update && sudo apt install -y build-essential wabt
-      - uses: Swatinem/rust-cache@v2
       - run: make prepare
       - run: make check-lint
       - run: make test
