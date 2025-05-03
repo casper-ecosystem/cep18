@@ -24,7 +24,6 @@ jobs:
 
       # Needed for gcc install
       - run: sudo apt update && sudo apt install -y build-essential wabt
-      - uses: Swatinem/rust-cache@v2
       - run: make prepare
       - run: make check-lint
       - run: make test
