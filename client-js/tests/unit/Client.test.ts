@@ -262,7 +262,7 @@ describe('Client Class', () => {
       expect(client['_sseUrl']).toBe(mockSseUrl);
     });
 
-    it.only('should reject if transaction processing times out', async () => {
+    it('should reject if transaction processing times out', async () => {
       const timeout = 200; // Mock timeout duration
 
       // Mock the subscription to simulate no event processing
