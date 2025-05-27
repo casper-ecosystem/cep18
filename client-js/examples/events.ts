@@ -130,7 +130,7 @@ const eventListener = async (
   eventResult: CEP18EventResult
 ) => {
   const { transactionInfo, executionResult } = await cep18
-    .getTransactionResult(eventResult.transactionInfo.transactionHash)
+    .getTransactionResult(eventResult.transactionInfo.transactionHash.toHex())
     .then((transactionResult: InfoGetTransactionResult) => ({
       transactionInfo: eventResult.transactionInfo,
       executionResult: transactionResult.executionInfo?.executionResult

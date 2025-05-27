@@ -90,7 +90,7 @@ const usage = async () => {
     );
   } else {
     console.info(
-      `Token transfer transaction hash: ${transactionInfo.transactionHash}`
+      `Token transfer transaction hash: ${transactionInfo.transactionHash.toHex()}`
     );
     console.info(`Transfer cost consumed: ${executionResult?.consumed}`);
   }
@@ -116,7 +116,7 @@ const usage = async () => {
     );
   } else {
     console.info(
-      `Token approval transaction hash: ${transactionInfo.transactionHash}`
+      `Token approval transaction hash: ${transactionInfo.transactionHash.toHex()}`
     );
     console.info(`Approval cost consumed: ${executionResult?.consumed}`);
   }

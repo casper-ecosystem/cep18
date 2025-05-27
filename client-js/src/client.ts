@@ -354,7 +354,7 @@ export default class Client {
               ({
                 ...result,
                 transactionInfo: {
-                  transactionHash: transactionHash.toHex(),
+                  transactionHash: transactionHash,
                   timestamp,
                   messages
                 }

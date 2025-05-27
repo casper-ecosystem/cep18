@@ -64,7 +64,7 @@ install()
   .then(async transactionResult => {
     const { transactionInfo, executionResult } = transactionResult;
     console.info(
-      `Contract installation transaction hash: ${transactionInfo.transactionHash}`
+      `Contract installation transaction hash: ${transactionInfo.transactionHash.toHex()}`
     );
 
     if (executionResult) {
