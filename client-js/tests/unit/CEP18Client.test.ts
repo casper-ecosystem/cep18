@@ -8,6 +8,7 @@ import {
   Key,
   KeyAlgorithm,
   PrivateKey,
+  PublicKey,
   PutTransactionResult,
   RpcClient,
   StateGetDictionaryResult,
@@ -1265,31 +1266,41 @@ describe('CEP18Client Unit', () => {
           admin_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.adminList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           minter_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.minterList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           burner_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.burnerList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           mint_and_burn_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.mintAndBurnList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           none_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.noneList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           )
         })
