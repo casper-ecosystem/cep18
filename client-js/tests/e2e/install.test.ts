@@ -44,7 +44,7 @@ describe('CEP18Client - E2E Install', () => {
       });
 
     expect(
-      transactionResult.transactionInfo.transactionHash.toString()
+      transactionResult.transactionInfo.transactionHash.toHex()
     ).toBeTruthy();
   });
 
@@ -53,7 +53,7 @@ describe('CEP18Client - E2E Install', () => {
       transactionResult: TransactionResult = await install(client, name);
 
     expect(
-      transactionResult.transactionInfo.transactionHash.toString()
+      transactionResult.transactionInfo.transactionHash.toHex()
     ).toBeTruthy();
     expect(transactionResult.executionResult?.consumed).toBeTruthy();
     expect(transactionResult.executionResult?.errorMessage).toBeFalsy();

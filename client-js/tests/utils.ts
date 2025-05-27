@@ -35,7 +35,6 @@ export const findKeyFromAccountNamedKeys = (
         name: string;
         key: { toString(): string };
       }[]);
-  // console.log(keysArray);
   const match = keysArray.find(entry => entry.name === name);
   if (!match) {
     console.error(`NamedKey not found: ${name}`);
