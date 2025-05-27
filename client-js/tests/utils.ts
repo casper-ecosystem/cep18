@@ -2,14 +2,12 @@ import {
   Account,
   AccountIdentifier,
   HttpHandler,
-  NamedKeys,
   type PublicKey,
   PrivateKey,
   RpcClient
 } from 'casper-js-sdk';
 import fs from 'fs';
 import { SECRET_KEY_ALGO, SECRET_KEY_NAME } from '../config';
-import { C } from 'vitest/dist/chunks/reporters.d.C-cu31ET.js';
 
 export const getAccountInfo = async (
   rpcUrl: string,

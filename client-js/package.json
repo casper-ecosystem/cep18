@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write src",
     "test:unit": "vitest run tests/unit",
-    "test:e2e": "npx vitest run tests/e2e",
+    "test:e2e": "npx vitest run tests/e2e/*.test.ts",
     "test": "npm run test:unit && npm run test:e2e",
     "test:e2e:install": "npx vitest run tests/e2e/install.test.ts",
     "test:e2e:upgrade": "npx vitest run tests/e2e/upgrade.test.ts",
