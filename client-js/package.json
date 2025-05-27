@@ -49,22 +49,22 @@
     "js-base64": "^3.7.7"
   },
   "devDependencies": {
-    "@swc/core": "^1.11.8",
-    "@types/node": "^22.13.10",
-    "@typescript-eslint/eslint-plugin": "^8.26.1",
-    "@typescript-eslint/parser": "^8.26.1",
+    "@swc/core": "^1.11.29",
+    "@types/node": "^22.15.21",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
     "dotenv": "^16.4.7",
-    "eslint": "^9.22.0",
-    "eslint-config-prettier": "^10.1.1",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.31.0",
     "prettier": "^3.5.3",
-    "tsup": "^8.4.0",
+    "tsup": "^8.5.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.7"
+    "vitest": "^3.1.4"
   },
   "peerDependencies": {
     "@make-software/ces-js-parser": "^2.0.0",
-    "casper-js-sdk": "5.0.0"
+    "casper-js-sdk": "5.0.6"
   }
 }

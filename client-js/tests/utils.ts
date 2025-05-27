@@ -9,6 +9,7 @@ import {
 } from 'casper-js-sdk';
 import fs from 'fs';
 import { SECRET_KEY_ALGO, SECRET_KEY_NAME } from '../config';
+import { C } from 'vitest/dist/chunks/reporters.d.C-cu31ET.js';
 
 export const getAccountInfo = async (
   rpcUrl: string,
@@ -30,16 +31,19 @@ export const findKeyFromAccountNamedKeys = (
   account: Account,
   name: string
 ): string => {
-  // account.namedKeys may not be instance so copy values into an new instance of NamedKeys
-  let namedKeysInstance = account.namedKeys;
-  if (!(namedKeysInstance instanceof NamedKeys)) {
-    namedKeysInstance = new NamedKeys(Object.values(account.namedKeys));
+  const keysArray = Array.isArray(account.namedKeys)
+    ? (account.namedKeys as { name: string; key: { toString(): string } }[])
+    : (Object.values(account.namedKeys) as {
+        name: string;
+        key: { toString(): string };
+      }[]);
+  // console.log(keysArray);
+  const match = keysArray.find(entry => entry.name === name);
+  if (!match) {
+    console.error(`NamedKey not found: ${name}`);
+    return '';
   }
-  // Find the key from the NamedKeys instance
-  // TODO toPrefixedString does not work here as not an instance but a string ?
-  const key = namedKeysInstance!.find(name).toString();
-  if (!key) throw new Error(`NamedKey not found: ${name}`);
-  return key;
+  return match.key.toString();
 };
 
 /**
