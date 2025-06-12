@@ -8,6 +8,7 @@ import {
   Key,
   KeyAlgorithm,
   PrivateKey,
+  PublicKey,
   PutTransactionResult,
   RpcClient,
   StateGetDictionaryResult,
@@ -27,6 +28,8 @@ import {
   BurnParams,
   ChangeSecurityParams
 } from '../../src';
+
+const mockTransactionHash = { toHex: () => 'mockTransactionHash' };
 
 describe('CEP18Client Unit', () => {
   describe('CEP18Client - setContractHash', () => {
@@ -180,7 +183,7 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client['_rpcClient'], 'putTransaction').mockResolvedValue({
-        transactionHash: 'mockTransactionHash'
+        transactionHash: mockTransactionHash
       } as unknown as PutTransactionResult);
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -193,9 +196,9 @@ describe('CEP18Client Unit', () => {
       const result = await client.install(mockParams);
 
       expect(client['_rpcClient'].putTransaction).toHaveBeenCalled();
-      expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
-      });
+      expect(result.transactionInfo.transactionHash.toHex()).toBe(
+        'mockTransactionHash'
+      );
     });
 
     it('should call waitForTransactionProcessed if waitForTransactionProcessed is true', async () => {
@@ -220,10 +223,10 @@ describe('CEP18Client Unit', () => {
 
       expect(client['_rpcClient'].putTransaction).toHaveBeenCalled();
 
-      expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
-        executionResult: { errorMessage: '' }
-      });
+      expect(result.transactionInfo.transactionHash.toHex()).toBe(
+        'mockTransactionHash'
+      );
+      expect(result.executionResult?.errorMessage).toBe('');
     });
 
     it('should handle errors during transaction installation', async () => {
@@ -259,7 +262,7 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client['_rpcClient'], 'putTransaction').mockResolvedValue({
-        transactionHash: 'mockTransactionHash'
+        transactionHash: mockTransactionHash
       } as unknown as PutTransactionResult);
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -272,9 +275,9 @@ describe('CEP18Client Unit', () => {
       const result = await client.upgrade(mockParams);
 
       expect(client['_rpcClient'].putTransaction).toHaveBeenCalled();
-      expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
-      });
+      expect(result.transactionInfo.transactionHash.toHex()).toBe(
+        'mockTransactionHash'
+      );
     });
 
     it('should call waitForTransactionProcessed if waitForTransactionProcessed is true', async () => {
@@ -300,8 +303,10 @@ describe('CEP18Client Unit', () => {
       expect(client['_rpcClient'].putTransaction).toHaveBeenCalled();
 
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
-        executionResult: { errorMessage: '' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
+        executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
 
@@ -337,7 +342,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -362,7 +369,9 @@ describe('CEP18Client Unit', () => {
 
       // Check the result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -388,7 +397,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -396,7 +407,9 @@ describe('CEP18Client Unit', () => {
 
       // Check the result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -453,7 +466,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -478,7 +493,9 @@ describe('CEP18Client Unit', () => {
 
       // Verify result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -508,7 +525,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -516,7 +535,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -572,7 +593,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -597,7 +620,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -624,7 +649,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -632,7 +659,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -688,7 +717,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -713,7 +744,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -740,7 +773,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -748,7 +783,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -804,7 +841,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -829,7 +868,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -856,7 +897,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -864,7 +907,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -920,7 +965,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -945,7 +992,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -972,7 +1021,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -980,7 +1031,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -1036,7 +1089,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -1061,7 +1116,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -1088,7 +1145,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -1096,7 +1155,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
@@ -1160,7 +1221,9 @@ describe('CEP18Client Unit', () => {
     beforeEach(() => {
       client = new CEP18Client('http://mock-rpc-url');
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
       vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
         transactionProcessedPayload: {
@@ -1185,7 +1248,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' }
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
       });
     });
 
@@ -1201,31 +1266,41 @@ describe('CEP18Client Unit', () => {
           admin_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.adminList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           minter_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.minterList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           burner_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.burnerList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           mint_and_burn_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.mintAndBurnList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           ),
           none_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.noneList?.map(key =>
-              CLValue.newCLKey(Key.newKey(key.accountHash().toPrefixedString()))
+              CLValue.newCLKey(
+                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
+              )
             )
           )
         })
@@ -1238,7 +1313,9 @@ describe('CEP18Client Unit', () => {
         waitForTransactionProcessed: true
       };
       vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
 
@@ -1246,7 +1323,9 @@ describe('CEP18Client Unit', () => {
 
       // Validate result
       expect(result).toEqual({
-        transactionInfo: { transactionHash: 'mockTransactionHash' },
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
         executionResult: { errorMessage: '' } as ExecutionResult
       });
     });
