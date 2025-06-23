@@ -227,9 +227,7 @@ pub fn change_security() -> EntryPoint {
             // Optional Arguments (can be added or omitted when calling):
             /*
             - "admin_list" : Vec<Key>
-            - "mint_and_burn_list" : Vec<Key>
             - "minter_list" : Vec<Key>
-            - "burner_list" : Vec<Key>
             - "none_list" : Vec<Key>
             */
         ],
