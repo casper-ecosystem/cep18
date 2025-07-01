@@ -17,10 +17,7 @@ pub fn message_topic(
     match query_result {
         StoredValue::MessageTopic(summary) => summary,
         _ => {
-            panic!(
-                "Stored value is not a message topic summary: {:?}",
-                query_result
-            );
+            panic!("Stored value is not a message topic summary: {query_result:?}",);
         }
     }
 }
@@ -41,6 +38,6 @@ pub fn message_summary(
 
     match query_result {
         StoredValue::Message(summary) => Ok(summary),
-        _ => panic!("Stored value is not a message summary: {:?}", query_result),
+        _ => panic!("Stored value is not a message summary: {query_result:?}"),
     }
 }

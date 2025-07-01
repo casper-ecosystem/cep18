@@ -143,8 +143,7 @@ fn should_not_transfer_from_without_enough_allowance() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == Cep18Error::InsufficientAllowance as u16),
-        "{:?}",
-        error
+        "{error:?}"
     );
 }
 

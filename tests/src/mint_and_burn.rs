@@ -195,8 +195,7 @@ fn test_should_not_mint_above_limits() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == Cep18Error::Overflow as u16),
-        "Should not mint above limits, but instead: {:?}",
-        error
+        "Should not mint above limits, but instead: {error:?}",
     );
 }
 
@@ -233,8 +232,7 @@ fn test_should_not_burn_above_balance() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == Cep18Error::InsufficientBalance as u16),
-        "{:?}",
-        error
+        "{error:?}",
     );
 }
 
@@ -274,8 +272,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60016),
-        "{:?}",
-        error
+        "{error:?}",
     );
 
     let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
@@ -294,8 +291,7 @@ fn test_should_not_mint_or_burn_with_entrypoint_disabled() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60016),
-        "{:?}",
-        error
+        "{error:?}",
     );
 }
 
@@ -336,8 +332,7 @@ fn test_security_no_rights() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-        "{:?}",
-        error
+        "{error:?}",
     );
 
     let passing_admin_mint_request = ExecuteRequestBuilder::contract_call_by_hash(
@@ -442,8 +437,7 @@ fn test_security_burner_rights() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-        "{:?}",
-        error
+        "{error:?}",
     );
 
     // mint by admin
@@ -532,7 +526,6 @@ fn test_change_security() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60010),
-        "{:?}",
-        error
+        "{error:?}",
     );
 }

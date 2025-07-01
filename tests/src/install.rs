@@ -71,8 +71,8 @@ fn should_not_store_balances_or_allowances_under_account_after_install() {
 
     let named_keys = builder.get_named_keys_by_account_hash(*DEFAULT_ACCOUNT_ADDR);
 
-    assert!(!named_keys.contains(DICT_BALANCES), "{:?}", named_keys);
-    assert!(!named_keys.contains(DICT_ALLOWANCES), "{:?}", named_keys);
+    assert!(!named_keys.contains(DICT_BALANCES), "{named_keys:?}",);
+    assert!(!named_keys.contains(DICT_ALLOWANCES), "{named_keys:?}");
 }
 
 #[test]
@@ -104,7 +104,6 @@ fn should_fail_with_left_over_bytes_converted_into_60006() {
             error,
             CoreError::Exec(ExecError::Revert(ApiError::User(60006)))
         ),
-        "{:?}",
-        error
+        "{error:?}",
     );
 }
