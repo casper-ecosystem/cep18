@@ -128,8 +128,7 @@ fn should_not_transfer_more_than_owned_balance() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == Cep18Error::InsufficientBalance as u16),
-        "{:?}",
-        error
+        "{error:?}",
     );
 
     let account_1_balance_after =
@@ -348,8 +347,7 @@ fn should_not_be_able_to_own_transfer() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
-        "{:?}",
-        error
+        "{error:?}",
     );
 }
 
@@ -383,8 +381,7 @@ fn should_not_be_able_to_own_transfer_from() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
-        "{:?}",
-        error
+        "{error:?}"
     );
 
     let sender_balance_before =
@@ -414,8 +411,7 @@ fn should_not_be_able_to_own_transfer_from() {
     let error = builder.get_error().expect("should have error");
     assert!(
         matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == 60017),
-        "{:?}",
-        error
+        "{error:?}"
     );
 }
 

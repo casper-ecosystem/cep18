@@ -125,7 +125,7 @@ pub(crate) fn get_test_account(ending_string_index: &str) -> (Key, AccountHash, 
     match accounts {
         Some(account) => account,
         None => {
-            panic!("No account found for index {}", index);
+            panic!("No account found for index {index}");
         }
     }
 }
