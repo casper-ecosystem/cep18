@@ -23,7 +23,6 @@ pub const ENTRY_POINT_SYMBOL: &str = "symbol";
 pub const ENTRY_POINT_TOTAL_SUPPLY: &str = "total_supply";
 pub const ENTRY_POINT_TRANSFER: &str = "transfer";
 pub const ENTRY_POINT_TRANSFER_FROM: &str = "transfer_from";
-pub const ENTRY_POINT_UPGRADE: &str = "upgrade";
 
 pub const ARG_ADDRESS: &str = "address";
 pub const ARG_AMOUNT: &str = "amount";
