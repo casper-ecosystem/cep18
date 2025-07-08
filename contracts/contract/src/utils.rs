@@ -18,13 +18,12 @@ use casper_types::{
     api_error,
     bytesrepr::{self, FromBytes, ToBytes},
     contracts::{ContractPackageHash, ContractVersionKey},
-    ApiError, CLTyped, EntityAddr, Key, PackageHash, URef, U256,
+    ApiError, CLTyped, EntityAddr, Key, URef, U256,
 };
 use core::convert::TryInto;
 
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
-    const PACKAGE: u8 = 1;
     const CONTRACT_PACKAGE: u8 = 2;
     const ENTITY: u8 = 3;
     const CONTRACT: u8 = 4;
@@ -39,14 +38,7 @@ pub fn get_immediate_caller() -> Key {
             .unwrap_or_revert()
             .unwrap_or_revert_with(Cep18Error::InvalidContext)
             .into(),
-        PACKAGE => caller_info
-            .get_field_by_index(PACKAGE)
-            .unwrap()
-            .to_t::<Option<PackageHash>>()
-            .unwrap_or_revert()
-            .unwrap_or_revert_with(Cep18Error::InvalidContext)
-            .into(),
-        CONTRACT_PACKAGE | CONTRACT => caller_info
+        CONTRACT => caller_info
             .get_field_by_index(CONTRACT_PACKAGE)
             .unwrap()
             .to_t::<Option<ContractPackageHash>>()
