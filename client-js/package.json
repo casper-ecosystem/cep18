@@ -49,12 +49,12 @@
     "js-base64": "^3.7.7"
   },
   "devDependencies": {
-    "@swc/core": "^1.11.31",
-    "@types/node": "^24.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
-    "@typescript-eslint/parser": "^8.34.0",
-    "dotenv": "^16.5.0",
-    "eslint": "^9.28.0",
+    "@swc/core": "^1.12.11",
+    "@types/node": "^24.0.11",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "dotenv": "^17.1.0",
+    "eslint": "^9.30.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.31.0",
     "prettier": "^3.5.3",

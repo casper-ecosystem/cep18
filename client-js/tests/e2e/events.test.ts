@@ -1,8 +1,15 @@
-import { CEP18Client, CEP18_EVENTS, CEP18EventResult } from 'src';
+import {
+  CEP18Client,
+  CEP18_EVENTS,
+  CEP18EventResult,
+  EVENTS_MODE,
+  TransactionParams,
+  ChangeSecurityArgs
+} from 'src';
 import { expect, describe, it, beforeEach } from 'vitest';
 import { RPC_URL, SSE_URL, CHAIN_NAME } from '../../config';
 import { getAccountInfo, findKeyFromAccountNamedKeys } from '../utils';
-import { owner, install, mint } from './helpers';
+import { owner, install, mint, ali } from './helpers';
 
 let client: CEP18Client;
 const name = `TEST_CEP18_E2E_${Math.floor(Math.random() * 1000000)}`,
@@ -127,6 +134,110 @@ describe('CEP18Client - Event Streaming', () => {
       expect(mintTriggered).toBe(false);
       expect(burnTriggered).toBe(false);
     }, 1000);
+
+    client.stopEventStream();
+  }, 60000);
+});
+
+describe('CEP18Client - Events emit', () => {
+  let client: CEP18Client;
+
+  beforeEach(async () => {
+    client = new CEP18Client(RPC_URL, SSE_URL, CHAIN_NAME);
+    await install(client, name);
+
+    const account = await getAccountInfo(RPC_URL, owner.publicKey);
+    const contractHash = findKeyFromAccountNamedKeys(
+      account,
+      `cep18_contract_hash_${name}`
+    );
+
+    expect(contractHash).toBeDefined();
+    client.setContractHash(contractHash);
+  }, 60000);
+
+  it('should emit EventsModeChanged when events mode is changed', async () => {
+    let currentMode = await client.eventsMode();
+    expect(currentMode).toBe('CES');
+
+    const params: TransactionParams = {
+      sender: owner.publicKey,
+      paymentAmount: String(3_000_000_000),
+      signingKeys: [owner]
+    };
+
+    let newMode = EVENTS_MODE.NoEvents;
+
+    await client.changeEventsMode({
+      params,
+      args: { eventsMode: newMode },
+      waitForTransactionProcessed: true
+    });
+
+    currentMode = await client.eventsMode();
+    expect(currentMode).toBe('NoEvents');
+
+    client.startEventStream();
+
+    newMode = EVENTS_MODE.CES;
+
+    await client.changeEventsMode({
+      params,
+      args: { eventsMode: newMode },
+      waitForTransactionProcessed: false
+    });
+
+    const changeEventsModeEvent = CEP18_EVENTS.ChangeEventsMode;
+    let eventReceived = false;
+    await new Promise<CEP18EventResult>(resolve => {
+      client.on(changeEventsModeEvent, async eventResult => {
+        eventReceived = true;
+        resolve(eventResult);
+      });
+    });
+
+    expect(eventReceived).toBe(true);
+
+    client.stopEventStream();
+
+    currentMode = await client.eventsMode();
+    expect(currentMode).toBe('CES');
+  }, 60000);
+
+  it('should emit ChangeSecurity when security is changed', async () => {
+    let currentMode = await client.eventsMode();
+    expect(currentMode).toBe('CES');
+
+    const newAdminList = [ali.publicKey];
+
+    const params: TransactionParams = {
+      sender: owner.publicKey,
+      paymentAmount: String(5_000_000_000),
+      signingKeys: [owner]
+    };
+
+    const changeSecurityArgs: ChangeSecurityArgs = {
+      adminList: newAdminList
+    };
+
+    client.startEventStream();
+
+    await client.changeSecurity({
+      params,
+      args: changeSecurityArgs,
+      waitForTransactionProcessed: false
+    });
+
+    const changeSecurityEvent = CEP18_EVENTS.ChangeSecurity;
+    let eventReceived = false;
+    await new Promise<CEP18EventResult>(resolve => {
+      client.on(changeSecurityEvent, async eventResult => {
+        eventReceived = true;
+        resolve(eventResult);
+      });
+    });
+
+    expect(eventReceived).toBe(true);
 
     client.stopEventStream();
   }, 60000);

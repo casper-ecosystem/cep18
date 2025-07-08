@@ -7,7 +7,9 @@ export enum CEP18_EVENTS {
   IncreaseAllowance = 'IncreaseAllowance',
   DecreaseAllowance = 'DecreaseAllowance',
   Transfer = 'Transfer',
-  TransferFrom = 'TransferFrom'
+  TransferFrom = 'TransferFrom',
+  ChangeSecurity = 'ChangeSecurity',
+  ChangeEventsMode = 'ChangeEventsMode'
 }
 
 type EventName = keyof typeof CEP18_EVENTS;
@@ -38,6 +40,8 @@ export type CEP18Event = Event<
   | DecreaseAllowance
   | Transfer
   | TransferFrom
+  | ChangeSecurity
+  | ChangeEventsMode
 >;
 
 export type EventsMap = {
@@ -48,6 +52,8 @@ export type EventsMap = {
   DecreaseAllowance: WithTransactionInfo<Event<DecreaseAllowance>>;
   Transfer: WithTransactionInfo<Event<Transfer>>;
   TransferFrom: WithTransactionInfo<Event<TransferFrom>>;
+  ChangeSecurity: WithTransactionInfo<Event<ChangeSecurity>>;
+  ChangeEventsMode: WithTransactionInfo<Event<ChangeEventsMode>>;
 };
 
 export type Mint = { recipient: CLValue; amount: CLValue };
@@ -76,9 +82,18 @@ export type DecreaseAllowance = {
 
 export type Transfer = { sender: CLValue; recipient: CLValue; amount: CLValue };
 
-export type TransferFrom = {
+export type ChangeSecurity = {
   spender: CLValue;
   owner: CLValue;
   recipient: CLValue;
   amount: CLValue;
+};
+
+export type TransferFrom = {
+  admin: CLValue;
+  sec_change_map: CLValue;
+};
+
+export type ChangeEventsMode = {
+  events_mode: CLValue;
 };

@@ -27,7 +27,8 @@ import {
   type BurnParams,
   type ChangeSecurityParams,
   UpgradeParams,
-  Entity
+  Entity,
+  ChangeEventsModeParams
 } from './types';
 import ContractWASM from './wasm/cep18';
 
@@ -612,8 +613,6 @@ export default class CEP18Client extends Client {
    *   - `args`: Contains the details of the security change:
    *     - `adminList`: List of accounts with admin privileges.
    *     - `minterList`: List of accounts allowed to mint tokens.
-   *     - `burnerList`: List of accounts allowed to burn tokens.
-   *     - `mintAndBurnList`: List of accounts allowed to both mint and burn tokens.
    *     - `noneList`: List of accounts that do not have any specific roles.
    *   - `paymentAmount`: The payment amount required for executing the transaction.
    *   - `sender`: The public key of the sender initiating the change.
@@ -629,7 +628,7 @@ export default class CEP18Client extends Client {
     params: ChangeSecurityParams
   ): Promise<TransactionResult> {
     const {
-      args: { adminList, minterList, burnerList, mintAndBurnList, noneList },
+      args: { adminList, minterList, noneList },
       params: { sender, paymentAmount, signingKeys, chainName },
       waitForTransactionProcessed
     } = params;
@@ -653,26 +652,6 @@ export default class CEP18Client extends Client {
         )
       );
     }
-    if (burnerList) {
-      runtimeArgs.insert(
-        'burner_list',
-        CLValue.newCLList(
-          CLTypeKey,
-          burnerList.map(key => CLValue.newCLKey(this.getPrefixedString(key)))
-        )
-      );
-    }
-    if (mintAndBurnList) {
-      runtimeArgs.insert(
-        'mint_and_burn_list',
-        CLValue.newCLList(
-          CLTypeKey,
-          mintAndBurnList.map(key =>
-            CLValue.newCLKey(this.getPrefixedString(key))
-          )
-        )
-      );
-    }
     if (noneList) {
       runtimeArgs.insert(
         'none_list',
@@ -690,6 +669,46 @@ export default class CEP18Client extends Client {
 
     return this.callEntrypoint(
       'change_security',
+      runtimeArgs,
+      paymentAmount,
+      sender,
+      signingKeys,
+      chainName,
+      waitForTransactionProcessed
+    );
+  }
+
+  /**
+   * Changes the events emission mode for the token contract.
+   * This determines how the contract emits events, which may affect off-chain indexing or client behavior.
+   *
+   * @param params - The parameters for changing the events mode, including:
+   *   - `args`: An object containing:
+   *     - `eventsMode`: The mode in which events will be emitted.
+   *   - `paymentAmount`: The payment amount required for executing the transaction.
+   *   - `sender`: The public key of the sender initiating the change.
+   *   - `signingKeys`: (Optional) An array of signing keys used to authorize the transaction.
+   *   - `chainName`: (Optional) The name of the network (e.g., "casper-test").
+   *   - `waitForTransactionProcessed`: (Optional) If `true`, waits until the transaction is fully processed before resolving.
+   *
+   * @returns A `Promise` that resolves to a `TransactionResult` containing the transaction details and outcome.
+   *
+   * @throws Will throw an error if the transaction fails to be submitted or executed.
+   */
+  public changeEventsMode(
+    params: ChangeEventsModeParams
+  ): Promise<TransactionResult> {
+    const {
+      args: { eventsMode },
+      params: { sender, paymentAmount, signingKeys, chainName },
+      waitForTransactionProcessed
+    } = params;
+    const runtimeArgs = RuntimeArgs.fromMap({
+      events_mode: CLValue.newCLUint8(eventsMode)
+    });
+
+    return this.callEntrypoint(
+      'change_events_mode',
       runtimeArgs,
       paymentAmount,
       sender,

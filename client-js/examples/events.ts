@@ -5,7 +5,8 @@ import {
   type BurnArgs,
   CEP18_EVENTS,
   CEP18EventResult,
-  InfoGetTransactionResult
+  InfoGetTransactionResult,
+  EVENTS_MODE
 } from 'dist';
 import {
   PRIVATE_KEY_FAUCET,
@@ -122,6 +123,28 @@ const usage = async () => {
   );
 
   cep18.stopEventStream();
+
+  // Change Events mode to no event, ait for transaction instead of listener
+  params = {
+    sender: owner.publicKey,
+    paymentAmount: String(3_000_000_000),
+    signingKeys: [owner]
+  };
+
+  const changeEventsModeArgs = {
+    eventsMode: EVENTS_MODE.Native
+  };
+
+  await cep18.changeEventsMode({
+    params,
+    args: changeEventsModeArgs,
+    waitForTransactionProcessed: true
+  });
+
+  const newEventsMode = await cep18.eventsMode();
+  console.info(
+    `Events Mode changed successfully, new events mode : ${newEventsMode.toString()}`
+  );
 };
 
 const eventListener = async (
@@ -137,7 +160,7 @@ const eventListener = async (
     }));
 
   console.info(
-    `Contract ${eventType} transaction hash: ${transactionInfo.transactionHash}`
+    `Contract ${eventType} transaction hash: ${transactionInfo.transactionHash.toHex()}`
   );
 
   if (executionResult) {
