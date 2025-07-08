@@ -3,6 +3,7 @@ import { RPC_URL, SSE_URL, CHAIN_NAME } from '../../config';
 import {
   CEP18Client,
   ChangeSecurityArgs,
+  EVENTS_MODE,
   TransactionParams,
   TransferArgs,
   TransferFromArgs
@@ -221,8 +222,6 @@ describe('CEP18Client - E2E Usage', () => {
   it('should change security settings successfully', async () => {
     const newAdminList = [owner.publicKey];
     const newMinterList = [ali.publicKey];
-    const newBurnerList = [ali.publicKey];
-    const newMintAndBurnList = [owner.publicKey];
     const newNoneList = [bob.publicKey];
 
     const params: TransactionParams = {
@@ -234,8 +233,6 @@ describe('CEP18Client - E2E Usage', () => {
     const changeSecurityArgs: ChangeSecurityArgs = {
       adminList: newAdminList,
       minterList: newMinterList,
-      burnerList: newBurnerList,
-      mintAndBurnList: newMintAndBurnList,
       noneList: newNoneList
     };
 
@@ -247,5 +244,28 @@ describe('CEP18Client - E2E Usage', () => {
 
     expect(changeSecurityResult.transactionInfo.transactionHash).toBeDefined();
     expect(changeSecurityResult.executionResult?.errorMessage).toBeFalsy();
+  }, 60000);
+
+  it('should change events mode successfully', async () => {
+    const eventsMode = EVENTS_MODE.Native;
+
+    const params: TransactionParams = {
+      sender: owner.publicKey,
+      paymentAmount: String(3_000_000_000),
+      signingKeys: [owner]
+    };
+
+    const changeEventsModeResult = await client.changeEventsMode({
+      params,
+      args: { eventsMode },
+      waitForTransactionProcessed: true
+    });
+
+    expect(
+      changeEventsModeResult.transactionInfo.transactionHash
+    ).toBeDefined();
+    expect(changeEventsModeResult.executionResult?.errorMessage).toBeFalsy();
+    const newEventsMode = await client.eventsMode();
+    expect(newEventsMode === eventsMode.toString());
   }, 60000);
 });

@@ -26,7 +26,8 @@ import {
   DecreaseAllowanceParams,
   MintParams,
   BurnParams,
-  ChangeSecurityParams
+  ChangeSecurityParams,
+  ChangeEventsModeParams
 } from '../../src';
 
 const mockTransactionHash = { toHex: () => 'mockTransactionHash' };
@@ -1197,8 +1198,6 @@ describe('CEP18Client Unit', () => {
     const key = PrivateKey.generate(KeyAlgorithm.ED25519);
     const adminKey = PrivateKey.generate(KeyAlgorithm.ED25519);
     const minterKey = PrivateKey.generate(KeyAlgorithm.ED25519);
-    const burnerKey = PrivateKey.generate(KeyAlgorithm.ED25519);
-    const mintAndBurnKey = PrivateKey.generate(KeyAlgorithm.ED25519);
     const noneKey = PrivateKey.generate(KeyAlgorithm.ED25519);
 
     const mockParams: ChangeSecurityParams = {
@@ -1211,8 +1210,6 @@ describe('CEP18Client Unit', () => {
       args: {
         adminList: [adminKey.publicKey],
         minterList: [minterKey.publicKey],
-        burnerList: [burnerKey.publicKey],
-        mintAndBurnList: [mintAndBurnKey.publicKey],
         noneList: [noneKey.publicKey]
       },
       waitForTransactionProcessed: false
@@ -1274,22 +1271,6 @@ describe('CEP18Client Unit', () => {
           minter_list: CLValue.newCLList(
             CLTypeKey,
             mockParams.args.minterList?.map(key =>
-              CLValue.newCLKey(
-                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
-              )
-            )
-          ),
-          burner_list: CLValue.newCLList(
-            CLTypeKey,
-            mockParams.args.burnerList?.map(key =>
-              CLValue.newCLKey(
-                Key.newKey((key as PublicKey).accountHash().toPrefixedString())
-              )
-            )
-          ),
-          mint_and_burn_list: CLValue.newCLList(
-            CLTypeKey,
-            mockParams.args.mintAndBurnList?.map(key =>
               CLValue.newCLKey(
                 Key.newKey((key as PublicKey).accountHash().toPrefixedString())
               )
@@ -1373,6 +1354,105 @@ describe('CEP18Client Unit', () => {
 
       await expect(client.changeSecurity(mockParams)).rejects.toThrow(
         'Error during changeSecurity.'
+      );
+    });
+  });
+
+  describe('CEP18Client - changeEventsMode', () => {
+    let client: CEP18Client;
+    const key = PrivateKey.generate(KeyAlgorithm.ED25519);
+    const eventsMode = EVENTS_MODE.Native;
+
+    const mockParams: ChangeEventsModeParams = {
+      params: {
+        sender: key.publicKey,
+        paymentAmount: '1000',
+        signingKeys: [key],
+        chainName: 'testnet'
+      },
+      args: { eventsMode },
+      waitForTransactionProcessed: false
+    };
+
+    beforeEach(() => {
+      client = new CEP18Client('http://mock-rpc-url');
+
+      vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
+      });
+
+      vi.spyOn(client, 'waitForTransactionProcessed').mockResolvedValue({
+        transactionProcessedPayload: {
+          executionResult: { errorMessage: '' } as ExecutionResult
+        } as unknown as TransactionProcessedPayload
+      });
+    });
+
+    it('should successfully execute changeEventsMode', async () => {
+      const result = await client.changeEventsMode(mockParams);
+
+      expect(client['callEntrypoint']).toHaveBeenCalledWith(
+        'change_events_mode',
+        expect.anything(),
+        mockParams.params.paymentAmount,
+        mockParams.params.sender,
+        mockParams.params.signingKeys,
+        mockParams.params.chainName,
+        mockParams.waitForTransactionProcessed
+      );
+
+      expect(result).toEqual({
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        }
+      });
+    });
+
+    it('should call callEntrypoint with correct runtime arguments', async () => {
+      await client.changeEventsMode(mockParams);
+
+      const runtimeArgs = (client as any).callEntrypoint.mock.calls[0][1];
+
+      expect(runtimeArgs).toEqual(
+        Args.fromMap({
+          events_mode: CLValue.newCLUint8(eventsMode)
+        })
+      );
+    });
+
+    it('should successfully execute changeEventsMode with waitForTransactionProcessed = true', async () => {
+      const paramsWithWait = {
+        ...mockParams,
+        waitForTransactionProcessed: true
+      };
+
+      vi.spyOn(client as any, 'callEntrypoint').mockResolvedValue({
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
+        executionResult: { errorMessage: '' } as ExecutionResult
+      });
+
+      const result = await client.changeEventsMode(paramsWithWait);
+
+      expect(result).toEqual({
+        transactionInfo: {
+          transactionHash: mockTransactionHash
+        },
+        executionResult: { errorMessage: '' } as ExecutionResult
+      });
+    });
+
+    it('should propagate error if callEntrypoint fails', async () => {
+      const errorMessage = 'Failed to change events mode.';
+      vi.spyOn(client as any, 'callEntrypoint').mockRejectedValueOnce(
+        new Error(errorMessage)
+      );
+
+      await expect(client.changeEventsMode(mockParams)).rejects.toThrow(
+        errorMessage
       );
     });
   });
