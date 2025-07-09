@@ -124,7 +124,7 @@ const usage = async () => {
 
   cep18.stopEventStream();
 
-  // Change Events mode to no event, wait for transaction instead of listener
+  // Change Events mode to Native events, wait for transaction instead of listener
   params = {
     sender: owner.publicKey,
     paymentAmount: String(3_000_000_000),
