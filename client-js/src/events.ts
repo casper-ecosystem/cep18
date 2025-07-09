@@ -82,14 +82,14 @@ export type DecreaseAllowance = {
 
 export type Transfer = { sender: CLValue; recipient: CLValue; amount: CLValue };
 
-export type ChangeSecurity = {
+export type TransferFrom = {
   spender: CLValue;
   owner: CLValue;
   recipient: CLValue;
   amount: CLValue;
 };
 
-export type TransferFrom = {
+export type ChangeSecurity = {
   admin: CLValue;
   sec_change_map: CLValue;
 };
