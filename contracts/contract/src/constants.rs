@@ -1,6 +1,8 @@
 //! Constants used by the CEP-18 contract.
 pub const PREFIX_CEP18: &str = "cep18";
 
+pub const CASPER_2: &str = "CASPER_2";
+
 pub const PREFIX_ACCESS_KEY_NAME: &str = "contract_package_access";
 pub const PREFIX_CONTRACT_NAME: &str = "contract_hash";
 pub const PREFIX_CONTRACT_VERSION: &str = "contract_version";
@@ -12,7 +14,6 @@ pub const ENTRY_POINT_BALANCE_OF: &str = "balance_of";
 pub const ENTRY_POINT_BURN: &str = "burn";
 pub const ENTRY_POINT_CHANGE_EVENTS_MODE: &str = "change_events_mode";
 pub const ENTRY_POINT_CHANGE_SECURITY: &str = "change_security";
-pub const ENTRY_POINT_CONDOR: &str = "condor";
 pub const ENTRY_POINT_DECIMALS: &str = "decimals";
 pub const ENTRY_POINT_DECREASE_ALLOWANCE: &str = "decrease_allowance";
 pub const ENTRY_POINT_INCREASE_ALLOWANCE: &str = "increase_allowance";
@@ -26,7 +27,6 @@ pub const ENTRY_POINT_TRANSFER_FROM: &str = "transfer_from";
 
 pub const ARG_ADDRESS: &str = "address";
 pub const ARG_AMOUNT: &str = "amount";
-pub const ARG_CONDOR: &str = "condor";
 pub const ARG_CONTRACT_HASH: &str = "contract_hash";
 pub const ARG_DATA: &str = "data";
 pub const ARG_DECIMALS: &str = "decimals";
