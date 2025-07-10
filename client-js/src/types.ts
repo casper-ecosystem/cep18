@@ -73,9 +73,11 @@ export type BurnArgs = TransferableArgs & HasOwner;
 export type ChangeSecurityArgs = {
   adminList?: Entity[];
   minterList?: Entity[];
-  burnerList?: Entity[];
-  mintAndBurnList?: Entity[];
   noneList?: Entity[];
+};
+
+export type ChangeEventsModeArgs = {
+  eventsMode: EVENTS_MODE;
 };
 
 export type TransactionParams = {
@@ -134,4 +136,8 @@ export interface BurnParams extends BaseParams {
 
 export interface ChangeSecurityParams extends BaseParams {
   args: ChangeSecurityArgs;
+}
+
+export interface ChangeEventsModeParams extends BaseParams {
+  args: ChangeEventsModeArgs;
 }

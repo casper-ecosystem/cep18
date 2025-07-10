@@ -298,7 +298,6 @@ const burnResult = await cep18.burn({
 
 ```ts
 const minterList = [ali.publicKey];
-const burnerList = [ali.publicKey, bob.publicKey];
 
 const params: TransactionParams = {
   sender: owner.publicKey,
@@ -307,8 +306,7 @@ const params: TransactionParams = {
 };
 
 const changeSecurityArgs: ChangeSecurityArgs = {
-  minterList: newMinterList,
-  burnerList: newBurnerList
+  minterList: newMinterList
 };
 
 const changeSecurityResult = await client.changeSecurity({
@@ -316,6 +314,28 @@ const changeSecurityResult = await client.changeSecurity({
   args: changeSecurityArgs,
   waitForTransactionProcessed: true
 });
+```
+
+**Changing Events Mode**
+
+```ts
+const eventsMode = EVENTS_MODE.Native;
+
+const params: TransactionParams = {
+  sender: owner.publicKey,
+  paymentAmount: String(3_000_000_000),
+  signingKeys: [owner]
+};
+
+const changeEventsModeArgs: ChangeEventsModeParams = {
+  params,
+  args: { eventsMode },
+  waitForTransactionProcessed: true
+};
+
+const changeEventsModeResult = await client.changeEventsMode(
+  changeEventsModeArgs
+);
 ```
 
 # Environment Variables for Casper CEP-18 Integration
