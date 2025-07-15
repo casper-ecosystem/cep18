@@ -1,8 +1,6 @@
 //! Constants used by the CEP-18 contract.
 pub const PREFIX_CEP18: &str = "cep18";
 
-pub const CASPER_2: &str = "CASPER_2";
-
 pub const PREFIX_ACCESS_KEY_NAME: &str = "contract_package_access";
 pub const PREFIX_CONTRACT_NAME: &str = "contract_hash";
 pub const PREFIX_CONTRACT_VERSION: &str = "contract_version";
