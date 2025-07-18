@@ -25,9 +25,9 @@ use cep18::{
     allowances::{read_allowance_from, write_allowance_to},
     balances::{read_balance_from, transfer_balance, write_balance_to},
     constants::{
-        ADMIN_LIST, ARG_ADDRESS, ARG_AMOUNT, ARG_CONDOR, ARG_CONTRACT_HASH, ARG_DECIMALS,
-        ARG_ENABLE_MINT_BURN, ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ARG_PACKAGE_HASH,
-        ARG_RECIPIENT, ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, DICT_ALLOWANCES, DICT_BALANCES,
+        ADMIN_LIST, ARG_ADDRESS, ARG_AMOUNT, ARG_CONTRACT_HASH, ARG_DECIMALS, ARG_ENABLE_MINT_BURN,
+        ARG_EVENTS, ARG_EVENTS_MODE, ARG_NAME, ARG_OWNER, ARG_PACKAGE_HASH, ARG_RECIPIENT,
+        ARG_SPENDER, ARG_SYMBOL, ARG_TOTAL_SUPPLY, DICT_ALLOWANCES, DICT_BALANCES,
         DICT_SECURITY_BADGES, ENTRY_POINT_CHANGE_EVENTS_MODE, ENTRY_POINT_INIT, MINTER_LIST,
         NONE_LIST, PREFIX_ACCESS_KEY_NAME, PREFIX_CEP18, PREFIX_CONTRACT_NAME,
         PREFIX_CONTRACT_PACKAGE_NAME, PREFIX_CONTRACT_VERSION,
@@ -46,14 +46,6 @@ use cep18::{
         write_total_supply_to,
     },
 };
-
-#[no_mangle]
-pub extern "C" fn condor() {
-    runtime::ret(
-        CLValue::from_t(get_stored_value::<String>(ARG_CONDOR))
-            .unwrap_or_revert_with(Cep18Error::FailedToReturnEntryPointResult),
-    );
-}
 
 #[no_mangle]
 pub extern "C" fn name() {
@@ -461,13 +453,10 @@ pub fn upgrade(name: &str) {
         BTreeMap::from([(ARG_EVENTS.to_string(), MessageTopicOperation::Add)])
     };
 
-    let mut named_keys = NamedKeys::new();
-    named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
-
     let (contract_hash, contract_version) = storage::add_contract_version(
         contract_package_hash,
         entry_points,
-        named_keys,
+        NamedKeys::new(),
         message_topics,
     );
 
@@ -538,7 +527,6 @@ pub fn install_contract(name: &str) {
         ARG_ENABLE_MINT_BURN.to_string(),
         storage::new_uref(enable_mint_burn).into(),
     );
-    named_keys.insert(ARG_CONDOR.to_string(), storage::new_uref(ARG_CONDOR).into());
 
     let entry_points = generate_entry_points();
 
