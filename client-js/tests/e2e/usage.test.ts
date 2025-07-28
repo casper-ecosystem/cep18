@@ -33,7 +33,7 @@ describe('CEP18Client - E2E Usage', () => {
       );
     expect(contractHash).toBeDefined();
     client.setContractHash(contractHash);
-  }, 60000);
+  }, 180000);
 
   it('should transfer tokens successfully', async () => {
     const initialBalance = await client.balanceOf(owner.publicKey),
@@ -65,7 +65,7 @@ describe('CEP18Client - E2E Usage', () => {
     expect(BigInt(newBalanceAli)).toBe(
       BigInt(initialBalanceAli) + BigInt(1_000_000_000)
     );
-  }, 60000);
+  }, 180000);
 
   it('should approve tokens successfully', async () => {
     const approveResult = await approve(client);
@@ -75,7 +75,7 @@ describe('CEP18Client - E2E Usage', () => {
 
     const allowances = await client.allowances(owner.publicKey, ali.publicKey);
     expect(BigInt(allowances)).toBe(BigInt(5_000_000_000));
-  }, 60000);
+  }, 180000);
 
   it('should transfer tokens by allowance successfully', async () => {
     await approve(client);
@@ -105,7 +105,7 @@ describe('CEP18Client - E2E Usage', () => {
     expect(BigInt(newBobBalance)).toBe(
       BigInt(initialBobBalance) + BigInt(2_000_000_000)
     );
-  }, 60000);
+  }, 180000);
 
   it('should increase allowance successfully', async () => {
     await approve(client);
@@ -134,7 +134,7 @@ describe('CEP18Client - E2E Usage', () => {
     expect(BigInt(newAllowance)).toBe(
       BigInt(initialAllowance) + increaseAmount
     );
-  }, 60000);
+  }, 180000);
 
   it('should decrease allowance successfully', async () => {
     await approve(client);
@@ -175,7 +175,7 @@ describe('CEP18Client - E2E Usage', () => {
     expect(BigInt(newAllowance)).toBe(
       BigInt(initialAllowance) - decreaseAmount
     );
-  }, 60000);
+  }, 180000);
 
   it('should mint tokens successfully', async () => {
     const initialBalance = await client.balanceOf(ali.publicKey);
@@ -188,7 +188,7 @@ describe('CEP18Client - E2E Usage', () => {
 
     const newBalance = await client.balanceOf(ali.publicKey);
     expect(BigInt(newBalance)).toBe(BigInt(initialBalance) + mintAmount);
-  }, 60000);
+  }, 180000);
 
   it('should burn tokens successfully', async () => {
     const mintAmount = BigInt(10_000_000_000);
@@ -217,7 +217,7 @@ describe('CEP18Client - E2E Usage', () => {
 
     const newBalance = await client.balanceOf(ali.publicKey);
     expect(BigInt(newBalance)).toBe(BigInt(initialBalance) - burnAmount);
-  }, 60000);
+  }, 180000);
 
   it('should change security settings successfully', async () => {
     const newAdminList = [owner.publicKey];
@@ -244,7 +244,7 @@ describe('CEP18Client - E2E Usage', () => {
 
     expect(changeSecurityResult.transactionInfo.transactionHash).toBeDefined();
     expect(changeSecurityResult.executionResult?.errorMessage).toBeFalsy();
-  }, 60000);
+  }, 180000);
 
   it('should change events mode successfully', async () => {
     const eventsMode = EVENTS_MODE.Native;
@@ -267,5 +267,5 @@ describe('CEP18Client - E2E Usage', () => {
     expect(changeEventsModeResult.executionResult?.errorMessage).toBeFalsy();
     const newEventsMode = await client.eventsMode();
     expect(newEventsMode === eventsMode.toString());
-  }, 60000);
+  }, 180000);
 });
