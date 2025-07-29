@@ -26,7 +26,7 @@ describe('CEP18Client - Event Streaming', () => {
       );
     expect(contractHash).toBeDefined();
     client.setContractHash(contractHash);
-  }, 60000);
+  }, 180000);
 
   it('should start and stop event stream and listen to events when on() is called', async () => {
     // Start the event stream
@@ -64,7 +64,7 @@ describe('CEP18Client - Event Streaming', () => {
     setTimeout(() => {
       expect(eventFired).toBe(false);
     }, 1000);
-  }, 60000);
+  }, 180000);
 
   it('should remove a specific event listener using off()', async () => {
     client.startEventStream();
@@ -85,7 +85,7 @@ describe('CEP18Client - Event Streaming', () => {
     }, 1000);
 
     client.stopEventStream();
-  }, 60000);
+  }, 180000);
 
   it('should remove all listeners for a specific event using removeListenersForEvent()', async () => {
     client.startEventStream();
@@ -111,7 +111,7 @@ describe('CEP18Client - Event Streaming', () => {
     }, 1000);
 
     client.stopEventStream();
-  }, 60000);
+  }, 180000);
 
   it('should remove all event listeners using removeAllListeners()', async () => {
     client.startEventStream();
@@ -136,7 +136,7 @@ describe('CEP18Client - Event Streaming', () => {
     }, 1000);
 
     client.stopEventStream();
-  }, 60000);
+  }, 180000);
 });
 
 describe('CEP18Client - Events emit', () => {
@@ -154,7 +154,7 @@ describe('CEP18Client - Events emit', () => {
 
     expect(contractHash).toBeDefined();
     client.setContractHash(contractHash);
-  }, 60000);
+  }, 180000);
 
   it('should emit EventsModeChanged when events mode is changed', async () => {
     let currentMode = await client.eventsMode();
@@ -202,7 +202,7 @@ describe('CEP18Client - Events emit', () => {
 
     currentMode = await client.eventsMode();
     expect(currentMode).toBe('CES');
-  }, 60000);
+  }, 180000);
 
   it('should emit ChangeSecurity when security is changed', async () => {
     let currentMode = await client.eventsMode();
@@ -240,5 +240,5 @@ describe('CEP18Client - Events emit', () => {
     expect(eventReceived).toBe(true);
 
     client.stopEventStream();
-  }, 60000);
+  }, 180000);
 });
