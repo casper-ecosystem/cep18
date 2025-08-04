@@ -34,7 +34,7 @@ _(No entries)_
 
 ### Fixed
 
-- Native expansive error topic (#150) — Prevents `MessageTopics` from committing state changes on failed execution
+- Native events error topic (#150) — Prevents `MessageTopics` from committing state changes on failed execution
 - Prevent revert on upgrade with same events (#160) — Fixes upgrade failure when events have not changed
 
 ### Security
