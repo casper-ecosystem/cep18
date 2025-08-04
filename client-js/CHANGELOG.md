@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- Update JavaScript client for 2.0 (#161) — Updates the JS client for 2.0 network support and adds tests
+- Update JavaScript client for 2.0 ([#161](https://github.com/casper-ecosystem/cep18/pull/161)) — Updates the JS client for 2.0 network support and adds tests.
 
 ## [1.0.3] - 2023-11-02
 
