@@ -124,7 +124,7 @@ pub fn to_legacy_key(key: Key) -> Key {
             }
         }
         // Manage PackageHash from `get_immediate_caller` ENTITY case
-        Key::SmartContract(package_addr) => Key::Hash(package_addr.into()),
+        Key::SmartContract(package_addr) => Key::Hash(package_addr),
         // Legacy cases Account + ContractPackageHash from `get_immediate_caller` ACCOUNT + CONTRACT
         // cases
         legacy => legacy,
