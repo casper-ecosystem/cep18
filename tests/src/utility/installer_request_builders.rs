@@ -4,6 +4,7 @@ use super::constants::{
 };
 use crate::utility::constants::{
     AMOUNT_ALLOWANCE_1, AMOUNT_ALLOWANCE_2, AMOUNT_TRANSFER_1, AMOUNT_TRANSFER_2,
+    TEST_ENABLE_ADDRESSABLE_ENTITY,
 };
 use casper_engine_test_support::{
     utils::create_run_genesis_request_with_chainspec_config, ChainspecConfig, ExecuteRequest,
@@ -25,6 +26,15 @@ use cep18_test_contract::constants::{
     ENTRY_POINT_CHECK_ALLOWANCE_OF, ENTRY_POINT_CHECK_BALANCE_OF, ENTRY_POINT_CHECK_TOTAL_SUPPLY,
     ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY,
 };
+use dotenv::dotenv;
+use std::env;
+
+pub(crate) fn get_enable_addressable_entity() -> bool {
+    let _ = dotenv();
+    env::var(TEST_ENABLE_ADDRESSABLE_ENTITY)
+        .map(|v| v == "true")
+        .unwrap_or(false)
+}
 
 /// Converts hash addr of Account into Hash, and Hash into Account
 ///
@@ -58,12 +68,13 @@ pub(crate) fn setup() -> (LmdbWasmTestBuilder, TestContext) {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => EventsMode::Native as u8
+        ARG_EVENTS_MODE => EventsMode::Native as u8,
     })
 }
 
 pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (LmdbWasmTestBuilder, TestContext) {
-    let chainspec = ChainspecConfig::default().with_enable_addressable_entity(true);
+    let chainspec =
+        ChainspecConfig::default().with_enable_addressable_entity(get_enable_addressable_entity());
 
     let mut builder = LmdbWasmTestBuilder::new_temporary_with_config(chainspec.clone());
     builder

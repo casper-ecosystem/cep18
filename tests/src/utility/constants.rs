@@ -4,6 +4,8 @@ pub const CEP18_TEST_CONTRACT_WASM: &str = "cep18_test_contract.wasm";
 pub const CEP18_TEST_TOKEN_CONTRACT_NAME: &str = "cep18_contract_hash_CasperTest";
 pub const CEP18_TEST_TOKEN_CONTRACT_VERSION: &str = "cep18_contract_version_CasperTest";
 
+pub const TEST_ENABLE_ADDRESSABLE_ENTITY: &str = "TEST_ENABLE_ADDRESSABLE_ENTITY";
+
 pub const TOKEN_NAME: &str = "CasperTest";
 pub const TOKEN_SYMBOL: &str = "CSPRT";
 pub const TOKEN_DECIMALS: u8 = 100;
