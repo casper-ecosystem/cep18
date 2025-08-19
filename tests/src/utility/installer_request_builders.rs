@@ -4,7 +4,6 @@ use super::constants::{
 };
 use crate::utility::constants::{
     AMOUNT_ALLOWANCE_1, AMOUNT_ALLOWANCE_2, AMOUNT_TRANSFER_1, AMOUNT_TRANSFER_2,
-    TEST_ENABLE_ADDRESSABLE_ENTITY,
 };
 use casper_engine_test_support::{
     utils::create_run_genesis_request_with_chainspec_config, ChainspecConfig, ExecuteRequest,
@@ -26,14 +25,9 @@ use cep18_test_contract::constants::{
     ENTRY_POINT_CHECK_ALLOWANCE_OF, ENTRY_POINT_CHECK_BALANCE_OF, ENTRY_POINT_CHECK_TOTAL_SUPPLY,
     ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY,
 };
-use dotenv::dotenv;
-use std::env;
 
 pub(crate) fn get_enable_addressable_entity() -> bool {
-    let _ = dotenv();
-    env::var(TEST_ENABLE_ADDRESSABLE_ENTITY)
-        .map(|v| v == "true")
-        .unwrap_or(false)
+    cfg!(feature = "enable-addressable-entity")
 }
 
 /// Converts hash addr of Account into Hash, and Hash into Account
