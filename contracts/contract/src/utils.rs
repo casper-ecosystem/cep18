@@ -40,7 +40,7 @@ use core::convert::TryInto;
 ///
 /// ```ignore
 /// let caller: Key = get_immediate_caller();
-/// // `caller` can now be converted to a legacy key via `to_legacy_key` if needed
+/// // `caller` can now be converted to a legacy key via `to_account_or_pachage_hash` if needed
 /// ```
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
@@ -106,10 +106,10 @@ pub fn get_immediate_caller() -> Key {
 ///
 /// ```ignore
 /// let caller = get_immediate_caller();
-/// let legacy_caller = to_legacy_key(caller);
+/// let legacy_caller = to_account_or_pachage_hash(caller);
 /// // legacy_caller is now safe to use in CEP-18 storage lookups
 /// ```
-pub fn to_legacy_key(key: Key) -> Key {
+pub fn to_account_or_pachage_hash(key: Key) -> Key {
     match key {
         Key::AddressableEntity(entity_addr) => {
             if entity_addr.is_account() {
