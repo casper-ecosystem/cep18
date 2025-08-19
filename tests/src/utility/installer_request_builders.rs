@@ -27,7 +27,7 @@ use cep18_test_contract::constants::{
 };
 
 pub(crate) fn get_enable_addressable_entity() -> bool {
-    cfg!(feature = "enable-addressable-entity")
+    cfg!(feature = "test-enable-addressable-entity")
 }
 
 /// Converts hash addr of Account into Hash, and Hash into Account

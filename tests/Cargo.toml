@@ -25,4 +25,4 @@ casper-execution-engine = { version = "8.1.0", default-features = false }
 casper-event-standard.workspace = true
 
 [features]
-enable-addressable-entity = []
+test-enable-addressable-entity = []
