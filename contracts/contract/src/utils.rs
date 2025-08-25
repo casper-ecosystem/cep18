@@ -71,6 +71,12 @@ pub fn get_immediate_caller() -> Key {
             .into(),
         _ => revert(Cep18Error::InvalidContext),
     };
+
+    // Transform the caller Key to a legacy-compatible form (Account or Hash) for consistent
+    // on-chain usage.
+    // ⚠️ Strongly recommended: apply `key_as_account_or_package()` to any `Key` retrieved from
+    // named arguments before comparing with the caller. This ensures consistent normalization
+    // between user input and immediate caller, preventing mismatches.
     key_as_account_or_package(caller)
 }
 
