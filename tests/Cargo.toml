@@ -23,3 +23,6 @@ casper-fixtures = { git = "https://github.com/casper-network/casper-fixtures", b
 casper-engine-test-support = { version = "8.1.0", default-features = false }
 casper-execution-engine = { version = "8.1.0", default-features = false }
 casper-event-standard.workspace = true
+
+[features]
+test-enable-addressable-entity = []

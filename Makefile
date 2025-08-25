@@ -35,6 +35,7 @@ native-test: setup-test
 
 test: setup-test
 	cargo test -p tests --lib
+	cargo test -p tests --lib --features test-enable-addressable-entity
 
 clippy:
 	cargo +$(PINNED_TOOLCHAIN) clippy --release -p cep18 --bins --target wasm32-unknown-unknown $(CARGO_BUILD_FLAGS) -- -D warnings

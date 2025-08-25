@@ -15,7 +15,9 @@ use crate::utility::{
         AMOUNT_1, CEP18_CONTRACT_WASM, CEP18_TEST_CONTRACT_WASM, CEP18_TEST_TOKEN_CONTRACT_NAME,
         CEP18_TEST_TOKEN_CONTRACT_VERSION, TOKEN_NAME,
     },
-    installer_request_builders::{cep18_check_balance_of, get_test_account},
+    installer_request_builders::{
+        cep18_check_balance_of, get_enable_addressable_entity, get_test_account,
+    },
     message_handlers::{message_summary, message_topic},
     support::query_stored_value,
 };
@@ -34,10 +36,8 @@ pub fn upgrade_v1_5_6_fixture_to_v2_0_0_ee(
     let mut upgrade_config = UpgradeRequestBuilder::new()
         .with_current_protocol_version(lmdb_fixture_state.genesis_protocol_version())
         .with_new_protocol_version(ProtocolVersion::V2_0_0)
-        // TODO GR
-        // .with_migrate_legacy_accounts(true)
-        // .with_migrate_legacy_contracts(true)
         .with_activation_point(EraId::new(1))
+        .with_enable_addressable_entity(get_enable_addressable_entity())
         .build();
 
     builder

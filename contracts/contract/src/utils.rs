@@ -18,19 +18,34 @@ use casper_types::{
     api_error,
     bytesrepr::{self, FromBytes, ToBytes},
     contracts::{ContractPackageHash, ContractVersionKey},
-    ApiError, CLTyped, EntityAddr, Key, URef, U256,
+    ApiError, CLTyped, Key, PackageHash, URef, U256,
 };
 use core::convert::TryInto;
 
+/// Retrieves the immediate caller of the current contract execution context as a [`Key`].
+///
+/// This function abstracts over the different kinds of entities that may invoke a contract:
+/// legacy accounts, legacy contract packages, or new entities.
+///
+/// # Behavior
+///
+/// * **ACCOUNT (legacy or new entity account)**   Returns a `Key::Account` wrapping the
+///   `AccountHash`.
+/// * **CONTRACT (legacy contract package)**   Returns a `Key::Hash` wrapping the
+///   `ContractPackageHash`.
+/// * **ENTITY (new entity)**   Returns a `Key::Hash` wrapping the `PackageHash`.
+/// * **Other / unexpected kinds**   Reverts with [`Cep18Error::InvalidContext`].
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
+    const PACKAGE: u8 = 1;
     const CONTRACT_PACKAGE: u8 = 2;
     const ENTITY: u8 = 3;
     const CONTRACT: u8 = 4;
 
     let caller_info = casper_get_immediate_caller().unwrap_or_revert();
 
-    match caller_info.kind() {
+    let caller = match caller_info.kind() {
+        // Legacy or new entity account returns AccountHash
         ACCOUNT => caller_info
             .get_field_by_index(ACCOUNT)
             .unwrap()
@@ -38,6 +53,15 @@ pub fn get_immediate_caller() -> Key {
             .unwrap_or_revert()
             .unwrap_or_revert_with(Cep18Error::InvalidContext)
             .into(),
+        // New entity returns PackageHash
+        ENTITY => caller_info
+            .get_field_by_index(PACKAGE)
+            .unwrap()
+            .to_t::<Option<PackageHash>>()
+            .unwrap_or_revert()
+            .unwrap_or_revert_with(Cep18Error::InvalidContext)
+            .into(),
+        // Legacy returns ContractPackageHash
         CONTRACT => caller_info
             .get_field_by_index(CONTRACT_PACKAGE)
             .unwrap()
@@ -45,14 +69,69 @@ pub fn get_immediate_caller() -> Key {
             .unwrap_or_revert()
             .unwrap_or_revert_with(Cep18Error::InvalidContext)
             .into(),
-        ENTITY => caller_info
-            .get_field_by_index(ENTITY)
-            .unwrap()
-            .to_t::<Option<EntityAddr>>()
-            .unwrap_or_revert()
-            .unwrap_or_revert_with(Cep18Error::InvalidContext)
-            .into(),
         _ => revert(Cep18Error::InvalidContext),
+    };
+
+    // Transform the caller Key to a legacy-compatible form (Account or Hash) for consistent
+    // on-chain usage.
+    // ⚠️ Strongly recommended: apply `key_as_account_or_package()` to any `Key` retrieved from
+    // named arguments before comparing with the caller. This ensures consistent normalization
+    // between user input and immediate caller, preventing mismatches.
+    key_as_account_or_package(caller)
+}
+
+/// Converts a new-style [`Key`] returned by [`get_immediate_caller`] into a legacy-compatible
+/// [`Key`].
+///
+/// This function ensures backward compatibility with legacy CEP-18 expectations,
+/// where callers were identified only as `Account` or `Hash`.
+///
+/// # Behavior
+///
+/// * **`Key::AddressableEntity`**
+///   - If the entity is an **account**, returns a legacy [`Key::Account`].
+///   - If the entity is not an account (e.g., smart contract or system entity), returns a legacy
+///     [`Key::Hash`]. This case should not normally occur in CEP-18, where contracts calling are
+///     expected to be identified as contract packages, but it is handled for consistency.
+/// * **`Key::SmartContract`**   Converts directly into a legacy [`Key::Hash`] using the
+///   [`PackageHash`].
+/// * **Other legacy keys** (`Key::Account`, `Key::Hash`)   Returned unchanged.
+///
+/// # Notes
+///
+/// - This function is mostly used in CEP-18 context where contract logic needs to interact with
+///   storage or access controls (balances, allowances, etc.).
+pub fn key_as_account_or_package(key: Key) -> Key {
+    match key {
+        Key::AddressableEntity(entity_addr) => {
+            if entity_addr.is_account() {
+                let account_hash = AccountHash::new(entity_addr.value());
+                Key::Account(account_hash)
+            } else {
+                // This case should in theory never happen, since caller returned by
+                // `get_immediate_caller` is expected to be either an Account or a
+                // Package. We keep consistency by returning a legacy Key::Hash
+                // instead of reverting here.
+                Key::Hash(entity_addr.value())
+            }
+        }
+        // Manage PackageHash from `get_immediate_caller` ENTITY case
+        Key::SmartContract(package_addr) => Key::Hash(package_addr),
+        // Legacy cases Account + ContractPackageHash from `get_immediate_caller` ACCOUNT + CONTRACT
+        // cases
+        legacy => legacy,
+    }
+}
+
+pub trait UpsertTransform: Sized {
+    fn key_as_account_or_package(self) -> Self {
+        self
+    }
+}
+
+impl UpsertTransform for Key {
+    fn key_as_account_or_package(self) -> Self {
+        key_as_account_or_package(self)
     }
 }
 
@@ -126,7 +205,24 @@ pub fn get_optional_named_arg_with_user_errors<T: FromBytes>(
     }
 }
 
-pub fn make_dictionary_item_key<T: CLTyped + ToBytes, V: CLTyped + ToBytes>(
+/// Creates a dictionary item key for a dictionary item, by base64 encoding the Key argument
+/// since stringified Keys are too long to be used as dictionary keys.
+#[inline]
+pub fn make_dictionary_item_key(owner: Key) -> String {
+    let preimage = owner
+        .to_bytes()
+        .unwrap_or_revert_with(Cep18Error::FailedToConvertBytes);
+    // NOTE: As for now dictionary item keys are limited to 64 characters only. Instead of using
+    // hashing (which will effectively hash a hash) we'll use base64. Preimage is 33 bytes for
+    // both used Key variants, and approximated base64-encoded length will be 4 * (33 / 3) ~ 44
+    // characters.
+    // Even if the preimage increased in size we still have extra space but even in case of much
+    // larger preimage we can switch to base85 which has ratio of 4:5.
+    base64_encode(preimage)
+}
+
+#[inline]
+pub fn make_dictionary_item_key_value<T: CLTyped + ToBytes, V: CLTyped + ToBytes>(
     key: &T,
     value: &V,
 ) -> String {

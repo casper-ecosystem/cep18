@@ -6,8 +6,8 @@ use crate::utility::constants::{
     AMOUNT_ALLOWANCE_1, AMOUNT_ALLOWANCE_2, AMOUNT_TRANSFER_1, AMOUNT_TRANSFER_2,
 };
 use casper_engine_test_support::{
-    utils::create_run_genesis_request, ExecuteRequest, ExecuteRequestBuilder, LmdbWasmTestBuilder,
-    DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_ADDR,
+    utils::create_run_genesis_request_with_chainspec_config, ChainspecConfig, ExecuteRequest,
+    ExecuteRequestBuilder, LmdbWasmTestBuilder, DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_ADDR,
 };
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, AddressableEntityHash, CLTyped,
@@ -25,6 +25,10 @@ use cep18_test_contract::constants::{
     ENTRY_POINT_CHECK_ALLOWANCE_OF, ENTRY_POINT_CHECK_BALANCE_OF, ENTRY_POINT_CHECK_TOTAL_SUPPLY,
     ENTRY_POINT_TRANSFER_AS_STORED_CONTRACT, RESULT_KEY,
 };
+
+pub(crate) fn get_enable_addressable_entity() -> bool {
+    cfg!(feature = "test-enable-addressable-entity")
+}
 
 /// Converts hash addr of Account into Hash, and Hash into Account
 ///
@@ -58,14 +62,20 @@ pub(crate) fn setup() -> (LmdbWasmTestBuilder, TestContext) {
         ARG_SYMBOL => TOKEN_SYMBOL,
         ARG_DECIMALS => TOKEN_DECIMALS,
         ARG_TOTAL_SUPPLY => U256::from(TOKEN_TOTAL_SUPPLY),
-        ARG_EVENTS_MODE => EventsMode::Native as u8
+        ARG_EVENTS_MODE => EventsMode::Native as u8,
     })
 }
 
 pub(crate) fn setup_with_args(install_args: RuntimeArgs) -> (LmdbWasmTestBuilder, TestContext) {
-    let mut builder = LmdbWasmTestBuilder::default();
+    let chainspec =
+        ChainspecConfig::default().with_enable_addressable_entity(get_enable_addressable_entity());
+
+    let mut builder = LmdbWasmTestBuilder::new_temporary_with_config(chainspec.clone());
     builder
-        .run_genesis(create_run_genesis_request(DEFAULT_ACCOUNTS.to_vec()))
+        .run_genesis(create_run_genesis_request_with_chainspec_config(
+            DEFAULT_ACCOUNTS.to_vec(),
+            chainspec,
+        ))
         .commit();
 
     let install_request_1 =
@@ -229,7 +239,7 @@ pub(crate) fn cep18_check_allowance_of(
         .and_then(|key| key.into_package_hash())
         .expect("should have test contract hash");
 
-    let check_balance_args = runtime_args! {
+    let check_allowance_args = runtime_args! {
         ARG_TOKEN_CONTRACT => Key::Hash(cep18_contract_hash.value()),
         ARG_OWNER => owner,
         ARG_SPENDER => spender,
@@ -239,7 +249,7 @@ pub(crate) fn cep18_check_allowance_of(
         cep18_test_contract_package,
         None,
         ENTRY_POINT_CHECK_ALLOWANCE_OF,
-        check_balance_args,
+        check_allowance_args,
     )
     .build();
     builder.exec(exec_request).expect_success().commit();

@@ -43,7 +43,7 @@ use cep18::{
     utils::{
         base64_encode, get_contract_version_key, get_immediate_caller,
         get_optional_named_arg_with_user_errors, get_stored_value, get_uref_with_user_errors,
-        write_total_supply_to,
+        write_total_supply_to, UpsertTransform,
     },
 };
 
@@ -81,7 +81,7 @@ pub extern "C" fn total_supply() {
 
 #[no_mangle]
 pub extern "C" fn balance_of() {
-    let address: Key = runtime::get_named_arg(ARG_ADDRESS);
+    let address: Key = runtime::get_named_arg::<Key>(ARG_ADDRESS).key_as_account_or_package();
     let balance = read_balance_from(address);
     runtime::ret(
         CLValue::from_t(balance).unwrap_or_revert_with(Cep18Error::FailedToReturnEntryPointResult),
@@ -90,8 +90,8 @@ pub extern "C" fn balance_of() {
 
 #[no_mangle]
 pub extern "C" fn allowance() {
-    let spender: Key = runtime::get_named_arg(ARG_SPENDER);
-    let owner: Key = runtime::get_named_arg(ARG_OWNER);
+    let spender: Key = runtime::get_named_arg::<Key>(ARG_SPENDER).key_as_account_or_package();
+    let owner: Key = runtime::get_named_arg::<Key>(ARG_OWNER).key_as_account_or_package();
     let val: U256 = read_allowance_from(owner, spender);
     runtime::ret(
         CLValue::from_t(val).unwrap_or_revert_with(Cep18Error::FailedToReturnEntryPointResult),
@@ -101,7 +101,7 @@ pub extern "C" fn allowance() {
 #[no_mangle]
 pub extern "C" fn approve() {
     let caller = get_immediate_caller();
-    let spender: Key = runtime::get_named_arg(ARG_SPENDER);
+    let spender: Key = runtime::get_named_arg::<Key>(ARG_SPENDER).key_as_account_or_package();
     if spender == caller {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -117,7 +117,7 @@ pub extern "C" fn approve() {
 #[no_mangle]
 pub extern "C" fn decrease_allowance() {
     let caller = get_immediate_caller();
-    let spender: Key = runtime::get_named_arg(ARG_SPENDER);
+    let spender: Key = runtime::get_named_arg::<Key>(ARG_SPENDER).key_as_account_or_package();
     if spender == caller {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -136,7 +136,7 @@ pub extern "C" fn decrease_allowance() {
 #[no_mangle]
 pub extern "C" fn increase_allowance() {
     let caller = get_immediate_caller();
-    let spender: Key = runtime::get_named_arg(ARG_SPENDER);
+    let spender: Key = runtime::get_named_arg::<Key>(ARG_SPENDER).key_as_account_or_package();
     if spender == caller {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -155,7 +155,7 @@ pub extern "C" fn increase_allowance() {
 #[no_mangle]
 pub extern "C" fn transfer() {
     let caller = get_immediate_caller();
-    let recipient: Key = runtime::get_named_arg(ARG_RECIPIENT);
+    let recipient: Key = runtime::get_named_arg::<Key>(ARG_RECIPIENT).key_as_account_or_package();
     if caller == recipient {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -171,8 +171,8 @@ pub extern "C" fn transfer() {
 #[no_mangle]
 pub extern "C" fn transfer_from() {
     let caller = get_immediate_caller();
-    let recipient: Key = runtime::get_named_arg(ARG_RECIPIENT);
-    let owner: Key = runtime::get_named_arg(ARG_OWNER);
+    let recipient: Key = runtime::get_named_arg::<Key>(ARG_RECIPIENT).key_as_account_or_package();
+    let owner: Key = runtime::get_named_arg::<Key>(ARG_OWNER).key_as_account_or_package();
     if owner == recipient {
         revert(Cep18Error::CannotTargetSelfUser);
     }
@@ -204,7 +204,7 @@ pub extern "C" fn mint() {
 
     sec_check(vec![SecurityBadge::Admin, SecurityBadge::Minter]);
 
-    let owner: Key = runtime::get_named_arg(ARG_OWNER);
+    let owner: Key = runtime::get_named_arg::<Key>(ARG_OWNER).key_as_account_or_package();
     let amount: U256 = runtime::get_named_arg(ARG_AMOUNT);
 
     let new_balance = {
@@ -236,7 +236,7 @@ pub extern "C" fn burn() {
         revert(Cep18Error::MintBurnDisabled);
     }
 
-    let owner: Key = runtime::get_named_arg(ARG_OWNER);
+    let owner: Key = runtime::get_named_arg::<Key>(ARG_OWNER).key_as_account_or_package();
     let caller = get_immediate_caller();
     if owner != caller {
         revert(Cep18Error::InvalidBurnTarget);
