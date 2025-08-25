@@ -117,6 +117,18 @@ pub fn key_as_account_or_package(key: Key) -> Key {
     }
 }
 
+pub trait UpsertTransform: Sized {
+    fn key_as_account_or_package(self) -> Self {
+        self
+    }
+}
+
+impl UpsertTransform for Key {
+    fn key_as_account_or_package(self) -> Self {
+        key_as_account_or_package(self)
+    }
+}
+
 pub fn get_contract_version_key(contract_version: u32) -> ContractVersionKey {
     let (major, _, _) = get_protocol_version().destructure();
     ContractVersionKey::new(major, contract_version)
