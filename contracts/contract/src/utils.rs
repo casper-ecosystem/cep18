@@ -35,13 +35,6 @@ use core::convert::TryInto;
 ///   `ContractPackageHash`.
 /// * **ENTITY (new entity)**   Returns a `Key::Hash` wrapping the `PackageHash`.
 /// * **Other / unexpected kinds**   Reverts with [`Cep18Error::InvalidContext`].
-///
-/// # Example
-///
-/// ```ignore
-/// let caller: Key = get_immediate_caller();
-/// // `caller` can now be converted to a legacy key via `to_account_or_pachage_hash` if needed
-/// ```
 pub fn get_immediate_caller() -> Key {
     const ACCOUNT: u8 = 0;
     const PACKAGE: u8 = 1;
@@ -51,7 +44,7 @@ pub fn get_immediate_caller() -> Key {
 
     let caller_info = casper_get_immediate_caller().unwrap_or_revert();
 
-    match caller_info.kind() {
+    let caller = match caller_info.kind() {
         // Legacy or new entity account returns AccountHash
         ACCOUNT => caller_info
             .get_field_by_index(ACCOUNT)
@@ -77,7 +70,8 @@ pub fn get_immediate_caller() -> Key {
             .unwrap_or_revert_with(Cep18Error::InvalidContext)
             .into(),
         _ => revert(Cep18Error::InvalidContext),
-    }
+    };
+    to_account_or_pachage_hash(caller)
 }
 
 /// Converts a new-style [`Key`] returned by [`get_immediate_caller`] into a legacy-compatible
@@ -101,14 +95,6 @@ pub fn get_immediate_caller() -> Key {
 ///
 /// - This function is mostly used in CEP-18 context where contract logic needs to interact with
 ///   storage or access controls (balances, allowances, etc.).
-///
-/// # Example
-///
-/// ```ignore
-/// let caller = get_immediate_caller();
-/// let legacy_caller = to_account_or_pachage_hash(caller);
-/// // legacy_caller is now safe to use in CEP-18 storage lookups
-/// ```
 pub fn to_account_or_pachage_hash(key: Key) -> Key {
     match key {
         Key::AddressableEntity(entity_addr) => {
