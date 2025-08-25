@@ -71,7 +71,7 @@ pub fn get_immediate_caller() -> Key {
             .into(),
         _ => revert(Cep18Error::InvalidContext),
     };
-    to_account_or_pachage_hash_key(caller)
+    key_as_account_or_package(caller)
 }
 
 /// Converts a new-style [`Key`] returned by [`get_immediate_caller`] into a legacy-compatible
@@ -95,7 +95,7 @@ pub fn get_immediate_caller() -> Key {
 ///
 /// - This function is mostly used in CEP-18 context where contract logic needs to interact with
 ///   storage or access controls (balances, allowances, etc.).
-pub fn to_account_or_pachage_hash_key(key: Key) -> Key {
+pub fn key_as_account_or_package(key: Key) -> Key {
     match key {
         Key::AddressableEntity(entity_addr) => {
             if entity_addr.is_account() {

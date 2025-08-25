@@ -4,14 +4,14 @@ use crate::{
     error::Cep18Error,
     utils::{
         get_dictionary_value_from_key, make_dictionary_item_key, set_dictionary_value_for_key,
-        to_account_or_pachage_hash_key,
+        key_as_account_or_package,
     },
 };
 use casper_types::{Key, U256};
 
 /// Writes token balance of a specified account into a dictionary.
 pub fn write_balance_to(address: Key, amount: U256) {
-    let address = to_account_or_pachage_hash_key(address);
+    let address = key_as_account_or_package(address);
     let dictionary_item_key = make_dictionary_item_key(address);
     set_dictionary_value_for_key(DICT_BALANCES, &dictionary_item_key, &amount)
 }
@@ -20,7 +20,7 @@ pub fn write_balance_to(address: Key, amount: U256) {
 ///
 /// If a given account does not have balances in the system, then a 0 is returned.
 pub fn read_balance_from(address: Key) -> U256 {
-    let address = to_account_or_pachage_hash_key(address);
+    let address = key_as_account_or_package(address);
     let dictionary_item_key = make_dictionary_item_key(address);
     get_dictionary_value_from_key(DICT_BALANCES, &dictionary_item_key).unwrap_or_default()
 }
