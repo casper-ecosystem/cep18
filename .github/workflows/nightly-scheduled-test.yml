@@ -27,10 +27,12 @@ jobs:
       - run: make prepare
       - run: make check-lint
       - run: make test
+
       - name: Install cargo-audit
-        run: cargo install cargo-audit
+        run: cargo +stable install cargo-audit
+
       - name: Run cargo audit
-        run: cargo audit
+        run: cargo +stable audit
 
       # - name: Slack Notification
       #   uses: ravsamhq/notify-slack-action@v1
